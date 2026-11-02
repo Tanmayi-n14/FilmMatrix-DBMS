@@ -23,47 +23,87 @@ Traditional media production architectures struggle when attempting to store bot
 
 ---
 
+## 📁 Project Directory Structure
+
+```text
+Jackfruit_FilmMatrix/
+├── docs/                                  # Official PES University DBMS Rubric & Specifications
+│   ├── DBMS_Level_3_Project_Requirements.pdf
+│   └── DBMS_Level_3_Rubric.pdf
+├── sql/                                   # Standalone Production SQL Scripts (14 Tables, 234 Seed Records)
+│   ├── 01_ddl_create_tables.sql           # Complete 14-table relational DDL with constraints & indexes
+│   ├── 02_dml_insert_data.sql             # 234 validated seed records across all 14 schema tables
+│   ├── 03_advanced_queries.sql            # Stored Procedures, Functions, Triggers, Views, CTEs & Subqueries
+│   └── 04_nosql_neo4j_queries.sql         # Neo4j Cypher schema, graph traversals & shortest path algorithms
+├── scripts/                               # Automated Database Deployment & Seeding Tooling
+│   ├── init-db.js                         # Automated MySQL schema deployer & seed runner
+│   └── seed-neo4j.js                      # Automated Neo4j Aura graph cloud deployer & seeder
+├── src/                                   # Full-Stack Next.js 14 Web Application
+│   ├── app/                               # App Router Pages & REST API Endpoints
+│   │   ├── page.tsx                       # Master 6-Step Evaluation Dashboard & Interactive Test Bench
+│   │   ├── catalog/                       # Film Catalog & Multi-Table Relational Browser
+│   │   ├── analytics/                     # Stored Objects & Analytical CTE Visualizer
+│   │   ├── graph/                         # Interactive Neo4j Graph & Shortest Path Explorer
+│   │   ├── watchlist/                     # Audit Log & Trigger Verification Studio
+│   │   ├── sql-workbench/                 # Live In-Browser SQL & Cypher Query Workbench
+│   │   └── api/                           # Backend API Routes (MySQL & Neo4j Drivers)
+│   │       ├── movies/                    # ACID Movie & Budget CRUD Handlers
+│   │       ├── analytics/                 # Views, Stored Procedure & CTE Execution Handlers
+│   │       ├── graph/                     # Neo4j Cypher Traversal & Shortest Path Endpoints
+│   │       └── watchlists/                # Trigger-driven Audit Log Endpoints
+│   ├── components/                        # Reusable UI Presentation Components
+│   │   ├── Navbar.tsx                     # Top Navigation Bar with Step Shortcuts
+│   │   ├── ProjectBanner.tsx              # Academic Header with Team Info & Status
+│   │   └── PresentationHelperModal.tsx    # Interactive Evaluation Script & Quick Reference
+│   └── lib/                               # Polyglot Database Drivers & Zero-Latency Engines
+│       ├── mysql.ts                       # MySQL2 Pool Connection & In-Memory Fallback Engine
+│       ├── neo4j.ts                       # Neo4j Bolt Driver, Cypher Runner & BFS Graph Engine
+│       └── auth.ts                        # JWT Authentication & BCrypt Password Verification
+├── neo4j_schema.cypher                    # Standalone Neo4j Cypher Schema & Seed Data
+├── schema.sql                             # Master Monolithic MySQL DDL + DML + Advanced SQL
+├── PRESENTATION_GUIDE.md                  # Step-by-Step Presentation Script & Defense Strategy
+├── package.json                           # Dependencies & NPM Scripts
+├── tsconfig.json                          # TypeScript Compiler Configuration
+└── tailwind.config.ts                     # Tailwind CSS & Warm Sand Theme Palette
+```
+
+---
+
 ## 🏗️ Polyglot Database Architecture
 
-### A. MySQL Relational Schema (ACID Compliant)
+### A. MySQL Relational Schema (14 Normalized Tables)
+The relational schema satisfies BCNF / 3NF across 14 discrete tables:
+
 ```
-[Users]
-  ├── user_id (PK, INT AUTO_INCREMENT)
-  ├── username (VARCHAR(50), UNIQUE, NOT NULL)
-  ├── email (VARCHAR(100), UNIQUE, NOT NULL)
-  ├── password_hash (VARCHAR(255), NOT NULL, BCrypt Salt Rounds: 10)
-  ├── role (ENUM('Viewer', 'Admin'), NOT NULL)
-  └── created_at (TIMESTAMP)
-
-[Movies]
-  ├── movie_id (PK, INT AUTO_INCREMENT)
-  ├── title (VARCHAR(150), NOT NULL)
-  ├── release_year (INT, CHECK BETWEEN 1888 AND 2100)
-  ├── box_office_earnings (DECIMAL(15,2), CHECK >= 0)
-  ├── synopsis (VARCHAR(1000))
-  └── created_at (TIMESTAMP)
-
-[ProductionBudgets]
-  ├── budget_id (PK, INT AUTO_INCREMENT)
-  ├── movie_id (FK -> Movies.movie_id ON DELETE CASCADE)
-  ├── production_cost (DECIMAL(12,2), NOT NULL, CHECK >= 0)
-  └── marketing_spend (DECIMAL(12,2), DEFAULT 0.00, CHECK >= 0)
-
-[Watchlists]
-  ├── watchlist_id (PK, INT AUTO_INCREMENT)
-  ├── user_id (FK -> Users.user_id ON DELETE CASCADE)
-  ├── movie_id (FK -> Movies.movie_id ON DELETE CASCADE)
-  └── added_at (TIMESTAMP)
-
-[WatchlistActivityLogs] (Audit Trail populated via Triggers)
-  ├── log_id (PK, INT AUTO_INCREMENT)
-  ├── watchlist_id (INT)
-  ├── user_id (INT)
-  ├── movie_id (INT)
-  ├── action_type (VARCHAR(50))
-  ├── details (VARCHAR(255))
-  └── logged_at (TIMESTAMP)
+[Users] (1) ─────────< [Watchlists] (10) >───────── [Movies] (1) ─────────< [MovieGenres] (3) >──── [Genres] (2)
+  │                         │                           │
+  │                         ▼                           ├─────────< [MovieDirectors] (5) >─ [Directors] (4)
+  │            [WatchlistActivityLogs] (11)             │
+  │            (Automated Audit Trail)                  ├─────────< [CastMembers] (7) >──── [Actors] (6)
+  │                                                     │
+  ├──────────────────< [Ratings] (12) >─────────────────┤─────────── [ProductionBudgets] (8)
+  │                                                     │            (1:1 Strict Financial Ledger)
+  ▼                                                     ▼
+[AuditLog] (14)                                    [Awards] (13)
+(System Mutations)                                 (Festival & Oscar Accolades)
 ```
+
+| # | Table Name | Purpose & Cardinality | Primary Key / Foreign Keys |
+| :-: | :--- | :--- | :--- |
+| **1** | `Movies` | Master catalog of cinematic releases | `movie_id` (PK) |
+| **2** | `Genres` | Canonical film genres domain table | `genre_id` (PK) |
+| **3** | `MovieGenres` | M:N Bridge connecting Movies to Genres | Composite `(movie_id, genre_id)` (PK, FKs) |
+| **4** | `Directors` | Filmmaker talent registry with nationality & birth year | `director_id` (PK) |
+| **5** | `MovieDirectors` | M:N Bridge connecting Movies to Directors | Composite `(movie_id, director_id)` (PK, FKs) |
+| **6** | `Actors` | Performer talent network with Oscar win counts | `actor_id` (PK) |
+| **7** | `CastMembers` | M:N Bridge linking Actors with character roles & billing order | `cast_id` (PK), `movie_id` (FK), `actor_id` (FK) |
+| **8** | `ProductionBudgets` | Strict 1:1 financial ledger with production & marketing capital | `budget_id` (PK), `movie_id` (FK UNIQUE) |
+| **9** | `Users` | Authentication & RBAC accounts (`Admin`, `Viewer`) | `user_id` (PK), `email` (UNIQUE), `username` (UNIQUE) |
+| **10** | `Watchlists` | User bookmark junction table | `watchlist_id` (PK), `user_id` (FK), `movie_id` (FK) |
+| **11** | `WatchlistActivityLogs` | Real-time immutable audit trail populated by MySQL Triggers | `log_id` (PK), `watchlist_id` (FK), `user_id` (FK) |
+| **12** | `Ratings` | User review scores (`1.0` to `10.0`) and written reviews | `rating_id` (PK), `user_id` (FK), `movie_id` (FK) |
+| **13** | `Awards` | Accolade tracking (Oscars, BAFTAs, Cannes Palme d'Or) | `award_id` (PK), `movie_id` (FK) |
+| **14** | `AuditLog` | Enterprise-grade mutation auditing for compliance | `audit_id` (PK) |
 
 ### B. Neo4j Graph Model
 * **Nodes:**
