@@ -38,6 +38,9 @@ export const FALLBACK_GRAPH = {
     { id: 'mov_8', label: 'The Matrix Resurrections', type: 'Movie', release_year: 2021, box_office: 159200000 },
     { id: 'mov_9', label: 'Tenet', type: 'Movie', release_year: 2020, box_office: 365304105 },
     { id: 'mov_10', label: 'Killers of the Flower Moon', type: 'Movie', release_year: 2023, box_office: 157000000 },
+    { id: 'mov_11', label: 'The Wolf of Wall Street', type: 'Movie', release_year: 2013, box_office: 406900000 },
+    { id: 'mov_12', label: 'The Fall Guy', type: 'Movie', release_year: 2024, box_office: 180400000 },
+    { id: 'mov_13', label: 'A Scanner Darkly', type: 'Movie', release_year: 2006, box_office: 7659918 },
 
     // Actors
     { id: 'act_1', label: 'Cillian Murphy', type: 'Actor', nationality: 'Irish', birth_year: 1976, oscar_wins: 1 },
@@ -131,6 +134,12 @@ export const FALLBACK_GRAPH = {
     { id: 'a27', source: 'act_20', target: 'mov_8', type: 'ACTED_IN', role: 'Trinity', order: 2 },
 
     { id: 'a28', source: 'act_6', target: 'mov_10', type: 'ACTED_IN', role: 'Ernest Burkhart', order: 1 },
+    { id: 'a29', source: 'act_6', target: 'mov_11', type: 'ACTED_IN', role: 'Jordan Belfort', order: 1 },
+    { id: 'a30', source: 'act_17', target: 'mov_11', type: 'ACTED_IN', role: 'Naomi Lapaglia', order: 2 },
+    { id: 'a31', source: 'act_18', target: 'mov_12', type: 'ACTED_IN', role: 'Colt Seavers', order: 1 },
+    { id: 'a32', source: 'act_3', target: 'mov_12', type: 'ACTED_IN', role: 'Jody Moreno', order: 2 },
+    { id: 'a33', source: 'act_19', target: 'mov_13', type: 'ACTED_IN', role: 'Bob Arctor', order: 1 },
+    { id: 'a34', source: 'act_2', target: 'mov_13', type: 'ACTED_IN', role: 'James Barris', order: 2 },
 
     // CO_STARRED_WITH inferred collaborations
     { id: 'cs1', source: 'act_1', target: 'act_12', type: 'CO_STARRED_WITH', movie_count: 3 }, // Murphy & Caine (Inception, TDK, Batman)
@@ -143,7 +152,10 @@ export const FALLBACK_GRAPH = {
     { id: 'cs8', source: 'act_10', target: 'act_12', type: 'CO_STARRED_WITH', movie_count: 1 }, // Bale & Caine (TDK)
     { id: 'cs9', source: 'act_10', target: 'act_11', type: 'CO_STARRED_WITH', movie_count: 1 }, // Bale & Ledger (TDK)
     { id: 'cs10', source: 'act_17', target: 'act_18', type: 'CO_STARRED_WITH', movie_count: 1 }, // Robbie & Gosling (Barbie)
-    { id: 'cs11', source: 'act_19', target: 'act_20', type: 'CO_STARRED_WITH', movie_count: 1 }  // Reeves & Moss (Matrix)
+    { id: 'cs11', source: 'act_19', target: 'act_20', type: 'CO_STARRED_WITH', movie_count: 1 }, // Reeves & Moss (Matrix)
+    { id: 'cs12', source: 'act_6', target: 'act_17', type: 'CO_STARRED_WITH', movie_count: 1 }, // DiCaprio & Robbie (Wolf of Wall Street)
+    { id: 'cs13', source: 'act_18', target: 'act_3', type: 'CO_STARRED_WITH', movie_count: 1 },  // Gosling & Blunt (The Fall Guy)
+    { id: 'cs14', source: 'act_19', target: 'act_2', type: 'CO_STARRED_WITH', movie_count: 1 }   // Reeves & Downey Jr (A Scanner Darkly)
   ]
 };
 
@@ -231,25 +243,39 @@ function executeCypherFallback<T>(query: string, params: Record<string, any>): T
 
 // Breadth-first Search for Actor Shortest Path
 export function findShortestPath(actorName1: string, actorName2: string) {
-  const node1 = FALLBACK_GRAPH.nodes.find(n => n.label.toLowerCase() === actorName1.toLowerCase());
-  const node2 = FALLBACK_GRAPH.nodes.find(n => n.label.toLowerCase() === actorName2.toLowerCase());
+  const norm1 = (actorName1 || '').trim().toLowerCase();
+  const norm2 = (actorName2 || '').trim().toLowerCase();
+
+  const node1 = FALLBACK_GRAPH.nodes.find(n => n.type === 'Actor' && n.label.toLowerCase() === norm1);
+  const node2 = FALLBACK_GRAPH.nodes.find(n => n.type === 'Actor' && n.label.toLowerCase() === norm2);
 
   if (!node1 || !node2) {
     return {
       found: false,
       degrees: -1,
+      degrees_of_separation: -1,
       path: [],
+      path_nodes: [],
+      hops: [],
       message: `One or both actors not found in graph database (${actorName1}, ${actorName2})`
     };
   }
 
   if (node1.id === node2.id) {
-    return { found: true, degrees: 0, path: [node1.label] };
+    return {
+      found: true,
+      degrees: 0,
+      degrees_of_separation: 0,
+      path: [node1.label],
+      path_nodes: [node1.label],
+      hops: [],
+      message: 'Source and destination actor are identical (0 degrees of separation).'
+    };
   }
 
   // Adjacency list across ACTED_IN movies
   const adj = new Map<string, Array<{ neighborId: string; viaMovie: string }>>();
-  FALLBACK_GRAPH.nodes.forEach(n => adj.set(n.id, []));
+  FALLBACK_GRAPH.nodes.filter(n => n.type === 'Actor').forEach(n => adj.set(n.id, []));
 
   FALLBACK_GRAPH.nodes.filter(n => n.type === 'Movie').forEach(movie => {
     const cast = FALLBACK_GRAPH.edges
@@ -275,10 +301,29 @@ export function findShortestPath(actorName1: string, actorName2: string) {
     const { currentId, path } = queue.shift()!;
 
     if (currentId === node2.id) {
+      const degrees = path.length - 1;
+      const path_nodes: string[] = [];
+      const hops: Array<{ from: string; movie: string; to: string }> = [];
+
+      for (let i = 0; i < path.length; i++) {
+        path_nodes.push(path[i].name);
+        if (i < path.length - 1 && path[i + 1].movie) {
+          path_nodes.push(path[i + 1].movie!);
+          hops.push({
+            from: path[i].name,
+            movie: path[i + 1].movie!,
+            to: path[i + 1].name
+          });
+        }
+      }
+
       return {
         found: true,
-        degrees: path.length - 1,
-        hops: path
+        degrees,
+        degrees_of_separation: degrees,
+        path: path.map(p => p.name),
+        path_nodes,
+        hops
       };
     }
 
@@ -298,7 +343,11 @@ export function findShortestPath(actorName1: string, actorName2: string) {
   return {
     found: false,
     degrees: -1,
+    degrees_of_separation: -1,
     path: [],
+    path_nodes: [],
+    hops: [],
     message: `No connected film path found between ${actorName1} and ${actorName2}`
   };
 }
+

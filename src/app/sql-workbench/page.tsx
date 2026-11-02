@@ -252,3 +252,4 @@ ORDER BY r.movie_count DESC;`
     </div>
   );
 }
+

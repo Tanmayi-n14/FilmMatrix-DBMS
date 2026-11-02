@@ -148,3 +148,4 @@ WHERE id(a1) < id(a2)
 WITH a1, a2, count(m) AS shared_movies
 MERGE (a1)-[r:CO_STARRED_WITH]-(a2)
 SET r.movie_count = shared_movies;
+

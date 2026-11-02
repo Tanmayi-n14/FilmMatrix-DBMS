@@ -162,3 +162,4 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
    * Test atomic movie + budget creation, and toggle "Simulate Rollback" to prove ACID consistency.
 7. **Interactive SQL & Cypher Workbench (`/sql-workbench`):**
    * Run raw queries against MySQL and Neo4j directly from the browser!
+

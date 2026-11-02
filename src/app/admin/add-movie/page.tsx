@@ -1,25 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Film, 
-  DollarSign, 
   PlusCircle, 
-  ShieldAlert, 
-  AlertTriangle, 
   CheckCircle2, 
-  Code2, 
+  AlertTriangle, 
   ArrowLeft, 
-  Sparkles,
-  Layers
+  Save
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function AddMoviePage() {
-  const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<any>(null);
-
   const [formData, setFormData] = useState({
     title: '',
     release_year: 2024,
@@ -33,15 +25,6 @@ export default function AddMoviePage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch('/api/auth/me')
-      .then(res => res.json())
-      .then(d => {
-        if (d.user) setCurrentUser(d.user);
-      })
-      .catch(() => {});
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,104 +55,118 @@ export default function AddMoviePage() {
     }
   };
 
-  const transactionSQL = `START TRANSACTION;
-  -- Step 1: Insert into Movies
-  INSERT INTO Movies (title, release_year, box_office_earnings, synopsis)
-  VALUES ('${formData.title || 'Example Title'}', ${formData.release_year}, ${formData.box_office_earnings}, '...');
-
-  -- Step 2: Retrieve auto-increment primary key
-  SET @new_movie_id = LAST_INSERT_ID();
-
-  -- Step 3: Insert into ProductionBudgets with foreign key link
-  INSERT INTO ProductionBudgets (movie_id, production_cost, marketing_spend)
-  VALUES (@new_movie_id, ${formData.production_cost}, ${formData.marketing_spend});
-COMMIT; -- Or ROLLBACK upon integrity violation`;
-
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back button */}
-      <Link href="/catalog" className="inline-flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 font-mono">
+    <div className="max-w-3xl mx-auto space-y-5">
+      {/* Return button */}
+      <Link 
+        href="/catalog" 
+        className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+        style={{ color: 'var(--color-primary)' }}
+      >
         <ArrowLeft className="w-3.5 h-3.5" />
         <span>Return to Catalog</span>
       </Link>
 
       {/* Header */}
-      <div className="border-b border-gray-800 pb-5">
+      <div className="border-b pb-3" style={{ borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center gap-2">
-          <PlusCircle className="w-6 h-6 text-purple-400" />
-          <h1 className="text-2xl font-bold text-white tracking-tight">
-            Register Movie &amp; Budget (ACID Transaction)
+          <PlusCircle className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+          <h1 className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-main)' }}>
+            Register New Film &amp; Budget (ACID Transaction)
           </h1>
         </div>
-        <p className="text-xs text-gray-400 mt-1">
-          Executes a dual-table atomic transaction block. Guarantees that Movies and ProductionBudgets are registered together or rolled back cleanly to eliminate orphaned records.
+        <p className="text-xs opacity-75 mt-1">
+          Atomic insertion into <code className="px-1 rounded" style={{ backgroundColor: 'var(--bg-surface-elevated)' }}>Movies</code> and <code className="px-1 rounded" style={{ backgroundColor: 'var(--bg-surface-elevated)' }}>ProductionBudgets</code> using <code className="px-1 rounded font-bold" style={{ backgroundColor: 'var(--bg-surface-elevated)', color: 'var(--color-primary)' }}>START TRANSACTION</code>, <code className="px-1 rounded font-bold" style={{ backgroundColor: 'var(--bg-surface-elevated)', color: 'var(--color-primary)' }}>COMMIT</code>, and <code className="px-1 rounded text-rose-500 font-bold" style={{ backgroundColor: 'var(--bg-surface-elevated)' }}>ROLLBACK</code>.
         </p>
       </div>
 
-      {/* RBAC Notice if Viewer */}
-      {currentUser && currentUser.role !== 'Admin' && (
-        <div className="p-4 rounded-xl bg-amber-950/80 border border-amber-500/50 text-xs font-mono text-amber-200 flex items-center gap-3">
-          <ShieldAlert className="w-5 h-5 text-amber-400 flex-shrink-0" />
-          <div>
-            <strong>RBAC Enforcement Active:</strong> You are currently authenticated as a <u>Viewer</u>. Admin privileges are required to commit transactional records. Use the role switcher button in the top navigation bar to toggle to Admin mode!
-          </div>
-        </div>
-      )}
-
-      {/* Transaction Status Banner */}
+      {/* Transaction Success Banner */}
       {result && result.success && (
-        <div className="p-4 rounded-xl bg-purple-950/80 border border-purple-500/60 text-xs font-mono text-purple-200 space-y-2 animate-in fade-in">
-          <div className="flex items-center gap-2 font-bold text-sm text-emerald-300">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+        <div 
+          className="p-4 rounded-xl border text-xs space-y-2 shadow-sm animate-in fade-in"
+          style={{
+            backgroundColor: 'var(--bg-surface-elevated)',
+            borderColor: 'var(--color-primary)',
+            color: 'var(--text-main)'
+          }}
+        >
+          <div className="flex items-center gap-2 font-bold text-sm" style={{ color: 'var(--color-primary)' }}>
+            <CheckCircle2 className="w-4 h-4" />
             <span>ACID Transaction Successfully Committed!</span>
           </div>
-          <p className="text-gray-300">
-            {result.message} Generated <code className="text-cyan-300">movie_id = {result.movie_id}</code>.
+          <p className="opacity-90">
+            {result.message} Generated <code className="px-1 rounded font-bold" style={{ backgroundColor: 'var(--bg-surface)' }}>movie_id = {result.movie_id}</code>.
           </p>
-          <div className="flex gap-4 pt-1 text-[11px] text-gray-400">
-            <span>Invested: <strong>${(result.data.total_investment / 1e6).toFixed(1)}M</strong></span>
-            <span>Net Profit: <strong className="text-emerald-300">${(result.data.net_profit / 1e6).toFixed(1)}M</strong></span>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+            <div className="flex gap-4 font-mono text-[11px] opacity-80">
+              <span>Invested: <strong>${(result.data.total_investment / 1e6).toFixed(1)}M</strong></span>
+              <span>Net Profit: <strong className="text-emerald-500">${(result.data.net_profit / 1e6).toFixed(1)}M</strong></span>
+            </div>
+            <Link
+              href="/catalog"
+              className="px-3 py-1 rounded text-white font-semibold text-xs shadow-sm transition-colors"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+            >
+              View in Catalog &rarr;
+            </Link>
           </div>
         </div>
       )}
 
+      {/* Rollback Success Banner */}
       {result && result.rollbackExecuted && (
-        <div className="p-4 rounded-xl bg-red-950/80 border border-red-500/60 text-xs font-mono text-red-200 space-y-2 animate-in fade-in">
-          <div className="flex items-center gap-2 font-bold text-sm text-red-300">
-            <AlertTriangle className="w-5 h-5 text-red-400" />
-            <span>Transaction Successfully Rolled Back (ACID Verified)!</span>
+        <div 
+          className="p-4 rounded-xl border text-xs space-y-1.5 shadow-sm animate-in fade-in"
+          style={{
+            backgroundColor: 'var(--bg-surface-elevated)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-main)'
+          }}
+        >
+          <div className="flex items-center gap-2 font-bold text-sm text-rose-500">
+            <AlertTriangle className="w-4 h-4" />
+            <span>Transaction Rolled Back (ACID Verified)!</span>
           </div>
-          <p className="text-gray-300">
-            {result.message || error}
-          </p>
-          <p className="text-[11px] text-gray-400">
-            Verification: Because <code className="text-red-300 font-mono">ROLLBACK</code> executed, no orphaned row was added to Movies or ProductionBudgets.
+          <p className="opacity-80">{result.message || error}</p>
+          <p className="text-[11px] font-mono opacity-70">
+            Verification: Because <code className="font-bold text-rose-500">ROLLBACK</code> was executed, zero orphaned records were created in Movies or ProductionBudgets.
           </p>
         </div>
       )}
 
-      {/* Main Registration Form */}
-      <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-6 border border-gray-800 space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs font-mono">
-          {/* Title */}
+      {/* Form */}
+      <form 
+        onSubmit={handleSubmit} 
+        className="rounded-xl p-6 border shadow-sm space-y-4"
+        style={{
+          backgroundColor: 'var(--bg-surface)',
+          borderColor: 'var(--border-subtle)'
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          
           <div className="md:col-span-2">
-            <label className="text-gray-300 block mb-1.5 font-semibold">
-              Movie Title <span className="text-purple-400">*</span>
+            <label className="block mb-1 font-semibold" style={{ color: 'var(--text-main)' }}>
+              Movie Title <span style={{ color: 'var(--color-primary)' }}>*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g., Gladiator II"
+              placeholder="e.g. Gladiator II"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full bg-gray-950 border border-gray-800 text-gray-200 p-2.5 rounded-lg focus:outline-none focus:border-purple-500"
+              className="w-full border p-2.5 rounded-lg focus:outline-none"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-main)'
+              }}
             />
           </div>
 
-          {/* Release Year */}
           <div>
-            <label className="text-gray-300 block mb-1.5 font-semibold">
-              Release Year (CHECK: 1888 - 2100) <span className="text-purple-400">*</span>
+            <label className="block mb-1 font-semibold" style={{ color: 'var(--text-main)' }}>
+              Release Year (CHECK: 1888 - 2100) <span style={{ color: 'var(--color-primary)' }}>*</span>
             </label>
             <input
               type="number"
@@ -178,14 +175,18 @@ COMMIT; -- Or ROLLBACK upon integrity violation`;
               required
               value={formData.release_year}
               onChange={(e) => setFormData({ ...formData, release_year: Number(e.target.value) })}
-              className="w-full bg-gray-950 border border-gray-800 text-gray-200 p-2.5 rounded-lg focus:outline-none focus:border-purple-500"
+              className="w-full border p-2.5 rounded-lg focus:outline-none font-mono"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-main)'
+              }}
             />
           </div>
 
-          {/* Box Office Earnings */}
           <div>
-            <label className="text-gray-300 block mb-1.5 font-semibold">
-              Box Office Earnings (CHECK: &gt;= 0)
+            <label className="block mb-1 font-semibold" style={{ color: 'var(--text-main)' }}>
+              Box Office Gross ($) (CHECK: &ge; 0)
             </label>
             <input
               type="number"
@@ -193,14 +194,18 @@ COMMIT; -- Or ROLLBACK upon integrity violation`;
               required
               value={formData.box_office_earnings}
               onChange={(e) => setFormData({ ...formData, box_office_earnings: Number(e.target.value) })}
-              className="w-full bg-gray-950 border border-gray-800 text-gray-200 p-2.5 rounded-lg focus:outline-none focus:border-purple-500"
+              className="w-full border p-2.5 rounded-lg focus:outline-none font-mono"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-main)'
+              }}
             />
           </div>
 
-          {/* Production Cost */}
           <div>
-            <label className="text-gray-300 block mb-1.5 font-semibold">
-              Production Cost (CHECK: &gt;= 0) <span className="text-purple-400">*</span>
+            <label className="block mb-1 font-semibold" style={{ color: 'var(--text-main)' }}>
+              Production Cost ($) (CHECK: &ge; 0) <span style={{ color: 'var(--color-primary)' }}>*</span>
             </label>
             <input
               type="number"
@@ -208,14 +213,18 @@ COMMIT; -- Or ROLLBACK upon integrity violation`;
               required
               value={formData.production_cost}
               onChange={(e) => setFormData({ ...formData, production_cost: Number(e.target.value) })}
-              className="w-full bg-gray-950 border border-gray-800 text-gray-200 p-2.5 rounded-lg focus:outline-none focus:border-purple-500"
+              className="w-full border p-2.5 rounded-lg focus:outline-none font-mono"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-main)'
+              }}
             />
           </div>
 
-          {/* Marketing Spend */}
           <div>
-            <label className="text-gray-300 block mb-1.5 font-semibold">
-              Marketing Spend (DEFAULT 0.00, CHECK: &gt;= 0)
+            <label className="block mb-1 font-semibold" style={{ color: 'var(--text-main)' }}>
+              Marketing Spend ($) (CHECK: &ge; 0)
             </label>
             <input
               type="number"
@@ -223,59 +232,73 @@ COMMIT; -- Or ROLLBACK upon integrity violation`;
               required
               value={formData.marketing_spend}
               onChange={(e) => setFormData({ ...formData, marketing_spend: Number(e.target.value) })}
-              className="w-full bg-gray-950 border border-gray-800 text-gray-200 p-2.5 rounded-lg focus:outline-none focus:border-purple-500"
+              className="w-full border p-2.5 rounded-lg focus:outline-none font-mono"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-main)'
+              }}
             />
           </div>
 
-          {/* Synopsis */}
           <div className="md:col-span-2">
-            <label className="text-gray-300 block mb-1.5 font-semibold">
-              Synopsis (Added via ALTER TABLE)
-            </label>
+            <label className="block mb-1 font-semibold" style={{ color: 'var(--text-main)' }}>Plot Synopsis</label>
             <textarea
               rows={2}
-              placeholder="Brief narrative summary..."
+              placeholder="Brief summary of the film plot..."
               value={formData.synopsis}
               onChange={(e) => setFormData({ ...formData, synopsis: e.target.value })}
-              className="w-full bg-gray-950 border border-gray-800 text-gray-200 p-2.5 rounded-lg focus:outline-none focus:border-purple-500"
+              className="w-full border p-2.5 rounded-lg focus:outline-none text-xs"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-main)'
+              }}
+            />
+          </div>
+
+          {/* Rollback Simulator Toggle */}
+          <div 
+            className="md:col-span-2 p-3 rounded-lg border flex items-center justify-between"
+            style={{
+              backgroundColor: 'var(--bg-surface-elevated)',
+              borderColor: 'var(--border-subtle)'
+            }}
+          >
+            <div>
+              <span className="font-semibold block text-xs" style={{ color: 'var(--text-main)' }}>Simulate Transaction Failure (Rollback Proof)</span>
+              <span className="text-[11px] opacity-75">Injects an intentional constraint violation to prove that ROLLBACK discards partial writes.</span>
+            </div>
+            <input
+              type="checkbox"
+              checked={formData.simulateRollback}
+              onChange={(e) => setFormData({ ...formData, simulateRollback: e.target.checked })}
+              className="w-4 h-4 accent-rose-600 cursor-pointer"
             />
           </div>
         </div>
 
-        {/* ACID Transaction Rollback Simulator Checkbox */}
-        <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/30 flex items-start gap-3">
-          <input
-            type="checkbox"
-            id="rollbackSim"
-            checked={formData.simulateRollback}
-            onChange={(e) => setFormData({ ...formData, simulateRollback: e.target.checked })}
-            className="mt-1 accent-purple-500 h-4 w-4 cursor-pointer"
-          />
-          <label htmlFor="rollbackSim" className="text-xs text-gray-300 cursor-pointer">
-            <strong className="text-purple-300 block">Demonstrate ACID ROLLBACK Behavior</strong>
-            Check this box to intentionally trigger an exception mid-transaction. This demonstrates to evaluators that MySQL immediately rolls back the movie insertion, leaving zero orphaned records.
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold text-xs py-3 rounded-xl shadow-glow transition-all"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>{loading ? 'Executing Transaction Block...' : 'Commit Transaction (START TRANSACTION → COMMIT)'}</span>
-        </button>
-
-        {/* SQL Code View */}
-        <div className="bg-gray-950 rounded-lg p-4 border border-gray-800 space-y-2">
-          <span className="text-[11px] text-purple-300 font-mono flex items-center gap-1.5">
-            <Code2 className="w-3.5 h-3.5" />
-            Underlying MySQL Transaction Syntax
-          </span>
-          <pre className="text-[11px] text-gray-400 font-mono overflow-x-auto p-2 bg-black/40 rounded">
-            {transactionSQL}
-          </pre>
+        <div className="flex items-center justify-end gap-2 pt-2 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+          <Link
+            href="/catalog"
+            className="px-4 py-2 rounded-lg border text-xs font-semibold"
+            style={{
+              backgroundColor: 'var(--bg-surface-elevated)',
+              borderColor: 'var(--border-subtle)',
+              color: 'var(--text-main)'
+            }}
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-xs font-semibold shadow-sm transition-all"
+            style={{ backgroundColor: 'var(--color-primary)' }}
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>{loading ? 'Executing Transaction...' : 'Commit Transaction (Insert)'}</span>
+          </button>
         </div>
       </form>
     </div>

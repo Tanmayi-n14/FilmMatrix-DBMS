@@ -193,16 +193,19 @@ export async function POST(req: NextRequest) {
       const newMovieId = FALLBACK_DATABASE.movies.length + 1;
       const movieObj = {
         movie_id: newMovieId,
-        title,
+        title: String(title),
         release_year: Number(release_year),
+        duration_minutes: Number(body.duration_minutes || 120),
+        mpaa_rating: String(body.mpaa_rating || 'PG-13'),
         box_office_earnings: Number(box_office_earnings),
-        synopsis
+        synopsis: String(synopsis || '')
       };
       const budgetObj = {
         budget_id: FALLBACK_DATABASE.budgets.length + 1,
         movie_id: newMovieId,
         production_cost: Number(production_cost),
-        marketing_spend: Number(marketing_spend)
+        marketing_spend: Number(marketing_spend),
+        vfx_budget: Number(body.vfx_budget || 0)
       };
 
       FALLBACK_DATABASE.movies.push(movieObj);
@@ -225,3 +228,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+

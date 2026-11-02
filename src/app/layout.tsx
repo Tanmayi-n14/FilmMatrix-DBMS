@@ -5,7 +5,7 @@ import ProjectBanner from "@/components/ProjectBanner";
 
 export const metadata: Metadata = {
   title: "FilmMatrix | PES University DBMS Level 3",
-  description: "Global Movie Catalog & Production Analytics Engine using MySQL and Neo4j Graph DB by Tanmayi Nagabhairava & Varsha A Patil.",
+  description: "Global Movie Catalog & Production Analytics Engine using MySQL and Neo4j Graph NoSQL by Tanmayi Nagabhairava & Varsha A Patil.",
 };
 
 export default function RootLayout({
@@ -14,20 +14,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen flex flex-col bg-[#090d16] text-gray-100 antialiased selection:bg-purple-600 selection:text-white">
+    <html lang="en">
+      <body 
+        className="min-h-screen flex flex-col antialiased selection:bg-amber-600 selection:text-white transition-colors"
+        style={{
+          backgroundColor: 'var(--bg-page)',
+          color: 'var(--text-main)'
+        }}
+      >
         <ProjectBanner />
         <Navbar />
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {children}
         </main>
-        <footer className="border-t border-gray-800/80 bg-[#060910] py-6 text-center text-xs text-gray-400">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p>
-              <strong>FilmMatrix</strong> — Polyglot DBMS Platform • PES University CSE
+        <footer 
+          className="border-t py-4 text-center text-xs transition-colors"
+          style={{
+            backgroundColor: 'var(--bg-surface)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-muted)'
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="font-medium" style={{ color: 'var(--text-main)' }}>
+              FilmMatrix — PES University CSE • DBMS Mini-Project (Section I)
             </p>
-            <p className="font-mono text-gray-400">
-              Tanmayi Nagabhairava (PES1UG24CS493) & Varsha A Patil (PES1UG24CS516) • Section I
+            <p className="font-mono text-[11px] opacity-80">
+              Tanmayi Nagabhairava (PES1UG24CS493) &amp; Varsha A Patil (PES1UG24CS516)
             </p>
           </div>
         </footer>

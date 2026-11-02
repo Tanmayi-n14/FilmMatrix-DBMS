@@ -1,20 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Share2, 
   GitFork, 
   Users, 
-  Film, 
-  Clapperboard, 
-  Tag, 
-  Search, 
-  Sparkles, 
   ArrowRight, 
   PlusCircle, 
-  Activity, 
   Layers, 
-  Code2 
+  CheckCircle2,
+  Network
 } from 'lucide-react';
 
 export default function GraphStudioPage() {
@@ -35,7 +31,6 @@ export default function GraphStudioPage() {
 
   // Collaborations state
   const [collaborations, setCollaborations] = useState<any[]>([]);
-  const [minCount, setMinCount] = useState(1);
 
   // CRUD state
   const [newNodeType, setNewNodeType] = useState('Actor');
@@ -115,81 +110,182 @@ export default function GraphStudioPage() {
     }
   };
 
-  const getNodeColor = (type: string) => {
-    switch (type) {
-      case 'Actor': return 'bg-cyan-950 text-cyan-300 border-cyan-500/40 hover:border-cyan-400';
-      case 'Director': return 'bg-purple-950 text-purple-300 border-purple-500/40 hover:border-purple-400';
-      case 'Movie': return 'bg-amber-950 text-amber-300 border-amber-500/40 hover:border-amber-400';
-      case 'Genre': return 'bg-pink-950 text-pink-300 border-pink-500/40 hover:border-pink-400';
-      default: return 'bg-gray-800 text-gray-200 border-gray-700';
+  const getNodeBadgeStyle = (type: string, isSelected: boolean) => {
+    let base = {
+      backgroundColor: 'var(--bg-surface-elevated)',
+      borderColor: 'var(--border-subtle)',
+      color: 'var(--text-main)'
+    };
+
+    if (type === 'Actor') {
+      base = {
+        backgroundColor: 'rgba(6, 182, 212, 0.12)',
+        borderColor: 'rgba(6, 182, 212, 0.4)',
+        color: 'var(--color-accent)'
+      };
+    } else if (type === 'Director') {
+      base = {
+        backgroundColor: 'rgba(245, 158, 11, 0.12)',
+        borderColor: 'rgba(245, 158, 11, 0.4)',
+        color: 'var(--color-primary)'
+      };
+    } else if (type === 'Movie') {
+      base = {
+        backgroundColor: 'rgba(16, 185, 129, 0.12)',
+        borderColor: 'rgba(16, 185, 129, 0.4)',
+        color: 'var(--color-emerald)'
+      };
+    } else if (type === 'Genre') {
+      base = {
+        backgroundColor: 'rgba(236, 72, 153, 0.12)',
+        borderColor: 'rgba(236, 72, 153, 0.4)',
+        color: '#ec4899'
+      };
     }
+
+    if (isSelected) {
+      return {
+        ...base,
+        outline: '2px solid var(--color-primary)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+      };
+    }
+
+    return base;
   };
 
   const filteredNodes = nodeFilter ? nodes.filter(n => n.type === nodeFilter) : nodes;
-
   const actorNames = nodes.filter(n => n.type === 'Actor').map(n => n.label);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="border-b border-gray-800 pb-5">
-        <div className="flex items-center gap-2">
-          <Share2 className="w-6 h-6 text-cyan-400" />
-          <h1 className="text-2xl font-bold text-white tracking-tight">Neo4j Graph Database &amp; Industry Networks</h1>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      
+      {/* Quick Jump to Master Dashboard */}
+      <div 
+        className="p-3.5 rounded-xl border flex flex-wrap items-center justify-between gap-3 shadow-sm"
+        style={{
+          backgroundColor: 'var(--bg-surface)',
+          borderColor: 'var(--border-subtle)'
+        }}
+      >
+        <div>
+          <span className="font-bold text-xs" style={{ color: 'var(--color-primary)' }}>
+            Looking for the complete Master Architecture Dashboard (ER Diagram, DDL, DML, Live CRUD Bench, NoSQL)?
+          </span>
+          <p className="text-[11px] opacity-75">
+            All database subsystems and architectural benchmarks are unified on the main Master Dashboard!
+          </p>
         </div>
-        <p className="text-xs text-gray-400 mt-1">
-          Explore complex industry connections: Actor co-star collaborations, multi-hop shortest paths, director casting clusters, and genre relationships.
-        </p>
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-white font-bold text-xs shadow-sm transition-all"
+          style={{ backgroundColor: 'var(--color-primary)' }}
+        >
+          <span>🏠 Go to All-in-One Master Dashboard →</span>
+        </Link>
       </div>
 
-      {/* Sub Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-gray-800 pb-2">
+      {/* Header Banner */}
+      <div 
+        className="rounded-2xl p-6 border shadow-sm space-y-2 transition-colors"
+        style={{
+          backgroundColor: 'var(--bg-surface)',
+          borderColor: 'var(--border-subtle)',
+          color: 'var(--text-main)'
+        }}
+      >
+        <div className="flex items-center gap-2.5">
+          <div 
+            className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm"
+            style={{ backgroundColor: 'var(--color-accent)', color: '#ffffff' }}
+          >
+            <Share2 className="w-4 h-4" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">
+              NoSQL Graph Database Engine (Neo4j)
+            </h1>
+            <p className="text-xs opacity-75 mt-0.5">
+              Traversing Hollywood collaboration graphs, shortest paths, and degrees of separation with index-free adjacency.
+            </p>
+          </div>
+        </div>
+
+        {/* Viva Answer Note */}
+        <div 
+          className="mt-3 p-3 rounded-lg border text-xs leading-relaxed"
+          style={{
+            backgroundColor: 'var(--bg-surface-elevated)',
+            borderColor: 'var(--border-subtle)'
+          }}
+        >
+          <strong style={{ color: 'var(--color-primary)' }}>Why NoSQL Graph instead of SQL?</strong>
+          <span className="opacity-85 ml-1">
+            In relational SQL, finding degrees of separation or shared co-stars requires exponential recursive self-joins (<code>O(V^N)</code>). Neo4j uses pointer-based index-free adjacency to traverse multi-hop connections in <code>O(1)</code> constant time per relationship hop.
+          </span>
+        </div>
+      </div>
+
+      {/* Navigation Sub-Tabs */}
+      <div className="flex flex-wrap items-center gap-2 border-b pb-2" style={{ borderColor: 'var(--border-subtle)' }}>
         <button
           onClick={() => setActiveSubTab('visualizer')}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            activeSubTab === 'visualizer'
-              ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-              : 'text-gray-400 hover:text-white hover:bg-white/5'
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            activeSubTab === 'visualizer' ? 'shadow-sm' : 'opacity-70 hover:opacity-100'
           }`}
+          style={activeSubTab === 'visualizer' ? {
+            backgroundColor: 'var(--bg-surface)',
+            color: 'var(--color-primary)',
+            border: '1px solid var(--border-subtle)'
+          } : {}}
         >
           <Layers className="w-3.5 h-3.5" />
-          <span>1. Graph Topology Canvas ({nodes.length} Nodes • {edges.length} Edges)</span>
+          <span>1. Graph Canvas ({nodes.length} Nodes)</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('pathfinder')}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            activeSubTab === 'pathfinder'
-              ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-              : 'text-gray-400 hover:text-white hover:bg-white/5'
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            activeSubTab === 'pathfinder' ? 'shadow-sm' : 'opacity-70 hover:opacity-100'
           }`}
+          style={activeSubTab === 'pathfinder' ? {
+            backgroundColor: 'var(--bg-surface)',
+            color: 'var(--color-primary)',
+            border: '1px solid var(--border-subtle)'
+          } : {}}
         >
           <GitFork className="w-3.5 h-3.5" />
-          <span>2. Multi-Hop Shortest Path (Degrees of Separation)</span>
+          <span>2. Shortest Path (Degrees of Separation)</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('collaborations')}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            activeSubTab === 'collaborations'
-              ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-              : 'text-gray-400 hover:text-white hover:bg-white/5'
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            activeSubTab === 'collaborations' ? 'shadow-sm' : 'opacity-70 hover:opacity-100'
           }`}
+          style={activeSubTab === 'collaborations' ? {
+            backgroundColor: 'var(--bg-surface)',
+            color: 'var(--color-primary)',
+            border: '1px solid var(--border-subtle)'
+          } : {}}
         >
           <Users className="w-3.5 h-3.5" />
-          <span>3. Actor Co-Star Aggregations</span>
+          <span>3. Actor Co-Stars Matrix</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('crud')}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            activeSubTab === 'crud'
-              ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-              : 'text-gray-400 hover:text-white hover:bg-white/5'
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            activeSubTab === 'crud' ? 'shadow-sm' : 'opacity-70 hover:opacity-100'
           }`}
+          style={activeSubTab === 'crud' ? {
+            backgroundColor: 'var(--bg-surface)',
+            color: 'var(--color-primary)',
+            border: '1px solid var(--border-subtle)'
+          } : {}}
         >
           <PlusCircle className="w-3.5 h-3.5" />
-          <span>4. Cypher CRUD Operations</span>
+          <span>4. Cypher Node CRUD</span>
         </button>
       </div>
 
@@ -198,357 +294,399 @@ export default function GraphStudioPage() {
       {/* ======================================================== */}
       {activeSubTab === 'visualizer' && (
         <div className="space-y-4">
-          {/* Controls Ribbon */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-gray-950 p-3 rounded-xl border border-gray-800 text-xs font-mono">
-            <div className="flex items-center gap-3">
-              <span className="text-gray-400">Filter Nodes by Label:</span>
+          <div 
+            className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border text-xs font-mono transition-colors"
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              borderColor: 'var(--border-subtle)'
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="opacity-70 text-[11px]">Filter Type:</span>
               <button
                 onClick={() => setNodeFilter('')}
-                className={`px-2.5 py-1 rounded border transition-all ${!nodeFilter ? 'bg-white/10 text-white border-white/20' : 'text-gray-400 border-gray-800'}`}
+                className="px-2 py-0.5 rounded text-[11px] border transition-all"
+                style={{
+                  backgroundColor: !nodeFilter ? 'var(--color-primary)' : 'var(--bg-surface-elevated)',
+                  borderColor: 'var(--border-subtle)',
+                  color: !nodeFilter ? '#ffffff' : 'var(--text-main)'
+                }}
               >
                 All ({nodes.length})
               </button>
               <button
                 onClick={() => setNodeFilter('Actor')}
-                className={`px-2.5 py-1 rounded border transition-all ${nodeFilter === 'Actor' ? 'bg-cyan-950 text-cyan-300 border-cyan-500' : 'text-gray-400 border-gray-800'}`}
+                className="px-2 py-0.5 rounded text-[11px] border transition-all"
+                style={{
+                  backgroundColor: nodeFilter === 'Actor' ? 'var(--color-accent)' : 'var(--bg-surface-elevated)',
+                  borderColor: 'var(--border-subtle)',
+                  color: nodeFilter === 'Actor' ? '#ffffff' : 'var(--text-main)'
+                }}
               >
-                Actors ({nodes.filter(n => n.type === 'Actor').length})
+                Actors
               </button>
               <button
                 onClick={() => setNodeFilter('Director')}
-                className={`px-2.5 py-1 rounded border transition-all ${nodeFilter === 'Director' ? 'bg-purple-950 text-purple-300 border-purple-500' : 'text-gray-400 border-gray-800'}`}
+                className="px-2 py-0.5 rounded text-[11px] border transition-all"
+                style={{
+                  backgroundColor: nodeFilter === 'Director' ? 'var(--color-primary)' : 'var(--bg-surface-elevated)',
+                  borderColor: 'var(--border-subtle)',
+                  color: nodeFilter === 'Director' ? '#ffffff' : 'var(--text-main)'
+                }}
               >
-                Directors ({nodes.filter(n => n.type === 'Director').length})
+                Directors
               </button>
               <button
                 onClick={() => setNodeFilter('Movie')}
-                className={`px-2.5 py-1 rounded border transition-all ${nodeFilter === 'Movie' ? 'bg-amber-950 text-amber-300 border-amber-500' : 'text-gray-400 border-gray-800'}`}
+                className="px-2 py-0.5 rounded text-[11px] border transition-all"
+                style={{
+                  backgroundColor: nodeFilter === 'Movie' ? 'var(--color-emerald)' : 'var(--bg-surface-elevated)',
+                  borderColor: 'var(--border-subtle)',
+                  color: nodeFilter === 'Movie' ? '#ffffff' : 'var(--text-main)'
+                }}
               >
-                Movies ({nodes.filter(n => n.type === 'Movie').length})
+                Movies
               </button>
               <button
                 onClick={() => setNodeFilter('Genre')}
-                className={`px-2.5 py-1 rounded border transition-all ${nodeFilter === 'Genre' ? 'bg-pink-950 text-pink-300 border-pink-500' : 'text-gray-400 border-gray-800'}`}
+                className="px-2 py-0.5 rounded text-[11px] border transition-all"
+                style={{
+                  backgroundColor: nodeFilter === 'Genre' ? '#ec4899' : 'var(--bg-surface-elevated)',
+                  borderColor: 'var(--border-subtle)',
+                  color: nodeFilter === 'Genre' ? '#ffffff' : 'var(--text-main)'
+                }}
               >
-                Genres ({nodes.filter(n => n.type === 'Genre').length})
+                Genres
               </button>
             </div>
-
-            <div className="text-gray-400 text-[11px]">
-              Click any node to inspect relationships &amp; properties
-            </div>
+            <span className="opacity-70 text-[11px]">Click node to inspect properties</span>
           </div>
 
-          {/* Interactive Graph Node Cloud */}
-          <div className="glass-panel rounded-2xl p-6 border border-gray-800 min-h-[380px] flex flex-col justify-between">
-            <div className="flex flex-wrap gap-2.5 items-center justify-center p-4">
+          {/* Nodes Cloud */}
+          <div 
+            className="rounded-xl p-5 border min-h-[320px] flex flex-col justify-between transition-colors shadow-sm"
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              borderColor: 'var(--border-subtle)'
+            }}
+          >
+            <div className="flex flex-wrap gap-2 items-center justify-center p-3">
               {filteredNodes.map((node) => {
                 const isSelected = selectedNode?.id === node.id;
                 return (
                   <button
                     key={node.id}
                     onClick={() => setSelectedNode(node)}
-                    className={`px-3 py-1.5 rounded-xl border text-xs font-mono transition-all transform hover:scale-105 shadow-sm ${getNodeColor(node.type)} ${
-                      isSelected ? 'ring-2 ring-cyan-400 scale-110 z-10' : ''
-                    }`}
+                    className="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all"
+                    style={getNodeBadgeStyle(node.type, isSelected)}
                   >
-                    <span className="font-semibold">{node.label}</span>
-                    <span className="ml-1.5 opacity-60 text-[10px]">:{node.type}</span>
+                    {node.label}
                   </button>
                 );
               })}
             </div>
 
-            {/* Selected Node Details Drawer */}
+            {/* Selected Node Inspector */}
             {selectedNode && (
-              <div className="mt-4 p-4 rounded-xl bg-gray-950/90 border border-cyan-500/30 text-xs font-mono space-y-2 animate-in fade-in">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-400">Inspecting Node:</span>
-                    <strong className="text-white text-sm">{selectedNode.label}</strong>
-                    <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 text-[10px]">
-                      :{selectedNode.type}
-                    </span>
-                  </div>
-                  <button onClick={() => setSelectedNode(null)} className="text-gray-500 hover:text-white">✕</button>
+              <div 
+                className="mt-4 p-3 rounded-lg border text-xs font-mono flex items-center justify-between"
+                style={{
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  borderColor: 'var(--border-subtle)',
+                  color: 'var(--text-main)'
+                }}
+              >
+                <div>
+                  <span className="opacity-70">Selected Node: </span>
+                  <strong style={{ color: 'var(--color-primary)' }}>{selectedNode.label}</strong>
+                  <span className="opacity-70 ml-2">({selectedNode.type})</span>
                 </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-gray-300 pt-2 border-t border-gray-800/80">
-                  {selectedNode.nationality && <div>Nationality: <span className="text-white">{selectedNode.nationality}</span></div>}
-                  {selectedNode.birth_year && <div>Born: <span className="text-white">{selectedNode.birth_year}</span></div>}
-                  {selectedNode.oscar_wins !== undefined && <div>Oscar Wins: <span className="text-yellow-400 font-bold">{selectedNode.oscar_wins}</span></div>}
-                  {selectedNode.release_year && <div>Release Year: <span className="text-white">{selectedNode.release_year}</span></div>}
-                  {selectedNode.box_office && <div>Box Office: <span className="text-emerald-400">${(selectedNode.box_office / 1e6).toFixed(1)}M</span></div>}
-                </div>
-
-                {/* Relationships of selected node */}
-                <div className="pt-2 text-[11px] text-gray-400 border-t border-gray-800/80">
-                  <span className="text-purple-300 font-semibold">Incident Graph Relationships:</span>
-                  <div className="flex flex-wrap gap-2 mt-1.5">
-                    {edges
-                      .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
-                      .map((e, idx) => {
-                        const otherId = e.source === selectedNode.id ? e.target : e.source;
-                        const otherNode = nodes.find(n => n.id === otherId);
-                        const isOutgoing = e.source === selectedNode.id;
-                        return (
-                          <span key={idx} className="bg-gray-900 px-2 py-0.5 rounded border border-gray-800 text-gray-300">
-                            {isOutgoing ? '-(:' : '<-[:'}
-                            <strong className="text-cyan-400">{e.type}</strong>
-                            {isOutgoing ? ')-> ' : ']- '}
-                            <span className="text-white">{otherNode?.label || otherId}</span>
-                            {e.role && <span className="text-gray-400 ml-1">({e.role})</span>}
-                            {e.movie_count && <span className="text-yellow-400 ml-1">[{e.movie_count} films]</span>}
-                          </span>
-                        );
-                      })}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* 2. MULTI-HOP SHORTEST PATH FINDER */}
-      {/* ======================================================== */}
-      {activeSubTab === 'pathfinder' && (
-        <div className="space-y-6">
-          <div className="glass-panel rounded-xl p-5 border border-cyan-500/30 space-y-4">
-            <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Multi-Hop Traversal: <code className="text-cyan-300 font-mono text-sm">shortestPath((a1)-[:ACTED_IN*]-(a2))</code></span>
-                <span className="text-[10px] bg-purple-950 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-mono">Degrees of Separation</span>
-              </h2>
-              <p className="text-xs text-gray-400 mt-1">
-                Calculates the exact shortest collaborative chain connecting any two actors through shared motion picture projects.
-              </p>
-            </div>
-
-            {/* Actor Selectors */}
-            <div className="bg-gray-950 p-4 rounded-xl border border-gray-800 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div>
-                <label className="text-xs text-gray-400 block font-mono mb-1.5">Origin Actor (Node 1)</label>
-                <select
-                  value={actor1}
-                  onChange={(e) => setActor1(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-800 text-xs text-gray-200 px-3 py-2 rounded-lg font-mono focus:outline-none focus:border-cyan-500"
+                <button 
+                  onClick={() => setSelectedNode(null)} 
+                  className="px-2 py-0.5 rounded hover:bg-black/10 text-xs"
                 >
-                  {actorNames.map(name => (
-                    <option key={name} value={name}>{name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-400 block font-mono mb-1.5">Destination Actor (Node 2)</label>
-                <select
-                  value={actor2}
-                  onChange={(e) => setActor2(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-800 text-xs text-gray-200 px-3 py-2 rounded-lg font-mono focus:outline-none focus:border-cyan-500"
-                >
-                  {actorNames.map(name => (
-                    <option key={name} value={name}>{name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <button
-                  onClick={() => findPath(actor1, actor2)}
-                  disabled={pathLoading}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-semibold py-2 px-4 rounded-lg shadow-sm transition-all"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>{pathLoading ? 'Finding Shortest Path...' : 'Traverse Neo4j Graph'}</span>
+                  ✕
                 </button>
               </div>
-            </div>
-
-            {/* Path Result Visual Representation */}
-            {pathResult && pathResult.found ? (
-              <div className="bg-gray-950 rounded-xl p-6 border border-cyan-500/20 space-y-4">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                    <span>✓ Connection Verified in Graph</span>
-                  </span>
-                  <span className="text-purple-300 bg-purple-950/80 px-2.5 py-0.5 rounded border border-purple-500/30">
-                    Degrees of Separation: <strong>{pathResult.degrees} Hop(s)</strong>
-                  </span>
-                </div>
-
-                {/* Visual Step Pipeline */}
-                <div className="flex flex-wrap items-center gap-3 py-3">
-                  {pathResult.hops && pathResult.hops.map((hop: any, idx: number) => (
-                    <React.Fragment key={idx}>
-                      <div className="bg-cyan-950/80 border border-cyan-500/40 text-cyan-200 px-3.5 py-2 rounded-xl text-xs font-mono font-semibold shadow-sm flex items-center gap-2">
-                        <Users className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>{hop.name}</span>
-                      </div>
-
-                      {idx < pathResult.hops.length - 1 && (
-                        <div className="flex flex-col items-center">
-                          <span className="text-[10px] font-mono text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30">
-                            via film: {pathResult.hops[idx + 1].movie || 'Shared Production'}
-                          </span>
-                          <ArrowRight className="w-4 h-4 text-gray-500 mt-1" />
-                        </div>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-            ) : pathResult && (
-              <div className="p-4 rounded-xl bg-gray-950 border border-gray-800 text-xs text-gray-400 font-mono">
-                {pathResult.message || 'No direct collaboration path found in current graph.'}
-              </div>
             )}
           </div>
         </div>
       )}
 
       {/* ======================================================== */}
-      {/* 3. ACTOR CO-STAR COLLABORATIONS */}
+      {/* 2. SHORTEST PATH (DEGREES OF SEPARATION) */}
       {/* ======================================================== */}
-      {activeSubTab === 'collaborations' && (
-        <div className="space-y-6">
-          <div className="glass-panel rounded-xl p-5 border border-cyan-500/30 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>Graph Aggregations: <code className="text-cyan-300 font-mono text-sm">(:Actor)-[:CO_STARRED_WITH]-&gt;(:Actor)</code></span>
-                  <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-mono">Collaboration Density</span>
-                </h2>
-                <p className="text-xs text-gray-400 mt-1">
-                  Groups actors by shared cinematic productions and ranks the highest-frequency collaborative partnerships.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 font-mono">Min Shared Films:</span>
-                <select
-                  value={minCount}
-                  onChange={(e) => {
-                    const m = Number(e.target.value);
-                    setMinCount(m);
-                    fetchCollaborations(m);
-                  }}
-                  className="bg-gray-900 border border-gray-800 text-xs text-gray-200 px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500 font-mono"
-                >
-                  <option value="1">1+ Shared Films</option>
-                  <option value="2">2+ Shared Films</option>
-                  <option value="3">3+ Shared Films</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Collaborations Table */}
-            <div className="overflow-x-auto rounded-lg border border-gray-800">
-              <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-gray-950/80 text-gray-400 border-b border-gray-800">
-                  <tr>
-                    <th className="p-3">Actor A</th>
-                    <th className="p-3">Actor B</th>
-                    <th className="p-3 text-center">Shared Productions</th>
-                    <th className="p-3">Graph Edge Relationship</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-800/60">
-                  {collaborations.map((c, idx) => (
-                    <tr key={idx} className="hover:bg-white/5 transition-colors">
-                      <td className="p-3 font-semibold text-white">{c.actor1}</td>
-                      <td className="p-3 font-semibold text-cyan-300">{c.actor2}</td>
-                      <td className="p-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-500/30 font-bold">
-                          {c.shared_movies} Films
-                        </span>
-                      </td>
-                      <td className="p-3 text-gray-400 text-[11px]">
-                        <code>[:CO_STARRED_WITH &#123;movie_count: {c.shared_movies}&#125;]</code>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* 4. CYPHER CRUD OPERATIONS */}
-      {/* ======================================================== */}
-      {activeSubTab === 'crud' && (
-        <div className="space-y-6">
-          <div className="glass-panel rounded-xl p-5 border border-purple-500/30 space-y-4">
+      {activeSubTab === 'pathfinder' && (
+        <div 
+          className="p-5 rounded-xl border space-y-4 shadow-sm transition-colors"
+          style={{
+            backgroundColor: 'var(--bg-surface)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-main)'
+          }}
+        >
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Cypher CRUD Studio: <code className="text-purple-300 font-mono text-sm">MERGE (n:Node) / CREATE (a)-[:EDGE]-&gt;(b)</code></span>
-                <span className="text-[10px] bg-purple-950 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-mono">Graph DDL/DML</span>
-              </h2>
-              <p className="text-xs text-gray-400 mt-1">
-                Fulfills the Level 3 requirement to implement Cypher Create, Read, Update, and Delete operations for graph entities and relationships.
+              <h3 className="font-bold text-sm">Multi-Hop Shortest Path (Degrees of Separation)</h3>
+              <p className="text-xs opacity-75 mt-0.5">
+                Uses Neo4j Cypher <code>MATCH path = shortestPath((p1)-[*]-(p2)) RETURN path, length(path)</code>.
               </p>
             </div>
+            <span 
+              className="text-[10px] px-2.5 py-1 rounded font-mono font-bold border"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--color-accent)'
+              }}
+            >
+              O(1) Per Hop Traversal
+            </span>
+          </div>
 
-            {crudNotice && (
-              <div className="p-3 rounded-lg bg-gray-950 border border-cyan-500/40 text-xs font-mono text-cyan-200">
-                {crudNotice}
-              </div>
-            )}
-
-            {/* Quick Node Creator Form */}
-            <form onSubmit={handleCreateNode} className="bg-gray-950 p-4 rounded-xl border border-gray-800 space-y-4 text-xs font-mono">
-              <div className="font-semibold text-gray-200">Register New Node Entity in Neo4j</div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <label className="text-gray-400 block mb-1">Node Type (Label)</label>
-                  <select
-                    value={newNodeType}
-                    onChange={(e) => setNewNodeType(e.target.value)}
-                    className="w-full bg-gray-900 border border-gray-800 text-gray-200 p-2 rounded-lg focus:outline-none focus:border-purple-500"
-                  >
-                    <option value="Actor">(:Actor)</option>
-                    <option value="Director">(:Director)</option>
-                    <option value="Movie">(:Movie)</option>
-                    <option value="Genre">(:Genre)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-gray-400 block mb-1">Primary Identifier (Name / Title)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Joaquin Phoenix"
-                    value={newNodeName}
-                    onChange={(e) => setNewNodeName(e.target.value)}
-                    className="w-full bg-gray-900 border border-gray-800 text-gray-200 p-2 rounded-lg focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-gray-400 block mb-1">Secondary Detail (Nationality / Genre)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., American"
-                    value={newNodeDetail}
-                    onChange={(e) => setNewNodeDetail(e.target.value)}
-                    className="w-full bg-gray-900 border border-gray-800 text-gray-200 p-2 rounded-lg focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/50 text-purple-200 font-semibold px-4 py-2 rounded-lg transition-all"
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3.5 rounded-lg border text-xs"
+            style={{
+              backgroundColor: 'var(--bg-surface-elevated)',
+              borderColor: 'var(--border-subtle)'
+            }}
+          >
+            <div>
+              <label className="block mb-1 font-medium opacity-80">Actor 1 (Source)</label>
+              <select
+                value={actor1}
+                onChange={(e) => setActor1(e.target.value)}
+                className="w-full border p-2 rounded-lg text-xs"
+                style={{
+                  backgroundColor: 'var(--bg-surface)',
+                  borderColor: 'var(--border-subtle)',
+                  color: 'var(--text-main)'
+                }}
               >
-                Execute MERGE Statement in Neo4j
-              </button>
-            </form>
+                {actorNames.slice(0, 15).map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block mb-1 font-medium opacity-80">Actor 2 (Destination)</label>
+              <select
+                value={actor2}
+                onChange={(e) => setActor2(e.target.value)}
+                className="w-full border p-2 rounded-lg text-xs"
+                style={{
+                  backgroundColor: 'var(--bg-surface)',
+                  borderColor: 'var(--border-subtle)',
+                  color: 'var(--text-main)'
+                }}
+              >
+                {actorNames.slice(0, 15).map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={() => findPath(actor1, actor2)}
+            disabled={pathLoading}
+            className="w-full py-2.5 rounded-lg text-white font-semibold text-xs shadow-sm transition-all"
+            style={{ backgroundColor: 'var(--color-primary)' }}
+          >
+            {pathLoading ? 'Traversing Neo4j Graph...' : `Compute Shortest Path Between ${actor1} & ${actor2}`}
+          </button>
+
+          {pathResult && (
+            <div 
+              className="p-4 rounded-lg border text-xs space-y-2 font-mono"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)'
+              }}
+            >
+              <div className="font-semibold text-emerald-500">
+                Degrees of Separation: {pathResult.degrees_of_separation} hop(s)
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                {pathResult.path_nodes?.map((node: string, idx: number) => (
+                  <React.Fragment key={idx}>
+                    <span 
+                      className="px-2.5 py-1 rounded border font-sans font-medium"
+                      style={{
+                        backgroundColor: 'var(--bg-surface)',
+                        borderColor: 'var(--border-subtle)',
+                        color: 'var(--text-main)'
+                      }}
+                    >
+                      {node}
+                    </span>
+                    {idx < pathResult.path_nodes.length - 1 && (
+                      <ArrowRight className="w-3.5 h-3.5" style={{ color: 'var(--color-accent)' }} />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* 3. ACTOR COLLABORATIONS */}
+      {/* ======================================================== */}
+      {activeSubTab === 'collaborations' && (
+        <div 
+          className="p-5 rounded-xl border space-y-4 shadow-sm transition-colors"
+          style={{
+            backgroundColor: 'var(--bg-surface)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-main)'
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm">Frequent Actor Collaborations</h3>
+              <p className="text-xs opacity-75 mt-0.5">
+                Aggregated via Cypher <code>MATCH (a1:Actor)-[r:CO_STARRED_WITH]-(a2:Actor) WHERE id(a1) &lt; id(a2) RETURN a1.name, a2.name, r.movie_count ORDER BY r.movie_count DESC</code>.
+              </p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto border rounded-lg" style={{ borderColor: 'var(--border-subtle)' }}>
+            <table className="w-full text-left text-xs font-mono">
+              <thead 
+                className="border-b"
+                style={{
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  borderColor: 'var(--border-subtle)',
+                  color: 'var(--text-muted)'
+                }}
+              >
+                <tr>
+                  <th className="p-2.5">Actor 1</th>
+                  <th className="p-2.5">Actor 2</th>
+                  <th className="p-2.5">Shared Films</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+                {collaborations.map((c, i) => (
+                  <tr key={i} className="hover:opacity-90 transition-opacity">
+                    <td className="p-2.5 font-bold" style={{ color: 'var(--color-primary)' }}>{c.actor1}</td>
+                    <td className="p-2.5 font-bold" style={{ color: 'var(--color-accent)' }}>{c.actor2}</td>
+                    <td className="p-2.5 font-semibold text-emerald-500">{c.shared_movies} Film(s)</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
+
+      {/* ======================================================== */}
+      {/* 4. CYPHER CRUD */}
+      {/* ======================================================== */}
+      {activeSubTab === 'crud' && (
+        <div 
+          className="p-5 rounded-xl border space-y-4 shadow-sm transition-colors"
+          style={{
+            backgroundColor: 'var(--bg-surface)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-main)'
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm">Register New Node Entity in Neo4j</h3>
+              <p className="text-xs opacity-75 mt-0.5">
+                Executes Cypher <code>MERGE</code> on the graph to guarantee uniqueness without duplicate nodes.
+              </p>
+            </div>
+            <span 
+              className="text-[10px] px-2 py-0.5 rounded font-mono font-bold border"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--color-primary)'
+              }}
+            >
+              MERGE Statement
+            </span>
+          </div>
+
+          {crudNotice && (
+            <div 
+              className="p-3 rounded-lg border text-xs font-mono"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--color-primary)'
+              }}
+            >
+              {crudNotice}
+            </div>
+          )}
+
+          <form onSubmit={handleCreateNode} className="space-y-3 text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block mb-1 font-medium opacity-80">Node Type (Label)</label>
+                <select
+                  value={newNodeType}
+                  onChange={(e) => setNewNodeType(e.target.value)}
+                  className="w-full border p-2 rounded-lg text-xs"
+                  style={{
+                    backgroundColor: 'var(--bg-surface-elevated)',
+                    borderColor: 'var(--border-subtle)',
+                    color: 'var(--text-main)'
+                  }}
+                >
+                  <option value="Actor">(:Actor)</option>
+                  <option value="Director">(:Director)</option>
+                  <option value="Movie">(:Movie)</option>
+                  <option value="Genre">(:Genre)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium opacity-80">Identifier (Name / Title)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Joaquin Phoenix"
+                  value={newNodeName}
+                  onChange={(e) => setNewNodeName(e.target.value)}
+                  className="w-full border p-2 rounded-lg text-xs"
+                  style={{
+                    backgroundColor: 'var(--bg-surface-elevated)',
+                    borderColor: 'var(--border-subtle)',
+                    color: 'var(--text-main)'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium opacity-80">Detail (Nationality / Genre)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. American"
+                  value={newNodeDetail}
+                  onChange={(e) => setNewNodeDetail(e.target.value)}
+                  className="w-full border p-2 rounded-lg text-xs"
+                  style={{
+                    backgroundColor: 'var(--bg-surface-elevated)',
+                    borderColor: 'var(--border-subtle)',
+                    color: 'var(--text-main)'
+                  }}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="px-4 py-2 text-white font-semibold rounded-lg text-xs shadow-sm transition-all"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+            >
+              Execute MERGE in Neo4j
+            </button>
+          </form>
+        </div>
+      )}
+
     </div>
   );
 }

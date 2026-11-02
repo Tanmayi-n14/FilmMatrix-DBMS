@@ -16,7 +16,8 @@ export async function GET(req: NextRequest) {
       RETURN 
         a1.name AS actor1, 
         a2.name AS actor2, 
-        r.movie_count AS shared_movies
+        r.movie_count AS shared_movies,
+        r.movie_count AS movie_count
       ORDER BY r.movie_count DESC, a1.name ASC
       LIMIT 25
     `;
@@ -32,7 +33,8 @@ export async function GET(req: NextRequest) {
           return {
             actor1: a1?.label || 'Actor A',
             actor2: a2?.label || 'Actor B',
-            shared_movies: e.movie_count || 1
+            shared_movies: e.movie_count || 1,
+            movie_count: e.movie_count || 1
           };
         })
         .sort((a, b) => b.shared_movies - a.shared_movies);
@@ -58,3 +60,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
