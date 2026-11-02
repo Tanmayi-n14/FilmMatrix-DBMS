@@ -203,3 +203,9 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 7. **Interactive SQL & Cypher Workbench (`/sql-workbench`):**
    * Run raw queries against MySQL and Neo4j directly from the browser!
 
+---
+
+## 👤 Author
+
+* **Tanmayi Nagabhairava** ([@Tanmayi-n14](https://github.com/Tanmayi-n14)) — `PES1UG24CS493`
+* Department of Computer Science & Engineering, PES University
