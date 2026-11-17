@@ -106,6 +106,7 @@ export default function MasterPresentationDashboard() {
   const [triggerTestResult, setTriggerTestResult] = useState<any | null>(null);
   const [expandedTriggerCode, setExpandedTriggerCode] = useState<string | null>('before_insert');
   const [copiedTriggerCode, setCopiedTriggerCode] = useState<string | null>(null);
+  const [expandedCliMap, setExpandedCliMap] = useState<Record<string, boolean>>({});
   const [cteData, setCteData] = useState<any[]>([]);
 
   // Procedure 1 State (sp_calculate_financial_metrics)
@@ -535,6 +536,10 @@ export default function MasterPresentationDashboard() {
       setCopiedTriggerCode(id);
       setTimeout(() => setCopiedTriggerCode(null), 2000);
     }
+  };
+
+  const toggleCliPanel = (key: string) => {
+    setExpandedCliMap(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const formatCurrency = (val: number) => {
@@ -3603,15 +3608,88 @@ ORDER BY log_id DESC LIMIT 1;`}
                   </div>
                 </div>
 
-                <button
-                  onClick={() => fetchProcedureData(procStartYear, procEndYear)}
-                  disabled={procLoading}
-                  className="w-full py-2.5 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all"
-                  style={{ backgroundColor: 'var(--color-primary)' }}
-                >
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>{procLoading ? 'Executing Procedure in MySQL...' : `Execute: CALL sp_calculate_financial_metrics(${procStartYear}, ${procEndYear})`}</span>
-                </button>
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => fetchProcedureData(procStartYear, procEndYear)}
+                    disabled={procLoading}
+                    className="flex-1 py-2.5 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all"
+                    style={{ backgroundColor: 'var(--color-primary)' }}
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>{procLoading ? 'Executing Procedure in MySQL...' : `Execute: CALL sp_calculate_financial_metrics(${procStartYear}, ${procEndYear})`}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => toggleCliPanel('proc1')}
+                    className="flex items-center gap-1 px-3 py-2.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                    style={{ borderColor: 'var(--border-subtle)' }}
+                  >
+                    <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>{expandedCliMap['proc1'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                    {expandedCliMap['proc1'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                {expandedCliMap['proc1'] && (
+                  <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                    <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                      <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                        <Terminal className="w-3.5 h-3.5" />
+                        Terminal CLI Verification Runbook (MySQL Terminal)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(`-- =============================================================================\n-- PROCEDURE 1: sp_calculate_financial_metrics(p_start_year, p_end_year)\n-- =============================================================================\n-- Step 1: Ensure Stored Function exists (Prerequisite):\nDROP FUNCTION IF EXISTS fn_calculate_roi;\nDELIMITER $$\nCREATE FUNCTION fn_calculate_roi(\n    p_box_office DECIMAL(15,2),\n    p_prod_cost DECIMAL(12,2),\n    p_marketing DECIMAL(12,2)\n)\nRETURNS DECIMAL(10,2)\nDETERMINISTIC\nBEGIN\n    DECLARE v_total_cost DECIMAL(15,2);\n    SET v_total_cost = IFNULL(p_prod_cost, 0.00) + IFNULL(p_marketing, 0.00);\n    IF v_total_cost > 0 THEN\n        RETURN ((p_box_office - v_total_cost) / v_total_cost) * 100.00;\n    ELSE\n        RETURN 0.00;\n    END IF;\nEND $$\nDELIMITER ;\n\n-- Step 2: Create Stored Procedure:\nDROP PROCEDURE IF EXISTS sp_calculate_financial_metrics;\nDELIMITER $$\nCREATE PROCEDURE sp_calculate_financial_metrics(\n    IN p_start_year INT,\n    IN p_end_year INT\n)\nBEGIN\n    SELECT \n        COUNT(m.movie_id) AS total_movies,\n        IFNULL(SUM(m.box_office_earnings), 0.00) AS aggregate_box_office,\n        IFNULL(SUM(b.production_cost), 0.00) AS aggregate_production_cost,\n        IFNULL(SUM(b.marketing_spend), 0.00) AS aggregate_marketing_spend,\n        IFNULL(SUM(m.box_office_earnings - (b.production_cost + b.marketing_spend)), 0.00) AS aggregate_net_profit,\n        IFNULL(ROUND(AVG(fn_calculate_roi(m.box_office_earnings, b.production_cost, b.marketing_spend)), 2), 0.00) AS average_roi_percentage,\n        (\n            SELECT m2.title\n            FROM Movies m2\n            INNER JOIN ProductionBudgets b2 ON m2.movie_id = b2.movie_id\n            WHERE m2.release_year BETWEEN p_start_year AND p_end_year\n            ORDER BY (m2.box_office_earnings - (b2.production_cost + b2.marketing_spend)) DESC\n            LIMIT 1\n        ) AS most_profitable_movie\n    FROM Movies m\n    INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id\n    WHERE m.release_year BETWEEN p_start_year AND p_end_year;\nEND $$\nDELIMITER ;\n\n-- Step 3: Terminal Verification Query (Verify output matches UI cards):\nCALL sp_calculate_financial_metrics(${procStartYear}, ${procEndYear});`, 'cli_proc1')}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                      >
+                        {copiedTriggerCode === 'cli_proc1' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedTriggerCode === 'cli_proc1' ? 'Copied!' : 'Copy CLI Script'}</span>
+                      </button>
+                    </div>
+                    <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Ensure Stored Function exists (Prerequisite):
+DROP FUNCTION IF EXISTS fn_calculate_roi;
+DELIMITER $$
+CREATE FUNCTION fn_calculate_roi(p_box_office DECIMAL(15,2), p_prod_cost DECIMAL(12,2), p_marketing DECIMAL(12,2))
+RETURNS DECIMAL(10,2) DETERMINISTIC
+BEGIN
+    DECLARE v_total_cost DECIMAL(15,2);
+    SET v_total_cost = IFNULL(p_prod_cost, 0.00) + IFNULL(p_marketing, 0.00);
+    RETURN IF(v_total_cost > 0, ((p_box_office - v_total_cost) / v_total_cost) * 100.00, 0.00);
+END $$
+DELIMITER ;
+
+-- Step 2: Create Stored Procedure:
+DROP PROCEDURE IF EXISTS sp_calculate_financial_metrics;
+DELIMITER $$
+CREATE PROCEDURE sp_calculate_financial_metrics(IN p_start_year INT, IN p_end_year INT)
+BEGIN
+    SELECT 
+        COUNT(m.movie_id) AS total_movies,
+        IFNULL(SUM(m.box_office_earnings), 0.00) AS aggregate_box_office,
+        IFNULL(SUM(b.production_cost), 0.00) AS aggregate_production_cost,
+        IFNULL(SUM(b.marketing_spend), 0.00) AS aggregate_marketing_spend,
+        IFNULL(SUM(m.box_office_earnings - (b.production_cost + b.marketing_spend)), 0.00) AS aggregate_net_profit,
+        IFNULL(ROUND(AVG(fn_calculate_roi(m.box_office_earnings, b.production_cost, b.marketing_spend)), 2), 0.00) AS average_roi_percentage,
+        (
+            SELECT m2.title FROM Movies m2
+            INNER JOIN ProductionBudgets b2 ON m2.movie_id = b2.movie_id
+            WHERE m2.release_year BETWEEN p_start_year AND p_end_year
+            ORDER BY (m2.box_office_earnings - (b2.production_cost + b2.marketing_spend)) DESC
+            LIMIT 1
+        ) AS most_profitable_movie
+    FROM Movies m
+    INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
+    WHERE m.release_year BETWEEN p_start_year AND p_end_year;
+END $$
+DELIMITER ;
+
+-- Step 3: Terminal Verification Query (Verify output matches UI values):
+CALL sp_calculate_financial_metrics(${procStartYear}, ${procEndYear});`}
+                    </pre>
+                  </div>
+                )}
 
                 {procResult && (
                   <div className="p-4 rounded-xl border font-mono text-xs space-y-3" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
@@ -3770,15 +3848,78 @@ ORDER BY log_id DESC LIMIT 1;`}
                     ))}
                   </div>
 
-                  <button
-                    onClick={handleRunProcedure2}
-                    disabled={proc2Loading}
-                    className="w-full py-2.5 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all"
-                    style={{ backgroundColor: 'var(--color-primary)' }}
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>{proc2Loading ? 'Executing ACID Transaction in MySQL...' : `Execute: CALL sp_register_movie_with_budget('${proc2Title}', ${proc2Year}, ...)`}</span>
-                  </button>
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      onClick={handleRunProcedure2}
+                      disabled={proc2Loading}
+                      className="flex-1 py-2.5 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all"
+                      style={{ backgroundColor: 'var(--color-primary)' }}
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>{proc2Loading ? 'Executing ACID Transaction in MySQL...' : `Execute: CALL sp_register_movie_with_budget('${proc2Title}', ${proc2Year}, ...)`}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleCliPanel('proc2')}
+                      className="flex items-center gap-1 px-3 py-2.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                    >
+                      <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>{expandedCliMap['proc2'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                      {expandedCliMap['proc2'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+
+                  {expandedCliMap['proc2'] && (
+                    <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                      <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                        <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5" />
+                          Terminal CLI Verification Runbook (MySQL Terminal)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(`-- =============================================================================\n-- PROCEDURE 2: sp_register_movie_with_budget (ACID Transaction)\n-- =============================================================================\n-- Step 1: Create Procedure with Error Handler & Transaction\nDROP PROCEDURE IF EXISTS sp_register_movie_with_budget;\nDELIMITER $$\nCREATE PROCEDURE sp_register_movie_with_budget(\n    IN p_title VARCHAR(150),\n    IN p_release_year INT,\n    IN p_box_office DECIMAL(15,2),\n    IN p_production_cost DECIMAL(12,2),\n    IN p_marketing_spend DECIMAL(12,2),\n    IN p_synopsis VARCHAR(1000),\n    OUT p_new_movie_id INT\n)\nBEGIN\n    DECLARE EXIT HANDLER FOR SQLEXCEPTION\n    BEGIN\n        ROLLBACK;\n        RESIGNAL;\n    END;\n\n    START TRANSACTION;\n        INSERT INTO Movies (title, release_year, duration_minutes, box_office_earnings, synopsis)\n        VALUES (p_title, p_release_year, 150, p_box_office, p_synopsis);\n\n        SET p_new_movie_id = LAST_INSERT_ID();\n\n        INSERT INTO ProductionBudgets (movie_id, production_cost, marketing_spend)\n        VALUES (p_new_movie_id, p_production_cost, p_marketing_spend);\n    COMMIT;\nEND $$\nDELIMITER ;\n\n-- Step 2: Call Procedure in Terminal\nCALL sp_register_movie_with_budget('${proc2Title.replace(/'/g, "\\'")}', ${Number(proc2Year) || 2024}, ${Number(proc2Gross) || 0}.00, ${Number(proc2Cost) || 0}.00, ${Number(proc2Mktg) || 0}.00, '${proc2Synopsis.replace(/'/g, "\\'")}', @new_movie_id);\n\n-- Step 3: Terminal Verification Query (Verify atomic write across 2 tables)\nSELECT m.movie_id, m.title, m.release_year, b.production_cost, b.marketing_spend,\n       (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit\nFROM Movies m\nINNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id\nWHERE m.movie_id = @new_movie_id;`, 'cli_proc2')}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                        >
+                          {copiedTriggerCode === 'cli_proc2' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                          <span>{copiedTriggerCode === 'cli_proc2' ? 'Copied!' : 'Copy CLI Script'}</span>
+                        </button>
+                      </div>
+                      <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Create ACID Procedure (Atomic multi-table insert with ROLLBACK):
+DROP PROCEDURE IF EXISTS sp_register_movie_with_budget;
+DELIMITER $$
+CREATE PROCEDURE sp_register_movie_with_budget(
+    IN p_title VARCHAR(150), IN p_release_year INT, IN p_box_office DECIMAL(15,2),
+    IN p_production_cost DECIMAL(12,2), IN p_marketing_spend DECIMAL(12,2),
+    IN p_synopsis VARCHAR(1000), OUT p_new_movie_id INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; RESIGNAL; END;
+    START TRANSACTION;
+        INSERT INTO Movies (title, release_year, duration_minutes, box_office_earnings, synopsis)
+        VALUES (p_title, p_release_year, 150, p_box_office, p_synopsis);
+        SET p_new_movie_id = LAST_INSERT_ID();
+        INSERT INTO ProductionBudgets (movie_id, production_cost, marketing_spend)
+        VALUES (p_new_movie_id, p_production_cost, p_marketing_spend);
+    COMMIT;
+END $$
+DELIMITER ;
+
+-- Step 2: Call Procedure in Terminal:
+CALL sp_register_movie_with_budget('${proc2Title.replace(/'/g, "\\'")}', ${Number(proc2Year) || 2024}, ${Number(proc2Gross) || 0}.00, ${Number(proc2Cost) || 0}.00, ${Number(proc2Mktg) || 0}.00, '${proc2Synopsis.replace(/'/g, "\\'")}', @new_movie_id);
+
+-- Step 3: Terminal Verification Query (Verify joined record created on disk):
+SELECT m.movie_id, m.title, m.release_year, b.production_cost, b.marketing_spend,
+       (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
+FROM Movies m
+INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
+WHERE m.movie_id = @new_movie_id;`}
+                      </pre>
+                    </div>
+                  )}
 
                   {proc2Notice && (
                     <div 
@@ -3926,14 +4067,66 @@ END $$`}</pre>
                     ))}
                   </div>
 
-                  <button
-                    onClick={handleRunFunctionCalc}
-                    className="w-full py-2.5 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all"
-                    style={{ backgroundColor: 'var(--color-primary)' }}
-                  >
-                    <Calculator className="w-3.5 h-3.5" />
-                    <span>Execute Function: SELECT fn_calculate_roi({roiBoxOffice}, {roiProdCost}, {roiMarketing})</span>
-                  </button>
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      onClick={handleRunFunctionCalc}
+                      className="flex-1 py-2.5 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all"
+                      style={{ backgroundColor: 'var(--color-primary)' }}
+                    >
+                      <Calculator className="w-3.5 h-3.5" />
+                      <span>Execute Function: SELECT fn_calculate_roi({roiBoxOffice}, {roiProdCost}, {roiMarketing})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleCliPanel('func1')}
+                      className="flex items-center gap-1 px-3 py-2.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                    >
+                      <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>{expandedCliMap['func1'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                      {expandedCliMap['func1'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+
+                  {expandedCliMap['func1'] && (
+                    <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                      <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                        <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5" />
+                          Terminal CLI Verification Runbook (MySQL Terminal)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(`-- =============================================================================\n-- STORED FUNCTION: fn_calculate_roi\n-- =============================================================================\n-- Step 1: Create Stored Function\nDROP FUNCTION IF EXISTS fn_calculate_roi;\nDELIMITER $$\nCREATE FUNCTION fn_calculate_roi(\n    p_box_office DECIMAL(15,2),\n    p_prod_cost DECIMAL(12,2),\n    p_marketing DECIMAL(12,2)\n)\nRETURNS DECIMAL(10,2)\nDETERMINISTIC\nBEGIN\n    DECLARE v_total_cost DECIMAL(15,2);\n    SET v_total_cost = IFNULL(p_prod_cost, 0.00) + IFNULL(p_marketing, 0.00);\n    \n    IF v_total_cost > 0 THEN\n        RETURN ((p_box_office - v_total_cost) / v_total_cost) * 100.00;\n    ELSE\n        RETURN 0.00;\n    END IF;\nEND $$\nDELIMITER ;\n\n-- Step 2: Terminal Verification (Embed directly in SELECT query)\nSELECT \n    '${Number(roiBoxOffice) >= 1000000000 ? 'Avatar' : 'Interstellar'}' AS test_movie,\n    ${Number(roiBoxOffice) || 701729206}.00 AS box_office_earnings,\n    ${Number(roiProdCost) || 165000000}.00 AS production_cost,\n    ${Number(roiMarketing) || 50000000}.00 AS marketing_spend,\n    fn_calculate_roi(${Number(roiBoxOffice) || 701729206}.00, ${Number(roiProdCost) || 165000000}.00, ${Number(roiMarketing) || 50000000}.00) AS computed_roi_percentage;`, 'cli_func1')}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                        >
+                          {copiedTriggerCode === 'cli_func1' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                          <span>{copiedTriggerCode === 'cli_func1' ? 'Copied!' : 'Copy CLI Script'}</span>
+                        </button>
+                      </div>
+                      <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Create Deterministic Function:
+DROP FUNCTION IF EXISTS fn_calculate_roi;
+DELIMITER $$
+CREATE FUNCTION fn_calculate_roi(p_box_office DECIMAL(15,2), p_prod_cost DECIMAL(12,2), p_marketing DECIMAL(12,2))
+RETURNS DECIMAL(10,2) DETERMINISTIC
+BEGIN
+    DECLARE v_total_cost DECIMAL(15,2);
+    SET v_total_cost = IFNULL(p_prod_cost, 0.00) + IFNULL(p_marketing, 0.00);
+    RETURN IF(v_total_cost > 0, ((p_box_office - v_total_cost) / v_total_cost) * 100.00, 0.00);
+END $$
+DELIMITER ;
+
+-- Step 2: Terminal Verification Query (Embed directly in SELECT query):
+SELECT 
+    ${Number(roiBoxOffice) || 701729206}.00 AS box_office,
+    ${Number(roiProdCost) || 165000000}.00 AS prod_cost,
+    ${Number(roiMarketing) || 50000000}.00 AS marketing,
+    fn_calculate_roi(${Number(roiBoxOffice) || 701729206}.00, ${Number(roiProdCost) || 165000000}.00, ${Number(roiMarketing) || 50000000}.00) AS computed_roi_percentage;`}
+                      </pre>
+                    </div>
+                  )}
 
                   {funcCalcResult.executed && (
                     <div className="p-3.5 rounded-lg border space-y-2 text-xs" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>
@@ -4049,6 +4242,62 @@ END $$`}</pre>
                     </tbody>
                   </table>
                 </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleCliPanel('view1')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                    style={{ borderColor: 'var(--border-subtle)' }}
+                  >
+                    <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>{expandedCliMap['view1'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                    {expandedCliMap['view1'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                {expandedCliMap['view1'] && (
+                  <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                    <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                      <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                        <Terminal className="w-3.5 h-3.5" />
+                        Terminal CLI Verification Runbook (MySQL Terminal)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(`-- =============================================================================\n-- DATABASE VIEW: vw_movie_financial_summary\n-- =============================================================================\n-- Step 1: Create or Replace View in MySQL\nCREATE OR REPLACE VIEW vw_movie_financial_summary AS\nSELECT \n    m.movie_id,\n    m.title,\n    m.release_year,\n    m.box_office_earnings,\n    b.production_cost,\n    b.marketing_spend,\n    (b.production_cost + b.marketing_spend) AS total_investment,\n    (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit,\n    fn_calculate_roi(m.box_office_earnings, b.production_cost, b.marketing_spend) AS roi_percentage,\n    CASE \n        WHEN (m.box_office_earnings - (b.production_cost + b.marketing_spend)) >= 500000000 THEN 'Blockbuster Hit'\n        WHEN (m.box_office_earnings - (b.production_cost + b.marketing_spend)) > 0 THEN 'Profitable'\n        WHEN (m.box_office_earnings - (b.production_cost + b.marketing_spend)) = 0 THEN 'Break-even'\n        ELSE 'Box Office Flop'\n    END AS financial_status\nFROM Movies m\nINNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id;\n\n-- Step 2: Terminal Verification Query (Verify joined pre-computed data)\nSELECT movie_id, title, release_year, total_investment, net_profit, roi_percentage, financial_status \nFROM vw_movie_financial_summary \nORDER BY net_profit DESC \nLIMIT 8;`, 'cli_view1')}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                      >
+                        {copiedTriggerCode === 'cli_view1' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedTriggerCode === 'cli_view1' ? 'Copied!' : 'Copy CLI Script'}</span>
+                      </button>
+                    </div>
+                    <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Create View encapsulating multi-table JOINs and fn_calculate_roi():
+CREATE OR REPLACE VIEW vw_movie_financial_summary AS
+SELECT 
+    m.movie_id, m.title, m.release_year, m.box_office_earnings,
+    b.production_cost, b.marketing_spend,
+    (b.production_cost + b.marketing_spend) AS total_investment,
+    (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit,
+    fn_calculate_roi(m.box_office_earnings, b.production_cost, b.marketing_spend) AS roi_percentage,
+    CASE 
+        WHEN (m.box_office_earnings - (b.production_cost + b.marketing_spend)) >= 500000000 THEN 'Blockbuster Hit'
+        WHEN (m.box_office_earnings - (b.production_cost + b.marketing_spend)) > 0 THEN 'Profitable'
+        WHEN (m.box_office_earnings - (b.production_cost + b.marketing_spend)) = 0 THEN 'Break-even'
+        ELSE 'Box Office Flop'
+    END AS financial_status
+FROM Movies m
+INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id;
+
+-- Step 2: Terminal Verification Query (Matches View Table above):
+SELECT movie_id, title, release_year, total_investment, net_profit, roi_percentage, financial_status 
+FROM vw_movie_financial_summary 
+ORDER BY net_profit DESC 
+LIMIT 8;`}
+                    </pre>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -4153,6 +4402,57 @@ END $$`}</pre>
                       </table>
                     </div>
 
+                    <div className="flex items-center justify-between pt-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleCliPanel('cte_analytical')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                        style={{ borderColor: 'var(--border-subtle)' }}
+                      >
+                        <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                        <span>{expandedCliMap['cte_analytical'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                        {expandedCliMap['cte_analytical'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {expandedCliMap['cte_analytical'] && (
+                      <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                        <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                          <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                            <Terminal className="w-3.5 h-3.5" />
+                            Terminal CLI Verification Runbook (MySQL Terminal)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- ANALYTICAL CTE: RankedMovies with DENSE_RANK() Window Function\n-- =============================================================================\nWITH MovieFinancialMetrics AS (\n    SELECT \n        m.movie_id, \n        m.title, \n        m.release_year, \n        m.box_office_earnings,\n        (b.production_cost + b.marketing_spend) AS total_cost,\n        (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit\n    FROM Movies m\n    INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id\n),\nRankedMovies AS (\n    SELECT \n        movie_id, \n        title, \n        release_year, \n        box_office_earnings, \n        total_cost, \n        net_profit,\n        ROUND((net_profit / total_cost) * 100, 2) AS roi_pct,\n        DENSE_RANK() OVER (ORDER BY net_profit DESC) AS profitability_rank\n    FROM MovieFinancialMetrics\n)\nSELECT profitability_rank, title, release_year, box_office_earnings, total_cost, net_profit, roi_pct\nFROM RankedMovies \nWHERE profitability_rank <= 10;`, 'cli_cte_analytical')}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                          >
+                            {copiedTriggerCode === 'cli_cte_analytical' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedTriggerCode === 'cli_cte_analytical' ? 'Copied!' : 'Copy CLI Script'}</span>
+                          </button>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Terminal Verification Query (2-Tier Analytical CTE with Window Function):
+WITH MovieFinancialMetrics AS (
+    SELECT m.movie_id, m.title, m.release_year, m.box_office_earnings,
+           (b.production_cost + b.marketing_spend) AS total_cost,
+           (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
+    FROM Movies m
+    INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
+),
+RankedMovies AS (
+    SELECT movie_id, title, release_year, box_office_earnings, total_cost, net_profit,
+           ROUND((net_profit / total_cost) * 100, 2) AS roi_pct,
+           DENSE_RANK() OVER (ORDER BY net_profit DESC) AS profitability_rank
+    FROM MovieFinancialMetrics
+)
+SELECT profitability_rank, title, release_year, box_office_earnings, total_cost, net_profit, roi_pct
+FROM RankedMovies 
+WHERE profitability_rank <= 10;`}
+                        </pre>
+                      </div>
+                    )}
+
                     <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`WITH MovieFinancialMetrics AS (
     SELECT m.movie_id, m.title, m.release_year, m.box_office_earnings,
            (b.production_cost + b.marketing_spend) AS total_cost,
@@ -4237,6 +4537,60 @@ SELECT * FROM RankedMovies WHERE profitability_rank <= 10;`}</pre>
                         </tbody>
                       </table>
                     </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleCliPanel('cte_recursive')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                        style={{ borderColor: 'var(--border-subtle)' }}
+                      >
+                        <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                        <span>{expandedCliMap['cte_recursive'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                        {expandedCliMap['cte_recursive'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {expandedCliMap['cte_recursive'] && (
+                      <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                        <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                          <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                            <Terminal className="w-3.5 h-3.5" />
+                            Terminal CLI Verification Runbook (MySQL Terminal)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- RECURSIVE CTE 1: Yearly Cumulative Box Office Growth Timeline\n-- =============================================================================\nWITH RECURSIVE YearlyTimelineCTE AS (\n    -- Anchor Member: Earliest benchmark year in catalog\n    SELECT \n        MIN(release_year) AS release_year,\n        COUNT(movie_id) AS films_released,\n        IFNULL(SUM(box_office_earnings), 0.00) AS annual_box_office,\n        IFNULL(SUM(box_office_earnings), 0.00) AS cumulative_box_office,\n        1 AS iteration_depth\n    FROM Movies\n    WHERE release_year = (SELECT MIN(release_year) FROM Movies)\n    GROUP BY release_year\n\n    UNION ALL\n\n    -- Recursive Member: Progressively increments release_year + 1\n    SELECT \n        curr.release_year + 1,\n        COUNT(m.movie_id) AS films_released,\n        IFNULL(SUM(m.box_office_earnings), 0.00) AS annual_box_office,\n        curr.cumulative_box_office + IFNULL(SUM(m.box_office_earnings), 0.00) AS cumulative_box_office,\n        curr.iteration_depth + 1\n    FROM YearlyTimelineCTE curr\n    LEFT JOIN Movies m ON m.release_year = curr.release_year + 1\n    WHERE curr.release_year + 1 <= 2024 -- Termination Guard\n    GROUP BY curr.release_year, curr.cumulative_box_office, curr.iteration_depth\n)\nSELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`, 'cli_cte_recursive')}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                          >
+                            {copiedTriggerCode === 'cli_cte_recursive' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedTriggerCode === 'cli_cte_recursive' ? 'Copied!' : 'Copy CLI Script'}</span>
+                          </button>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Terminal Verification Query (Recursive SQL with Anchor, Recursive Member & Guard):
+WITH RECURSIVE YearlyTimelineCTE AS (
+    -- Anchor Member:
+    SELECT MIN(release_year) AS release_year, COUNT(movie_id) AS films_released,
+           IFNULL(SUM(box_office_earnings), 0.00) AS annual_box_office,
+           IFNULL(SUM(box_office_earnings), 0.00) AS cumulative_box_office, 1 AS iteration_depth
+    FROM Movies WHERE release_year = (SELECT MIN(release_year) FROM Movies)
+    GROUP BY release_year
+    UNION ALL
+    -- Recursive Member:
+    SELECT curr.release_year + 1, COUNT(m.movie_id) AS films_released,
+           IFNULL(SUM(m.box_office_earnings), 0.00) AS annual_box_office,
+           curr.cumulative_box_office + IFNULL(SUM(m.box_office_earnings), 0.00) AS cumulative_box_office,
+           curr.iteration_depth + 1
+    FROM YearlyTimelineCTE curr
+    LEFT JOIN Movies m ON m.release_year = curr.release_year + 1
+    WHERE curr.release_year + 1 <= 2024 -- Termination Guard
+    GROUP BY curr.release_year, curr.cumulative_box_office, curr.iteration_depth
+)
+SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`}
+                        </pre>
+                      </div>
+                    )}
 
                     <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`-- RECURSIVE CTE 1: Yearly Cumulative Box Office Growth Timeline
 WITH RECURSIVE YearlyTimelineCTE AS (
@@ -4326,6 +4680,66 @@ SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`}</pre>
                       </table>
                     </div>
 
+                    <div className="flex items-center justify-between pt-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleCliPanel('cte_graph')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                        style={{ borderColor: 'var(--border-subtle)' }}
+                      >
+                        <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                        <span>{expandedCliMap['cte_graph'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                        {expandedCliMap['cte_graph'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {expandedCliMap['cte_graph'] && (
+                      <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                        <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                          <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                            <Terminal className="w-3.5 h-3.5" />
+                            Terminal CLI Verification Runbook (MySQL Terminal)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- RECURSIVE CTE 2: Multi-Hop Relational Actor Graph Path Traversal\n-- =============================================================================\nWITH RECURSIVE ActorGraphPath AS (\n    -- Anchor Member: Direct 1-hop co-stars\n    SELECT \n        mc1.actor_id AS start_actor,\n        mc2.actor_id AS end_actor,\n        CAST(CONCAT(a1.first_name, ' ', a1.last_name, ' -> [', m.title, '] -> ', a2.first_name, ' ', a2.last_name) AS CHAR(1000)) AS traversal_path,\n        1 AS path_length\n    FROM MovieCast mc1\n    JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id\n    JOIN Actors a1 ON mc1.actor_id = a1.actor_id\n    JOIN Actors a2 ON mc2.actor_id = a2.actor_id\n    JOIN Movies m ON mc1.movie_id = m.movie_id\n    WHERE mc1.actor_id = 1\n\n    UNION ALL\n\n    -- Recursive Member: Expand hops while preventing loops\n    SELECT \n        agp.start_actor,\n        mc_next2.actor_id,\n        CAST(CONCAT(agp.traversal_path, ' -> [', m2.title, '] -> ', a_next.first_name, ' ', a_next.last_name) AS CHAR(1000)),\n        agp.path_length + 1\n    FROM ActorGraphPath agp\n    JOIN MovieCast mc_next1 ON agp.end_actor = mc_next1.actor_id\n    JOIN MovieCast mc_next2 ON mc_next1.movie_id = mc_next2.movie_id AND mc_next1.actor_id != mc_next2.actor_id\n    JOIN Actors a_next ON mc_next2.actor_id = a_next.actor_id\n    JOIN Movies m2 ON mc_next1.movie_id = m2.movie_id\n    WHERE agp.path_length < 2\n      AND LOCATE(CONCAT(a_next.first_name, ' ', a_next.last_name), agp.traversal_path) = 0\n)\nSELECT traversal_path, path_length FROM ActorGraphPath LIMIT 10;`, 'cli_cte_graph')}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                          >
+                            {copiedTriggerCode === 'cli_cte_graph' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedTriggerCode === 'cli_cte_graph' ? 'Copied!' : 'Copy CLI Script'}</span>
+                          </button>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Terminal Verification Query (Recursive Relational Multi-Hop Graph Traversal):
+WITH RECURSIVE ActorGraphPath AS (
+    -- Anchor Member:
+    SELECT mc1.actor_id AS start_actor, mc2.actor_id AS end_actor,
+           CAST(CONCAT(a1.first_name, ' ', a1.last_name, ' -> [', m.title, '] -> ', a2.first_name, ' ', a2.last_name) AS CHAR(1000)) AS traversal_path,
+           1 AS path_length
+    FROM MovieCast mc1
+    JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id
+    JOIN Actors a1 ON mc1.actor_id = a1.actor_id
+    JOIN Actors a2 ON mc2.actor_id = a2.actor_id
+    JOIN Movies m ON mc1.movie_id = m.movie_id
+    WHERE mc1.actor_id = 1
+    UNION ALL
+    -- Recursive Member:
+    SELECT agp.start_actor, mc_next2.actor_id,
+           CAST(CONCAT(agp.traversal_path, ' -> [', m2.title, '] -> ', a_next.first_name, ' ', a_next.last_name) AS CHAR(1000)),
+           agp.path_length + 1
+    FROM ActorGraphPath agp
+    JOIN MovieCast mc_next1 ON agp.end_actor = mc_next1.actor_id
+    JOIN MovieCast mc_next2 ON mc_next1.movie_id = mc_next2.movie_id AND mc_next1.actor_id != mc_next2.actor_id
+    JOIN Actors a_next ON mc_next2.actor_id = a_next.actor_id
+    JOIN Movies m2 ON mc_next1.movie_id = m2.movie_id
+    WHERE agp.path_length < 2
+      AND LOCATE(CONCAT(a_next.first_name, ' ', a_next.last_name), agp.traversal_path) = 0
+)
+SELECT traversal_path, path_length FROM ActorGraphPath LIMIT 10;`}
+                        </pre>
+                      </div>
+                    )}
+
                     <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`-- RECURSIVE CTE 2: Multi-Hop Relational Actor Graph Path Traversal
 WITH RECURSIVE ActorGraphPath AS (
     -- Anchor Member: Direct 1-hop co-stars of seed actor
@@ -4414,6 +4828,41 @@ WHERE box_office_earnings > (
     SELECT AVG(box_office_earnings) FROM Movies
 )
 ORDER BY box_office_earnings DESC;`}</pre>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleCliPanel('subquery_scalar')}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3 h-3 text-blue-600" />
+                          <span>{expandedCliMap['subquery_scalar'] ? 'Hide CLI' : 'Terminal Verification'}</span>
+                          {expandedCliMap['subquery_scalar'] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
+                      </div>
+
+                      {expandedCliMap['subquery_scalar'] && (
+                        <div className="p-2.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[10px] space-y-1.5">
+                          <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                            <span className="text-amber-400 font-bold flex items-center gap-1">
+                              <Terminal className="w-3 h-3" /> CLI Query
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(`-- SUBQUERY A: Scalar Subquery (Above Average Gross)\nSELECT title, release_year, box_office_earnings\nFROM Movies\nWHERE box_office_earnings > (\n    SELECT AVG(box_office_earnings) FROM Movies\n)\nORDER BY box_office_earnings DESC;`, 'cli_subquery_scalar')}
+                              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                            >
+                              {copiedTriggerCode === 'cli_subquery_scalar' ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <Copy className="w-2.5 h-2.5" />}
+                              <span>{copiedTriggerCode === 'cli_subquery_scalar' ? 'Copied!' : 'Copy'}</span>
+                            </button>
+                          </div>
+                          <pre className="overflow-x-auto text-emerald-400 text-[10px] whitespace-pre-wrap">{`SELECT title, release_year, box_office_earnings
+FROM Movies
+WHERE box_office_earnings > (SELECT AVG(box_office_earnings) FROM Movies)
+ORDER BY box_office_earnings DESC;`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     {/* Correlated Subquery with EXISTS */}
@@ -4430,6 +4879,42 @@ WHERE EXISTS (
     SELECT 1 FROM Watchlists w 
     WHERE w.user_id = u.user_id
 );`}</pre>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleCliPanel('subquery_exists')}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3 h-3 text-blue-600" />
+                          <span>{expandedCliMap['subquery_exists'] ? 'Hide CLI' : 'Terminal Verification'}</span>
+                          {expandedCliMap['subquery_exists'] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
+                      </div>
+
+                      {expandedCliMap['subquery_exists'] && (
+                        <div className="p-2.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[10px] space-y-1.5">
+                          <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                            <span className="text-amber-400 font-bold flex items-center gap-1">
+                              <Terminal className="w-3 h-3" /> CLI Query
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(`-- SUBQUERY B: Correlated Subquery with EXISTS\nSELECT u.user_id, u.username, u.email\nFROM Users u\nWHERE EXISTS (\n    SELECT 1 FROM Watchlists w \n    WHERE w.user_id = u.user_id\n);`, 'cli_subquery_exists')}
+                              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                            >
+                              {copiedTriggerCode === 'cli_subquery_exists' ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <Copy className="w-2.5 h-2.5" />}
+                              <span>{copiedTriggerCode === 'cli_subquery_exists' ? 'Copied!' : 'Copy'}</span>
+                            </button>
+                          </div>
+                          <pre className="overflow-x-auto text-emerald-400 text-[10px] whitespace-pre-wrap">{`SELECT u.user_id, u.username, u.email
+FROM Users u
+WHERE EXISTS (
+    SELECT 1 FROM Watchlists w WHERE w.user_id = u.user_id
+);`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     {/* Subquery with IN */}
@@ -4449,6 +4934,44 @@ WHERE b.production_cost > (
     INNER JOIN Movies m2 ON b2.movie_id = m2.movie_id
     WHERE m2.release_year >= 2020
 );`}</pre>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleCliPanel('subquery_in')}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3 h-3 text-blue-600" />
+                          <span>{expandedCliMap['subquery_in'] ? 'Hide CLI' : 'Terminal Verification'}</span>
+                          {expandedCliMap['subquery_in'] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
+                      </div>
+
+                      {expandedCliMap['subquery_in'] && (
+                        <div className="p-2.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[10px] space-y-1.5">
+                          <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                            <span className="text-amber-400 font-bold flex items-center gap-1">
+                              <Terminal className="w-3 h-3" /> CLI Query
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(`-- SUBQUERY C: Subquery with Aggregate (> Modern Post-2020 Releases)\nSELECT m.title, b.production_cost\nFROM Movies m\nINNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id\nWHERE b.production_cost > (\n    SELECT AVG(b2.production_cost)\n    FROM ProductionBudgets b2\n    INNER JOIN Movies m2 ON b2.movie_id = m2.movie_id\n    WHERE m2.release_year >= 2020\n);`, 'cli_subquery_in')}
+                              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                            >
+                              {copiedTriggerCode === 'cli_subquery_in' ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <Copy className="w-2.5 h-2.5" />}
+                              <span>{copiedTriggerCode === 'cli_subquery_in' ? 'Copied!' : 'Copy'}</span>
+                            </button>
+                          </div>
+                          <pre className="overflow-x-auto text-emerald-400 text-[10px] whitespace-pre-wrap">{`SELECT m.title, b.production_cost
+FROM Movies m
+INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
+WHERE b.production_cost > (
+    SELECT AVG(b2.production_cost) FROM ProductionBudgets b2
+    INNER JOIN Movies m2 ON b2.movie_id = m2.movie_id WHERE m2.release_year >= 2020
+);`}</pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -4487,6 +5010,56 @@ INNER JOIN ProductionStudios s ON ms.studio_id = s.studio_id
 INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
 WHERE m.box_office_earnings > 500000000.00
 ORDER BY net_profit DESC;`}</pre>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleCliPanel('join_inner')}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{expandedCliMap['join_inner'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                          {expandedCliMap['join_inner'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+
+                      {expandedCliMap['join_inner'] && (
+                        <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                          <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                            <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                              <Terminal className="w-3.5 h-3.5" />
+                              Terminal CLI Verification Runbook (MySQL Terminal)
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(`-- =============================================================================\n-- 4-WAY COMPLEX INNER JOIN: Movies + Directors + Studios + Budgets\n-- =============================================================================\nSELECT \n    m.title, m.release_year,\n    CONCAT(d.first_name, ' ', d.last_name) AS director_name,\n    s.studio_name,\n    b.production_cost,\n    m.box_office_earnings,\n    (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit\nFROM Movies m\nINNER JOIN MovieDirectors md ON m.movie_id = md.movie_id\nINNER JOIN Directors d ON md.director_id = d.director_id\nINNER JOIN MovieStudios ms ON m.movie_id = ms.movie_id\nINNER JOIN ProductionStudios s ON ms.studio_id = s.studio_id\nINNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id\nWHERE m.box_office_earnings > 500000000.00\nORDER BY net_profit DESC;`, 'cli_join_inner')}
+                              className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                            >
+                              {copiedTriggerCode === 'cli_join_inner' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                              <span>{copiedTriggerCode === 'cli_join_inner' ? 'Copied!' : 'Copy CLI Script'}</span>
+                            </button>
+                          </div>
+                          <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Terminal Verification Query (4-Way INNER JOIN with Net Profit Calculation):
+SELECT 
+    m.title, m.release_year,
+    CONCAT(d.first_name, ' ', d.last_name) AS director_name,
+    s.studio_name,
+    b.production_cost,
+    m.box_office_earnings,
+    (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
+FROM Movies m
+INNER JOIN MovieDirectors md ON m.movie_id = md.movie_id
+INNER JOIN Directors d ON md.director_id = d.director_id
+INNER JOIN MovieStudios ms ON m.movie_id = ms.movie_id
+INNER JOIN ProductionStudios s ON ms.studio_id = s.studio_id
+INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
+WHERE m.box_office_earnings > 500000000.00
+ORDER BY net_profit DESC;`}
+                          </pre>
+                        </div>
+                      )}
                     </div>
 
                     {/* LEFT OUTER JOIN */}
@@ -4512,6 +5085,51 @@ LEFT OUTER JOIN Reviews r ON m.movie_id = r.movie_id
 LEFT OUTER JOIN Watchlists w ON m.movie_id = w.movie_id
 GROUP BY m.movie_id, m.title, m.release_year
 ORDER BY m.release_year DESC;`}</pre>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleCliPanel('join_outer')}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{expandedCliMap['join_outer'] ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                          {expandedCliMap['join_outer'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+
+                      {expandedCliMap['join_outer'] && (
+                        <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                          <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                            <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                              <Terminal className="w-3.5 h-3.5" />
+                              Terminal CLI Verification Runbook (MySQL Terminal)
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(`-- =============================================================================\n-- LEFT OUTER JOIN: Movies + Reviews + Watchlists (Unreviewed Audit)\n-- =============================================================================\nSELECT \n    m.movie_id, m.title, m.release_year,\n    COUNT(r.review_id) AS total_reviews,\n    IFNULL(ROUND(AVG(r.rating_score), 2), 0.00) AS avg_user_rating,\n    COUNT(w.watchlist_id) AS total_bookmarks\nFROM Movies m\nLEFT OUTER JOIN Reviews r ON m.movie_id = r.movie_id\nLEFT OUTER JOIN Watchlists w ON m.movie_id = w.movie_id\nGROUP BY m.movie_id, m.title, m.release_year\nORDER BY m.release_year DESC;`, 'cli_join_outer')}
+                              className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                            >
+                              {copiedTriggerCode === 'cli_join_outer' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                              <span>{copiedTriggerCode === 'cli_join_outer' ? 'Copied!' : 'Copy CLI Script'}</span>
+                            </button>
+                          </div>
+                          <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Terminal Verification Query (LEFT OUTER JOIN Preserving 0-Engagement Movies):
+SELECT 
+    m.movie_id, m.title, m.release_year,
+    COUNT(r.review_id) AS total_reviews,
+    IFNULL(ROUND(AVG(r.rating_score), 2), 0.00) AS avg_user_rating,
+    COUNT(w.watchlist_id) AS total_bookmarks
+FROM Movies m
+LEFT OUTER JOIN Reviews r ON m.movie_id = r.movie_id
+LEFT OUTER JOIN Watchlists w ON m.movie_id = w.movie_id
+GROUP BY m.movie_id, m.title, m.release_year
+ORDER BY m.release_year DESC;`}
+                          </pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
