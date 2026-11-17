@@ -1,10 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Printer, 
+  BookOpen, 
+  ChevronDown, 
+  ChevronUp, 
+  HelpCircle, 
+  Layers, 
+  Key, 
+  ShieldCheck,
+  Sparkles,
+  Info
+} from 'lucide-react';
 
 export default function PrintableERPage() {
+  const [showVivaLegend, setShowVivaLegend] = useState(true);
+  const [showQnA, setShowQnA] = useState(false);
   return (
     <div className="min-h-screen bg-slate-100 p-4 sm:p-6 print:p-0 print:bg-white text-slate-900 font-sans">
       <style dangerouslySetInnerHTML={{ __html: `
@@ -55,7 +69,7 @@ export default function PrintableERPage() {
       ` }} />
       
       {/* Non-printing Control Toolbar */}
-      <div className="max-w-[281mm] mx-auto mb-4 flex flex-wrap items-center justify-between gap-3 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-md print:hidden">
+      <div className="max-w-[281mm] mx-auto mb-3 flex flex-wrap items-center justify-between gap-3 bg-slate-900 text-white px-5 py-2.5 rounded-xl shadow-md print:hidden">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -70,14 +84,246 @@ export default function PrintableERPage() {
           </span>
         </div>
 
-        <button
-          onClick={() => window.print()}
-          className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs shadow transition-colors"
-        >
-          <Printer className="w-4 h-4" />
-          <span>Print Document (Landscape A4 - 2 Pages)</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowVivaLegend(!showVivaLegend)}
+            className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold px-3 py-1.5 rounded-lg text-xs border border-slate-700 transition-colors"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+            <span>{showVivaLegend ? 'Hide Viva Notation Index' : 'Show Viva Notation Index'}</span>
+            {showVivaLegend ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-1.5 rounded-lg text-xs shadow transition-colors"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Print Document (Landscape A4 - 2 Pages)</span>
+          </button>
+        </div>
       </div>
+
+      {/* VIVA DEFENSE & CHEN NOTATION INDEX (Screen Only - Excluded from Print) */}
+      {showVivaLegend && (
+        <div className="max-w-[281mm] mx-auto mb-4 bg-white border-2 border-amber-400/80 rounded-xl shadow-md p-4 print:hidden space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200 pb-2">
+            <div className="flex items-center gap-2">
+              <span className="p-1 rounded-md bg-amber-100 text-amber-800 font-bold">
+                <BookOpen className="w-4 h-4" />
+              </span>
+              <div>
+                <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5">
+                  Chen&apos;s ER Diagram Notation Index &amp; Viva Defense Key
+                  <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-300">
+                    Screen-Only Study Aid
+                  </span>
+                </h2>
+                <p className="text-[10px] text-slate-600">
+                  Quick reference for evaluation viva. Excluded from PDF print so the 2 hard-copy pages fit A4 landscape perfectly.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowQnA(!showQnA)}
+              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-700 hover:text-blue-900 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200 transition-colors"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
+              <span>{showQnA ? 'Hide Teacher Viva Q&A' : 'View Top 5 Viva Questions & Answers'}</span>
+            </button>
+          </div>
+
+          {/* 10 Canonical Chen ER Symbols Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 text-[11px]">
+            {/* 1. Dashed / Dotted Oval - Derived Attribute */}
+            <div className="p-2.5 rounded-lg border-2 border-emerald-300 bg-emerald-50/60 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-block px-2 py-0.5 border border-dashed border-emerald-600 bg-white rounded-full text-[9px] font-bold text-emerald-700">
+                  - - net_profit - -
+                </span>
+                <span className="text-[9px] font-extrabold text-emerald-800 uppercase">Derived</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Dashed Oval</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Derived Attribute:</strong> Dynamically computed at query time from <code>gross - total_cost</code>. Not stored on disk to preserve 3NF.
+              </p>
+            </div>
+
+            {/* 2. Yellow Oval with Underline - Key Attribute / PK */}
+            <div className="p-2.5 rounded-lg border-2 border-amber-300 bg-amber-50/60 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-block px-2 py-0.5 border border-amber-500 bg-amber-100 rounded-full text-[9px] font-bold text-amber-900 underline">
+                  movie_id
+                </span>
+                <span className="text-[9px] font-extrabold text-amber-800 uppercase">Primary Key</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Underlined Oval</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Key Attribute:</strong> Uniquely identifies each entity tuple (e.g. <code>movie_id</code>, <code>actor_id</code>, <code>user_id</code>).
+              </p>
+            </div>
+
+            {/* 3. Double Rectangle - Weak Entity */}
+            <div className="p-2.5 rounded-lg border-2 border-slate-300 bg-slate-50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-block px-1.5 py-0.5 border-2 border-slate-800 bg-white text-[9px] font-extrabold text-slate-900 shadow-[inset_0_0_0_1px_#0f172a]">
+                  BUDGETS
+                </span>
+                <span className="text-[9px] font-extrabold text-slate-700 uppercase">Weak Entity</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Double Rectangle</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Weak Entity:</strong> Cannot exist without owner entity (e.g. <code>ProductionBudgets</code> relies on <code>Movies</code> via <code>ON DELETE CASCADE</code>).
+              </p>
+            </div>
+
+            {/* 4. Double Diamond - Identifying Relationship */}
+            <div className="p-2.5 rounded-lg border-2 border-orange-300 bg-orange-50/60 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-block px-1.5 py-0.5 border border-orange-600 bg-white text-[9px] font-bold text-orange-800 italic shadow-[inset_0_0_0_1px_#ea580c]">
+                  &lt;&lt; has_budget &gt;&gt;
+                </span>
+                <span className="text-[9px] font-extrabold text-orange-800 uppercase">Identifying</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Double Diamond</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Identifying Relationship:</strong> Binds a weak entity set to its parent owner (e.g. <code>has_budget</code> and <code>logs</code>).
+              </p>
+            </div>
+
+            {/* 5. Double Connecting Line - Total Participation */}
+            <div className="p-2.5 rounded-lg border-2 border-indigo-300 bg-indigo-50/60 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-indigo-700 font-extrabold tracking-widest text-xs">
+                  ════ (1,1) ════
+                </span>
+                <span className="text-[9px] font-extrabold text-indigo-800 uppercase">Total</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Double Line (Mandatory)</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Total Participation:</strong> Every budget row MUST belong to an existing film. A budget cannot exist without a movie.
+              </p>
+            </div>
+
+            {/* 6. Single Diamond - M:N Relationship with Attributes */}
+            <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-block px-1.5 py-0.5 border border-amber-700 bg-white text-[9px] font-bold text-amber-800 italic">
+                  &lt; MovieCast &gt;
+                </span>
+                <span className="text-[9px] font-extrabold text-slate-700 uppercase">M:N Bridge</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Relationship Diamond</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Associative Bridge:</strong> Connects entities and holds descriptive attributes (e.g. <code>salary</code>, <code>character_name</code>).
+              </p>
+            </div>
+
+            {/* 7. Single Rectangle - Strong Entity */}
+            <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-block px-2 py-0.5 border border-slate-900 bg-white text-[9px] font-extrabold text-slate-900">
+                  MOVIES
+                </span>
+                <span className="text-[9px] font-extrabold text-slate-700 uppercase">Strong Entity</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Single Rectangle</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Strong Entity:</strong> Independent existence in database with autonomous PK (e.g. <code>Movies</code>, <code>Users</code>, <code>Actors</code>).
+              </p>
+            </div>
+
+            {/* 8. Thin Slate Oval - Simple Attribute */}
+            <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-block px-2 py-0.5 border border-slate-400 bg-white rounded-full text-[9px] font-mono text-slate-700">
+                  duration_minutes
+                </span>
+                <span className="text-[9px] font-extrabold text-slate-700 uppercase">Simple</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Solid Oval</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Simple / Atomic Attribute:</strong> Standard scalar column (e.g. <code>title</code>, <code>release_year</code>, <code>nationality</code>).
+              </p>
+            </div>
+
+            {/* 9. Single Connecting Line - Partial Participation */}
+            <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-slate-700 font-bold tracking-widest text-xs">
+                  ──── (0,N) ────
+                </span>
+                <span className="text-[9px] font-extrabold text-slate-700 uppercase">Partial</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Single Line (Optional)</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Partial Participation:</strong> Entity instances can exist with 0 connections (e.g. a user can exist with 0 reviews or watchlists).
+              </p>
+            </div>
+
+            {/* 10. Separate M and N Cardinality */}
+            <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-emerald-800 font-extrabold text-xs">
+                  Users (N) : (M) Movies
+                </span>
+                <span className="text-[9px] font-extrabold text-emerald-800 uppercase">M:N Ratios</span>
+              </div>
+              <div className="font-bold text-slate-900 text-[10px]">Separate M &amp; N Labels</div>
+              <p className="text-[9.5px] text-slate-600 leading-tight">
+                <strong>Independent Cardinalities:</strong> Shows exact structural constraint on each side (one user makes N reviews, one film gets M reviews).
+              </p>
+            </div>
+          </div>
+
+          {/* Collapsible Teacher Viva Q&A Accordion */}
+          {showQnA && (
+            <div className="mt-3 pt-3 border-t border-amber-200 space-y-2 bg-amber-50/40 p-3 rounded-lg">
+              <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-900">
+                <HelpCircle className="w-4 h-4 text-amber-700" />
+                <span>Top 5 Teacher Viva Questions on this ER Diagram (10-Second Answers):</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[10.5px]">
+                <div className="bg-white p-2.5 rounded-md border border-amber-200 space-y-1">
+                  <div className="font-bold text-slate-900">Q1: &quot;Why is net_profit drawn as a dashed oval?&quot;</div>
+                  <div className="text-slate-700 text-[10px]">
+                    <strong>Answer:</strong> &quot;Because it is a <em>derived attribute</em>. In 3NF/BCNF relational modeling, derived values are calculated at query time (e.g. <code>fn_calculate_roi</code> or view <code>vw_movie_financial_summary</code>) rather than stored physically in tables, preventing data inconsistency anomalies.&quot;
+                  </div>
+                </div>
+
+                <div className="bg-white p-2.5 rounded-md border border-amber-200 space-y-1">
+                  <div className="font-bold text-slate-900">Q2: &quot;Why are ProductionBudgets and WatchlistActivityLogs double rectangles?&quot;</div>
+                  <div className="text-slate-700 text-[10px]">
+                    <strong>Answer:</strong> &quot;They are <em>weak entities</em>. ProductionBudgets cannot exist without a parent Movie, and WatchlistActivityLogs is an immutable trigger ledger that only exists when a watchlist event fires. Both use double diamonds for identifying relationships and enforce <code>ON DELETE CASCADE</code>.&quot;
+                  </div>
+                </div>
+
+                <div className="bg-white p-2.5 rounded-md border border-amber-200 space-y-1">
+                  <div className="font-bold text-slate-900">Q3: &quot;What do the double lines between Movies and has_budget mean?&quot;</div>
+                  <div className="text-slate-700 text-[10px]">
+                    <strong>Answer:</strong> &quot;Double lines signify <em>Total (Mandatory) Participation</em> with a strict <code>(1,1)</code> cardinality constraint. Every budget record must be mapped to an existing movie; orphaned budget records are prohibited by referential integrity.&quot;
+                  </div>
+                </div>
+
+                <div className="bg-white p-2.5 rounded-md border border-amber-200 space-y-1">
+                  <div className="font-bold text-slate-900">Q4: &quot;Why do diamonds like MovieCast and MovieDirectors have attributes?&quot;</div>
+                  <div className="text-slate-700 text-[10px]">
+                    <strong>Answer:</strong> &quot;In Chen notation, relationships can hold <em>descriptive attributes</em> (such as <code>salary</code> and <code>character_name</code> for casting, or <code>role_type</code> for directors). In our 14-table MySQL schema, these map to associative bridge tables.&quot;
+                  </div>
+                </div>
+
+                <div className="bg-white p-2.5 rounded-md border border-amber-200 space-y-1 md:col-span-2">
+                  <div className="font-bold text-slate-900">Q5: &quot;Why are M and N separated instead of writing M:N everywhere?&quot;</div>
+                  <div className="text-slate-700 text-[10px]">
+                    <strong>Answer:</strong> &quot;Separating M and N shows the independent participation constraint for each entity set: a User can bookmark up to N movies <code>(0,N)</code>, and a Movie can be bookmarked by up to M users <code>(0,M)</code>. This distinguishes individual cardinality limits from the overall M:N relationship ratio.&quot;
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="space-y-6 print:space-y-0">
         

@@ -31,7 +31,8 @@ import {
   Terminal,
   RefreshCw,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  HelpCircle
 } from 'lucide-react';
 
 export default function MasterPresentationDashboard() {
@@ -40,6 +41,7 @@ export default function MasterPresentationDashboard() {
 
   // Step 1: ER Diagram vs Entity Specs View (Rubric: ER Diagram (2), Relational Schema (3))
   const [step1View, setStep1View] = useState<'er_diagram' | 'entity_specs'>('er_diagram');
+  const [showErNotationIndex, setShowErNotationIndex] = useState(true);
 
   // Step 5: CTE Sub-Tab (Analytical DENSE_RANK vs Recursive CTEs) (Rubric: Recursive Queries (4))
   const [cteSubTab, setCteSubTab] = useState<'analytical' | 'recursive_timeline' | 'recursive_graph'>('analytical');
@@ -778,6 +780,147 @@ export default function MasterPresentationDashboard() {
             {/* VIEW A: VISUAL ER DIAGRAM & CARDINALITY TOPOLOGY */}
             {step1View === 'er_diagram' && (
               <div className="space-y-4">
+                {/* Chen ER Diagram Notation Index & Viva Cheat Sheet */}
+                <div 
+                  className="p-4 rounded-xl border space-y-3 text-xs"
+                  style={{
+                    backgroundColor: 'var(--bg-surface-elevated)',
+                    borderColor: 'var(--color-primary)'
+                  }}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="flex items-center gap-2">
+                      <span className="p-1 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold">
+                        <BookOpen className="w-4 h-4" />
+                      </span>
+                      <div>
+                        <span className="font-extrabold text-xs" style={{ color: 'var(--color-primary)' }}>
+                          Chen&apos;s ER Diagram Notation Index &amp; Viva Defense Key:
+                        </span>
+                        <span className="ml-2 text-[10px] font-mono border px-2 py-0.5 rounded font-bold" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
+                          Rubric: Col F (2 Marks)
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowErNotationIndex(!showErNotationIndex)}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 transition-colors"
+                    >
+                      <span>{showErNotationIndex ? 'Hide Index' : 'Show Index'}</span>
+                      {showErNotationIndex ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+
+                  {showErNotationIndex && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-emerald-300 dark:border-emerald-800 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-bold text-emerald-600 px-1.5 py-0.2 rounded border border-dashed border-emerald-500">
+                            - - net_profit - -
+                          </span>
+                          <span className="text-[9px] font-bold text-emerald-700">Derived</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Dashed / Dotted Oval</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Derived Attribute:</strong> Computed on-the-fly from <code>gross - cost</code>. Storing on disk violates 3NF.
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-amber-300 dark:border-amber-800 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-bold text-amber-700 px-1.5 py-0.2 rounded border border-amber-500 underline">
+                            movie_id
+                          </span>
+                          <span className="text-[9px] font-bold text-amber-700">Primary Key</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Underlined Oval</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Key Attribute:</strong> Uniquely identifies each tuple (<code>movie_id</code>, <code>actor_id</code>, etc.).
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-slate-300 dark:border-slate-700 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-bold text-slate-800 dark:text-slate-200 px-1.5 py-0.2 border-2 border-slate-700">
+                            BUDGETS
+                          </span>
+                          <span className="text-[9px] font-bold text-slate-600">Weak</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Double Rectangle</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Weak Entity:</strong> Depends on parent entity (<code>ProductionBudgets</code> relies on <code>Movies</code> via CASCADE).
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-orange-300 dark:border-orange-800 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-bold text-orange-700 px-1 py-0.2 border border-orange-600 italic">
+                            &lt;&lt; has_budget &gt;&gt;
+                          </span>
+                          <span className="text-[9px] font-bold text-orange-700">Identifying</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Double Diamond</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Identifying Relationship:</strong> Binds weak entities to their owner entity (<code>has_budget</code>, <code>logs</code>).
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-indigo-300 dark:border-indigo-800 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-extrabold text-indigo-700">
+                            ════ (1,1) ════
+                          </span>
+                          <span className="text-[9px] font-bold text-indigo-700">Mandatory</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Double Parallel Line</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Total Participation:</strong> Every budget row MUST map to a movie. Orphaned records are prohibited.
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-blue-300 dark:border-blue-800 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-bold text-blue-700 px-1 py-0.2 border border-blue-600 italic">
+                            &lt; MovieCast &gt;
+                          </span>
+                          <span className="text-[9px] font-bold text-blue-700">Bridge</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Diamond + Attributes</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Descriptive Attributes:</strong> Relationships can hold attributes (e.g. <code>salary</code> on <code>MovieCast</code>).
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-slate-300 dark:border-slate-700 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-bold text-slate-700">
+                            ──── (0,N) ────
+                          </span>
+                          <span className="text-[9px] font-bold text-slate-600">Optional</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Single Line</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Partial Participation:</strong> Entity can exist with 0 connections (e.g. user with 0 reviews).
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg border bg-[var(--bg-surface)] border-purple-300 dark:border-purple-800 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[9px] font-bold text-purple-700">
+                            Users (N) : (M) Movies
+                          </span>
+                          <span className="text-[9px] font-bold text-purple-700">Ratios</span>
+                        </div>
+                        <div className="font-bold text-[10.5px]">Separate M &amp; N Labels</div>
+                        <div className="text-[10px] opacity-75 font-sans">
+                          <strong>Independent Cardinality:</strong> Shows distinct structural constraints for each side.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Visual Cardinality Relationship Map */}
                 <div 
                   className="p-4 rounded-xl border space-y-2 text-xs"
