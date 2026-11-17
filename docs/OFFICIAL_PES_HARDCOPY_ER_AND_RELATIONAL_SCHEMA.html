@@ -1,794 +1,869 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FilmMatrix - Official PES University Hard Copy (ER & Relational Schema)</title>
-  <style>
-    @page {
-      size: A4 landscape;
-      margin: 8mm 8mm 8mm 8mm;
-    }
-    * {
-      box-sizing: border-box;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #0f172a;
-      background: #ffffff;
-      margin: 0;
-      padding: 16px;
-      font-size: 10pt;
-    }
-    .screen-toolbar {
-      background: #fef3c7;
-      border: 1px solid #f59e0b;
-      padding: 12px 20px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-    }
-    .print-btn {
-      background: #b45309;
-      color: #ffffff;
-      border: none;
-      padding: 8px 18px;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    .print-btn:hover {
-      background: #92400e;
-    }
-    @media print {
-      .screen-toolbar {
-        display: none !important;
-      }
-      body {
-        padding: 0;
-      }
-      .page {
-        page-break-after: always;
-        height: 100vh;
-        max-height: 195mm;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
-      .page:last-child {
-        page-break-after: avoid;
-      }
-    }
+<meta charset="UTF-8">
+<title>PES University - DBMS Level 3 Hard Copy (ER & Relational Schema)</title>
+<style>
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #0f172a;
+    background: #e2e8f0;
+    margin: 0;
+    padding: 10px;
+  }
+  .page {
+    width: 281mm;
+    min-height: 194mm;
+    height: 194mm;
+    margin: 0 auto 12mm auto;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 8mm 10mm;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    page-break-after: always;
+    page-break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  @media print {
+    body { background: #ffffff; padding: 0; }
     .page {
-      border: 1.5px solid #0f172a;
-      padding: 12px 16px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      background: #ffffff;
-      min-height: 190mm;
-    }
-    .doc-header {
-      border-bottom: 2px solid #0f172a;
-      padding-bottom: 6px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .pes-heading {
-      font-size: 13pt;
-      font-weight: 800;
       margin: 0;
-      color: #0f172a;
-      letter-spacing: -0.3px;
+      border: none;
+      box-shadow: none;
+      width: 100vw;
+      height: 100vh;
+      page-break-after: always;
+      page-break-inside: avoid;
+      padding: 6mm 8mm;
     }
-    .pes-dept {
-      font-size: 8.5pt;
-      color: #334155;
-      margin: 2px 0 0 0;
-      font-weight: 600;
-    }
-    .meta-box {
-      text-align: right;
-      font-size: 8pt;
-      color: #1e293b;
-      line-height: 1.35;
-    }
-    .meta-box strong {
-      color: #0f172a;
-    }
-    .page-title {
-      font-size: 11pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #b45309;
-      margin: 4px 0 6px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .legend-bar {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 7.5pt;
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .footer-sign {
-      border-top: 1px dashed #94a3b8;
-      padding-top: 4px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 7.5pt;
-      color: #64748b;
-      margin-top: 4px;
-    }
-  </style>
+    .no-print { display: none !important; }
+  }
+  .print-toolbar {
+    max-width: 281mm;
+    margin: 0 auto 12px auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1e293b;
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .btn-print {
+    background: #f59e0b;
+    color: #000000;
+    font-weight: bold;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .dept-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0f172a; margin: 0; }
+  .course-sub { font-size: 9.5px; color: #475569; margin-top: 1px; font-weight: 600; }
+  .meta-right { text-align: right; font-size: 8.5px; color: #334155; line-height: 1.35; font-weight: 600; }
+  .page-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 3px 8px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+  }
+  .page-title { font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; margin: 0; }
+  .rubric-pill { font-size: 9px; font-weight: 800; color: #0f172a; background: #e2e8f0; padding: 2px 6px; border-radius: 3px; }
+  .footer {
+    border-top: 1px solid #cbd5e1;
+    padding-top: 3px;
+    margin-top: 3px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: #64748b;
+  }
+  svg { width: 100%; height: 100%; }
+</style>
 </head>
 <body>
 
-  <!-- Screen Toolbar -->
-  <div class="screen-toolbar">
-    <div>
-      <strong>📄 Official PES Lab Hard Copy Printouts:</strong> 2 Separate Landscape A4 Pages (Page 1: Chen's ER Diagram with Cardinalities &amp; Min-Max • Page 2: Relational Schema with Referential Arrows).
-    </div>
-    <button class="print-btn" onclick="window.print()">🖨️ Print 2 Pages (Ctrl + P)</button>
+<div class="print-toolbar no-print">
+  <div>
+    <strong>PES University CSE • Official Hard Copy Generator</strong>
+    <span style="opacity: 0.7; margin-left: 10px;">Exact 1:1 Match with 14 Normalized Tables in <code>sql/01_ddl_create_tables.sql</code></span>
   </div>
+  <button class="btn-print" onclick="window.print()">🖨️ Print 2 Landscape A4 Pages (Ctrl+P)</button>
+</div>
 
-  <!-- ======================================================== -->
-  <!-- PAGE 1: CHEN'S ER DIAGRAM (PES UNIVERSITY LAB STANDARD) -->
-  <!-- ======================================================== -->
-  <div class="page">
+<!-- ======================================================================= -->
+<!-- PAGE 1: CHEN'S ER DIAGRAM (EXACT 1:1 WITH 14 TABLES) -->
+<!-- ======================================================================= -->
+<div class="page">
+  <div class="header">
     <div>
-      <div class="doc-header">
-        <div>
-          <h1 class="pes-heading">PES UNIVERSITY — DEPARTMENT OF COMPUTER SCIENCE &amp; ENGINEERING</h1>
-          <p class="pes-dept">UE23CS352A Database Management Systems • Experiential Learning Level 3 Mini-Project</p>
-        </div>
-        <div class="meta-box">
-          <div><strong>Project:</strong> FilmMatrix Analytics</div>
-          <div><strong>Team:</strong> Tanmayi Nagabhairava (<code>PES1UG24CS493</code>) &amp; Varsha A Patil (<code>PES1UG24CS516</code>)</div>
-          <div><strong>Section:</strong> Section I • Date: 17 November 2026</div>
-        </div>
-      </div>
-
-      <div class="page-title">
-        <span>PAGE 1: ENTITY-RELATIONSHIP (ER) DIAGRAM — CHEN&apos;S NOTATION</span>
-        <span style="font-size: 8pt; color: #475569; font-weight: normal; text-transform: none;">
-          Evaluation Rubric: <strong>Col F (ER Diagram — 2 Marks)</strong>
-        </span>
-      </div>
-
-      <div class="legend-bar">
-        <strong>Chen's Notation Legend:</strong>
-        <span class="legend-item"><span style="display:inline-block; width:14px; height:8px; border:1.5px solid #0f172a; background:#fff;"></span> Strong Entity</span>
-        <span class="legend-item"><span style="display:inline-block; width:14px; height:8px; border:2.5px double #0f172a; background:#fff;"></span> Weak Entity</span>
-        <span class="legend-item"><span style="display:inline-block; width:10px; height:10px; transform:rotate(45deg); border:1.5px solid #b45309; background:#fff;"></span> Relationship</span>
-        <span class="legend-item"><span style="display:inline-block; width:10px; height:10px; transform:rotate(45deg); border:2.5px double #b45309; background:#fff;"></span> Weak Relationship</span>
-        <span class="legend-item"><span style="display:inline-block; width:12px; height:8px; border-radius:50%; border:1.2px solid #0f172a; text-decoration:underline;"><u>Key</u></span> Primary Key</span>
-        <span class="legend-item"><span style="display:inline-block; width:12px; height:8px; border-radius:50%; border:1.2px dashed #0f172a;">---</span> Derived Attribute</span>
-        <span class="legend-item"><span style="display:inline-block; width:16px; border-top:1.5px solid #0f172a;"></span> Partial Participation</span>
-        <span class="legend-item"><span style="display:inline-block; width:16px; border-top:3.5px double #0f172a;"></span> Total Participation (min &ge; 1)</span>
-      </div>
-
-      <!-- High-Resolution Vector SVG for Chen's ER Diagram -->
-      <svg viewBox="0 0 1060 480" style="width:100%; height:auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:4px;">
-        <defs>
-          <style>
-            .ent-rect { fill: #ffffff; stroke: #0f172a; stroke-width: 1.8; }
-            .weak-ent-rect { fill: #ffffff; stroke: #0f172a; stroke-width: 3.5; stroke-dasharray: none; }
-            .rel-diamond { fill: #ffffff; stroke: #b45309; stroke-width: 1.8; }
-            .weak-rel-diamond { fill: #ffffff; stroke: #b45309; stroke-width: 3; }
-            .attr-oval { fill: #ffffff; stroke: #475569; stroke-width: 1.2; }
-            .key-oval { fill: #ffffff; stroke: #b45309; stroke-width: 1.4; font-weight: bold; text-decoration: underline; }
-            .derived-oval { fill: #ffffff; stroke: #059669; stroke-width: 1.2; stroke-dasharray: 3,2; }
-            .conn-line { stroke: #0f172a; stroke-width: 1.4; }
-            .double-conn { stroke: #0f172a; stroke-width: 3.2; }
-            .attr-line { stroke: #64748b; stroke-width: 1; }
-            .txt-ent { font-family: sans-serif; font-size: 11px; font-weight: 800; fill: #0f172a; text-anchor: middle; }
-            .txt-rel { font-family: sans-serif; font-size: 9px; font-weight: 700; fill: #92400e; text-anchor: middle; }
-            .txt-attr { font-family: sans-serif; font-size: 7.5px; fill: #1e293b; text-anchor: middle; }
-            .txt-card { font-family: sans-serif; font-size: 9px; font-weight: 800; fill: #b45309; text-anchor: middle; }
-            .txt-minmax { font-family: monospace; font-size: 8px; font-weight: 700; fill: #2563eb; text-anchor: middle; }
-          </style>
-        </defs>
-
-        <!-- ================= ENTITY: MOVIES (CENTRAL) ================= -->
-        <rect x="470" y="210" width="120" height="45" class="ent-rect" />
-        <text x="530" y="238" class="txt-ent">MOVIES</text>
-
-        <!-- Attributes of MOVIES -->
-        <!-- movie_id (PK) -->
-        <line x1="470" y1="220" x2="410" y2="200" class="attr-line"/>
-        <ellipse cx="380" cy="195" rx="30" ry="12" class="key-oval"/>
-        <text x="380" y="198" class="txt-attr" style="text-decoration: underline; font-weight:bold;"><u>movie_id</u></text>
-
-        <!-- title -->
-        <line x1="480" y1="210" x2="445" y2="165" class="attr-line"/>
-        <ellipse cx="435" cy="155" rx="24" ry="11" class="attr-oval"/>
-        <text x="435" y="158" class="txt-attr">title</text>
-
-        <!-- release_year -->
-        <line x1="530" y1="210" x2="530" y2="160" class="attr-line"/>
-        <ellipse cx="530" cy="150" rx="30" ry="11" class="attr-oval"/>
-        <text x="530" y="153" class="txt-attr">release_year</text>
-
-        <!-- box_office -->
-        <line x1="580" y1="210" x2="615" y2="165" class="attr-line"/>
-        <ellipse cx="630" cy="155" rx="34" ry="11" class="attr-oval"/>
-        <text x="630" y="158" class="txt-attr">box_office</text>
-
-        <!-- net_profit (derived) -->
-        <line x1="590" y1="220" x2="650" y2="200" class="attr-line"/>
-        <ellipse cx="680" cy="195" rx="30" ry="12" class="derived-oval"/>
-        <text x="680" y="198" class="txt-attr" fill="#059669">net_profit</text>
-
-
-        <!-- ================= ENTITY: PRODUCTION BUDGETS (1:1 STRICT TOTAL PARTICIPATION) ================= -->
-        <!-- Relationship: HAS_BUDGET -->
-        <polygon points="530,290 565,315 530,340 495,315" class="rel-diamond"/>
-        <text x="530" y="318" class="txt-rel">has_budget</text>
-
-        <!-- Double connection lines for 1:1 total participation -->
-        <line x1="530" y1="255" x2="530" y2="290" class="double-conn"/>
-        <text x="515" y="275" class="txt-card">1</text>
-        <text x="495" y="285" class="txt-minmax">(1,1)</text>
-
-        <line x1="530" y1="340" x2="530" y2="375" class="double-conn"/>
-        <text x="515" y="360" class="txt-card">1</text>
-        <text x="495" y="355" class="txt-minmax">(1,1)</text>
-
-        <!-- Entity: PRODUCTION_BUDGETS -->
-        <rect x="450" y="375" width="160" height="45" class="ent-rect"/>
-        <text x="530" y="402" class="txt-ent">PRODUCTION_BUDGETS</text>
-
-        <!-- Budget Attributes -->
-        <line x1="450" y1="400" x2="390" y2="415" class="attr-line"/>
-        <ellipse cx="360" cy="420" rx="30" ry="11" class="key-oval"/>
-        <text x="360" y="423" class="txt-attr"><u>budget_id</u></text>
-
-        <line x1="480" y1="420" x2="450" y2="455" class="attr-line"/>
-        <ellipse cx="435" cy="465" rx="34" ry="11" class="attr-oval"/>
-        <text x="435" y="468" class="txt-attr">production_cost</text>
-
-        <line x1="580" y1="420" x2="610" y2="455" class="attr-line"/>
-        <ellipse cx="625" cy="465" rx="34" ry="11" class="attr-oval"/>
-        <text x="625" y="468" class="txt-attr">marketing_spend</text>
-
-
-        <!-- ================= ENTITY: ACTORS & RELATIONSHIP: ACTS_IN (M:N) ================= -->
-        <!-- Relationship: ACTS_IN -->
-        <polygon points="320,210 355,232 320,255 285,232" class="rel-diamond"/>
-        <text x="320" y="235" class="txt-rel">acts_in</text>
-
-        <!-- Descriptive attributes on relationship acts_in -->
-        <line x1="320" y1="210" x2="320" y2="180" class="attr-line"/>
-        <ellipse cx="320" cy="170" rx="28" ry="10" class="attr-oval"/>
-        <text x="320" y="173" class="txt-attr">character_role</text>
-
-        <!-- Connection: Movies <-> Acts_In <-> Actors -->
-        <line x1="470" y1="232" x2="355" y2="232" class="conn-line"/>
-        <text x="445" y="226" class="txt-card">M</text>
-        <text x="445" y="244" class="txt-minmax">(1,N)</text>
-
-        <line x1="285" y1="232" x2="180" y2="232" class="conn-line"/>
-        <text x="205" y="226" class="txt-card">N</text>
-        <text x="205" y="244" class="txt-minmax">(1,M)</text>
-
-        <!-- Entity: ACTORS -->
-        <rect x="70" y="210" width="110" height="45" class="ent-rect"/>
-        <text x="125" y="238" class="txt-ent">ACTORS</text>
-
-        <!-- Actor Attributes -->
-        <line x1="70" y1="225" x2="30" y2="210" class="attr-line"/>
-        <ellipse cx="25" cy="205" rx="24" ry="11" class="key-oval"/>
-        <text x="25" y="208" class="txt-attr"><u>actor_id</u></text>
-
-        <line x1="90" y1="210" x2="70" y2="175" class="attr-line"/>
-        <ellipse cx="65" cy="165" rx="24" ry="11" class="attr-oval"/>
-        <text x="65" y="168" class="txt-attr">name</text>
-
-        <line x1="125" y1="210" x2="125" y2="170" class="attr-line"/>
-        <ellipse cx="125" cy="160" rx="28" ry="11" class="attr-oval"/>
-        <text x="125" y="163" class="txt-attr">birth_year</text>
-
-        <line x1="160" y1="210" x2="180" y2="175" class="attr-line"/>
-        <ellipse cx="190" cy="165" rx="26" ry="11" class="attr-oval"/>
-        <text x="190" y="168" class="txt-attr">nationality</text>
-
-        <line x1="70" y1="245" x2="35" y2="265" class="attr-line"/>
-        <ellipse cx="30" cy="275" rx="28" ry="11" class="attr-oval"/>
-        <text x="30" y="278" class="txt-attr">oscar_wins</text>
-
-
-        <!-- ================= ENTITY: DIRECTORS & RELATIONSHIP: DIRECTS (1:N / M:N) ================= -->
-        <!-- Relationship: DIRECTS -->
-        <polygon points="260,340 295,362 260,385 225,362" class="rel-diamond"/>
-        <text x="260" y="365" class="txt-rel">directs</text>
-
-        <!-- Lines -->
-        <line x1="470" y1="245" x2="295" y2="350" class="conn-line"/>
-        <text x="380" y="285" class="txt-card">N</text>
-        <text x="400" y="295" class="txt-minmax">(1,1)</text>
-
-        <line x1="225" y1="362" x2="170" y2="362" class="conn-line"/>
-        <text x="190" y="355" class="txt-card">1</text>
-        <text x="190" y="375" class="txt-minmax">(1,N)</text>
-
-        <!-- Entity: DIRECTORS -->
-        <rect x="60" y="340" width="110" height="45" class="ent-rect"/>
-        <text x="115" y="368" class="txt-ent">DIRECTORS</text>
-
-        <line x1="60" y1="355" x2="25" y2="355" class="attr-line"/>
-        <ellipse cx="20" cy="355" rx="28" ry="11" class="key-oval"/>
-        <text x="20" y="358" class="txt-attr"><u>director_id</u></text>
-
-        <line x1="115" y1="385" x2="115" y2="420" class="attr-line"/>
-        <ellipse cx="115" cy="430" rx="24" ry="11" class="attr-oval"/>
-        <text x="115" y="433" class="txt-attr">name</text>
-
-
-        <!-- ================= ENTITY: STUDIOS & RELATIONSHIP: DISTRIBUTES (1:N) ================= -->
-        <polygon points="760,210 795,232 760,255 725,232" class="rel-diamond"/>
-        <text x="760" y="235" class="txt-rel">distributes</text>
-
-        <line x1="590" y1="232" x2="725" y2="232" class="conn-line"/>
-        <text x="650" y="226" class="txt-card">N</text>
-        <text x="650" y="244" class="txt-minmax">(0,1)</text>
-
-        <line x1="795" y1="232" x2="890" y2="232" class="conn-line"/>
-        <text x="835" y="226" class="txt-card">1</text>
-        <text x="835" y="244" class="txt-minmax">(1,N)</text>
-
-        <!-- Entity: STUDIOS -->
-        <rect x="890" y="210" width="110" height="45" class="ent-rect"/>
-        <text x="945" y="238" class="txt-ent">STUDIOS</text>
-
-        <line x1="1000" y1="225" x2="1035" y2="215" class="attr-line"/>
-        <ellipse cx="1040" cy="210" rx="28" ry="11" class="key-oval"/>
-        <text x="1040" y="213" class="txt-attr"><u>studio_id</u></text>
-
-        <line x1="945" y1="210" x2="945" y2="175" class="attr-line"/>
-        <ellipse cx="945" cy="165" rx="30" ry="11" class="attr-oval"/>
-        <text x="945" y="168" class="txt-attr">studio_name</text>
-
-        <line x1="945" y1="255" x2="945" y2="290" class="attr-line"/>
-        <ellipse cx="945" cy="300" rx="34" ry="11" class="attr-oval"/>
-        <text x="945" y="303" class="txt-attr">headquarters</text>
-
-
-        <!-- ================= ENTITY: GENRES & RELATIONSHIP: BELONGS_TO (M:N) ================= -->
-        <polygon points="760,340 795,362 760,385 725,362" class="rel-diamond"/>
-        <text x="760" y="365" class="txt-rel">categorized</text>
-
-        <line x1="590" y1="245" x2="735" y2="350" class="conn-line"/>
-        <text x="680" y="295" class="txt-card">M</text>
-        <text x="660" y="310" class="txt-minmax">(1,N)</text>
-
-        <line x1="795" y1="362" x2="890" y2="362" class="conn-line"/>
-        <text x="835" y="355" class="txt-card">N</text>
-        <text x="835" y="375" class="txt-minmax">(1,M)</text>
-
-        <!-- Entity: GENRES -->
-        <rect x="890" y="340" width="110" height="45" class="ent-rect"/>
-        <text x="945" y="368" class="txt-ent">GENRES</text>
-
-        <line x1="1000" y1="355" x2="1035" y2="355" class="attr-line"/>
-        <ellipse cx="1040" cy="355" rx="26" ry="11" class="key-oval"/>
-        <text x="1040" y="358" class="txt-attr"><u>genre_id</u></text>
-
-        <line x1="945" y1="385" x2="945" y2="420" class="attr-line"/>
-        <ellipse cx="945" cy="430" rx="30" ry="11" class="attr-oval"/>
-        <text x="945" y="433" class="txt-attr">genre_name</text>
-
-
-        <!-- ================= ROW 1: USERS, WATCHLISTS, LOGS ================= -->
-        <!-- Entity: USERS -->
-        <rect x="180" y="45" width="110" height="45" class="ent-rect"/>
-        <text x="235" y="72" class="txt-ent">USERS</text>
-
-        <line x1="180" y1="60" x2="135" y2="45" class="attr-line"/>
-        <ellipse cx="115" cy="38" rx="24" ry="11" class="key-oval"/>
-        <text x="115" y="41" class="txt-attr"><u>user_id</u></text>
-
-        <line x1="200" y1="45" x2="180" y2="15" class="attr-line"/>
-        <ellipse cx="170" cy="12" rx="24" ry="10" class="attr-oval"/>
-        <text x="170" y="15" class="txt-attr">username</text>
-
-        <line x1="235" y1="45" x2="235" y2="15" class="attr-line"/>
-        <ellipse cx="235" cy="12" rx="20" ry="10" class="attr-oval"/>
-        <text x="235" y="15" class="txt-attr">email</text>
-
-        <line x1="270" y1="45" x2="290" y2="15" class="attr-line"/>
-        <ellipse cx="300" cy="12" rx="18" ry="10" class="attr-oval"/>
-        <text x="300" y="15" class="txt-attr">role</text>
-
-        <!-- Relationship: BOOKMARKS (M:N) -->
-        <polygon points="380,45 415,67 380,90 345,67" class="rel-diamond"/>
-        <text x="380" y="70" class="txt-rel">bookmarks</text>
-
-        <line x1="290" y1="67" x2="345" y2="67" class="conn-line"/>
-        <text x="315" y="60" class="txt-card">1</text>
-        <text x="315" y="80" class="txt-minmax">(0,N)</text>
-
-        <!-- Connection from Bookmarks down to Movies -->
-        <line x1="395" y1="88" x2="480" y2="210" class="conn-line"/>
-        <text x="445" y="130" class="txt-card">N</text>
-        <text x="430" y="145" class="txt-minmax">(0,M)</text>
-
-        <!-- Relationship: REVIEWS (M:N) -->
-        <polygon points="630,45 665,67 630,90 595,67" class="rel-diamond"/>
-        <text x="630" y="70" class="txt-rel">reviews</text>
-
-        <line x1="630" y1="45" x2="630" y2="18" class="attr-line"/>
-        <ellipse cx="630" cy="12" rx="20" ry="10" class="attr-oval"/>
-        <text x="630" y="15" class="txt-attr">rating</text>
-
-        <line x1="290" y1="60" x2="595" y2="67" class="conn-line"/>
-        <text x="560" y="60" class="txt-card">1</text>
-        <text x="560" y="80" class="txt-minmax">(0,N)</text>
-
-        <line x1="620" y1="90" x2="560" y2="210" class="conn-line"/>
-        <text x="595" y="130" class="txt-card">N</text>
-        <text x="600" y="145" class="txt-minmax">(0,M)</text>
-
-        <!-- WEAK ENTITY: WATCHLIST_ACTIVITY_LOGS -->
-        <polygon points="495,20 520,37 495,55 470,37" class="weak-rel-diamond"/>
-        <text x="495" y="40" class="txt-rel" style="font-size:7.5px;">logs</text>
-
-        <line x1="415" y1="55" x2="470" y2="40" class="conn-line"/>
-        <line x1="520" y1="37" x2="540" y2="37" class="double-conn"/>
-
-        <!-- Double border rectangle for Weak Entity -->
-        <rect x="540" y="18" width="130" height="38" class="weak-ent-rect"/>
-        <text x="605" y="41" class="txt-ent" style="font-size:8.5px;">ACTIVITY_LOGS</text>
-      </svg>
-
-      <div class="footer-sign">
-        <span>PES University • Department of CSE • DBMS Mini-Project Level 3</span>
-        <span>Tanmayi Nagabhairava (PES1UG24CS493) &amp; Varsha A Patil (PES1UG24CS516)</span>
-        <span>Evaluator Signature: ___________________________</span>
-      </div>
+      <h1 class="dept-title">PES UNIVERSITY — DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING</h1>
+      <div class="course-sub">UE23CS352A Database Management Systems • Experiential Learning Level 3 Mini-Project</div>
+    </div>
+    <div class="meta-right">
+      <strong>Project:</strong> FilmMatrix Global Movie Analytics<br>
+      <strong>Team:</strong> Tanmayi Nagabhairava (PES1UG24CS493) & Varsha A Patil (PES1UG24CS516)<br>
+      <strong>Section:</strong> Section I • <strong>Date:</strong> 17 November 2026
     </div>
   </div>
 
+  <div class="page-banner">
+    <span class="page-title">PAGE 1: ENTITY-RELATIONSHIP (ER) DIAGRAM — CHEN'S NOTATION</span>
+    <span class="rubric-pill">RUBRIC: COL F (ER DIAGRAM — 2 MARKS)</span>
+  </div>
 
-  <!-- ======================================================== -->
-  <!-- PAGE 2: RELATIONAL SCHEMA WITH ARROWS (LAB 3 STANDARD) -->
-  <!-- ======================================================== -->
-  <div class="page">
+  <div style="flex: 1; position: relative; overflow: hidden;">
+    <svg viewBox="0 0 1080 500" style="width: 100%; height: 100%;">
+      <defs>
+        <style>
+          .txt-ent { font-family: sans-serif; font-size: 10px; font-weight: 800; fill: #0f172a; text-anchor: middle; }
+          .txt-rel { font-family: sans-serif; font-size: 8px; font-weight: 700; fill: #9a3412; text-anchor: middle; font-style: italic; }
+          .txt-attr { font-family: ui-monospace, monospace; font-size: 7.5px; fill: #1e293b; text-anchor: middle; }
+          .txt-card { font-family: sans-serif; font-size: 9px; font-weight: 800; fill: #047857; text-anchor: middle; }
+          .txt-minmax { font-family: sans-serif; font-size: 7px; font-weight: 700; fill: #1e40af; text-anchor: middle; }
+          .ent-rect { fill: #ffffff; stroke: #0f172a; stroke-width: 1.8; }
+          .ent-weak { fill: #ffffff; stroke: #0f172a; stroke-width: 1.8; }
+          .rel-diamond { fill: #fff7ed; stroke: #ea580c; stroke-width: 1.4; }
+          .rel-ident { fill: #fff7ed; stroke: #ea580c; stroke-width: 1.4; }
+          .attr-oval { fill: #ffffff; stroke: #64748b; stroke-width: 1.1; }
+          .key-oval { fill: #fefce8; stroke: #ca8a04; stroke-width: 1.3; }
+          .derived-oval { fill: #ffffff; stroke: #059669; stroke-width: 1.2; stroke-dasharray: 3 2; }
+          .conn-line { stroke: #0f172a; stroke-width: 1.3; }
+          .conn-double { stroke: #0f172a; stroke-width: 3.5; }
+          .conn-double-inner { stroke: #ffffff; stroke-width: 1.5; }
+          .attr-line { stroke: #94a3b8; stroke-width: 1; }
+        </style>
+      </defs>
+
+      <!-- ======================================================== -->
+      <!-- CENTRAL ENTITY: MOVIES -->
+      <!-- ======================================================== -->
+      <rect x="470" y="215" width="140" height="48" class="ent-rect"/>
+      <text x="540" y="244" class="txt-ent">MOVIES</text>
+
+      <!-- Attributes of MOVIES -->
+      <!-- movie_id (PK) -->
+      <line x1="470" y1="225" x2="415" y2="200" class="attr-line"/>
+      <ellipse cx="385" cy="192" rx="30" ry="11" class="key-oval"/>
+      <text x="385" y="195" class="txt-attr"><u>movie_id</u></text>
+
+      <!-- title -->
+      <line x1="490" y1="215" x2="450" y2="170" class="attr-line"/>
+      <ellipse cx="435" cy="160" rx="22" ry="10" class="attr-oval"/>
+      <text x="435" y="163" class="txt-attr">title</text>
+
+      <!-- release_year -->
+      <line x1="540" y1="215" x2="540" y2="165" class="attr-line"/>
+      <ellipse cx="540" cy="155" rx="32" ry="10" class="attr-oval"/>
+      <text x="540" y="158" class="txt-attr">release_year</text>
+
+      <!-- duration_minutes -->
+      <line x1="585" y1="215" x2="625" y2="170" class="attr-line"/>
+      <ellipse cx="645" cy="160" rx="36" ry="10" class="attr-oval"/>
+      <text x="645" y="163" class="txt-attr">duration_minutes</text>
+
+      <!-- box_office_earnings -->
+      <line x1="610" y1="230" x2="665" y2="215" class="attr-line"/>
+      <ellipse cx="715" cy="210" rx="46" ry="11" class="attr-oval"/>
+      <text x="715" y="213" class="txt-attr">box_office_earnings</text>
+
+      <!-- net_profit (Derived) -->
+      <line x1="610" y1="245" x2="665" y2="245" class="attr-line"/>
+      <ellipse cx="705" cy="245" rx="32" ry="11" class="derived-oval"/>
+      <text x="705" y="248" class="txt-attr" fill="#059669">net_profit</text>
+
+      <!-- mpaa_rating -->
+      <line x1="580" y1="263" x2="630" y2="285" class="attr-line"/>
+      <ellipse cx="660" cy="295" rx="32" ry="10" class="attr-oval"/>
+      <text x="660" y="298" class="txt-attr">mpaa_rating</text>
+
+      <!-- ======================================================== -->
+      <!-- BOTTOM CENTER: PRODUCTION_BUDGETS (1:1 WEAK / IDENTIFYING) -->
+      <!-- ======================================================== -->
+      <!-- Identifying Relationship: has_budget (Double Diamond) -->
+      <polygon points="540,310 575,332 540,355 505,332" class="rel-diamond"/>
+      <polygon points="540,314 570,332 540,351 510,332" class="rel-ident" fill="none"/>
+      <text x="540" y="335" class="txt-rel">has_budget</text>
+
+      <!-- Total Participation Lines (1:1) -->
+      <line x1="540" y1="263" x2="540" y2="310" class="conn-double"/>
+      <line x1="540" y1="263" x2="540" y2="310" class="conn-double-inner"/>
+      <text x="555" y="285" class="txt-card">1</text>
+      <text x="525" y="285" class="txt-minmax">(1,1)</text>
+
+      <line x1="540" y1="355" x2="540" y2="405" class="conn-double"/>
+      <line x1="540" y1="355" x2="540" y2="405" class="conn-double-inner"/>
+      <text x="555" y="385" class="txt-card">1</text>
+      <text x="525" y="385" class="txt-minmax">(1,1)</text>
+
+      <!-- Weak Entity: PRODUCTION_BUDGETS (Double Rectangle) -->
+      <rect x="445" y="405" width="190" height="42" class="ent-weak"/>
+      <rect x="449" y="409" width="182" height="34" class="ent-weak" fill="none"/>
+      <text x="540" y="430" class="txt-ent">PRODUCTION_BUDGETS</text>
+
+      <!-- Attributes of ProductionBudgets -->
+      <line x1="445" y1="426" x2="390" y2="426" class="attr-line"/>
+      <ellipse cx="360" cy="426" rx="28" ry="10" class="key-oval"/>
+      <text x="360" y="429" class="txt-attr"><u>budget_id</u></text>
+
+      <line x1="480" y1="447" x2="450" y2="475" class="attr-line"/>
+      <ellipse cx="430" cy="485" rx="35" ry="10" class="attr-oval"/>
+      <text x="430" y="488" class="txt-attr">production_cost</text>
+
+      <line x1="540" y1="447" x2="540" y2="480" class="attr-line"/>
+      <ellipse cx="540" cy="488" rx="35" ry="10" class="attr-oval"/>
+      <text x="540" y="491" class="txt-attr">marketing_spend</text>
+
+      <line x1="600" y1="447" x2="630" y2="475" class="attr-line"/>
+      <ellipse cx="650" cy="485" rx="28" ry="10" class="attr-oval"/>
+      <text x="650" y="488" class="txt-attr">vfx_budget</text>
+
+
+      <!-- ======================================================== -->
+      <!-- MIDDLE LEFT: ACTORS & acts_in (M:N) -> MovieCast -->
+      <!-- ======================================================== -->
+      <polygon points="340,215 375,238 340,260 305,238" class="rel-diamond"/>
+      <text x="340" y="241" class="txt-rel">acts_in</text>
+
+      <line x1="470" y1="238" x2="375" y2="238" class="conn-line"/>
+      <text x="420" y="232" class="txt-card">M</text>
+      <text x="420" y="248" class="txt-minmax">(1,N)</text>
+
+      <line x1="305" y1="238" x2="210" y2="238" class="conn-line"/>
+      <text x="260" y="232" class="txt-card">N</text>
+      <text x="260" y="248" class="txt-minmax">(1,M)</text>
+
+      <!-- Descriptive attributes on relationship acts_in (MovieCast attributes) -->
+      <line x1="340" y1="215" x2="340" y2="185" class="attr-line"/>
+      <ellipse cx="340" cy="175" rx="36" ry="10" class="attr-oval"/>
+      <text x="340" y="178" class="txt-attr">character_name</text>
+
+      <line x1="365" y1="220" x2="385" y2="185" class="attr-line"/>
+      <ellipse cx="395" cy="175" rx="22" ry="10" class="attr-oval"/>
+      <text x="395" y="178" class="txt-attr">salary</text>
+
+      <!-- Entity: ACTORS -->
+      <rect x="90" y="215" width="120" height="46" class="ent-rect"/>
+      <text x="150" y="242" class="txt-ent">ACTORS</text>
+
+      <!-- Attributes of Actors -->
+      <line x1="150" y1="215" x2="150" y2="180" class="attr-line"/>
+      <ellipse cx="150" cy="170" rx="26" ry="10" class="key-oval"/>
+      <text x="150" y="173" class="txt-attr"><u>actor_id</u></text>
+
+      <line x1="120" y1="215" x2="90" y2="180" class="attr-line"/>
+      <ellipse cx="75" cy="170" rx="26" ry="10" class="attr-oval"/>
+      <text x="75" y="173" class="txt-attr">first_name</text>
+
+      <line x1="90" y1="225" x2="45" y2="205" class="attr-line"/>
+      <ellipse cx="30" cy="195" rx="26" ry="10" class="attr-oval"/>
+      <text x="30" y="198" class="txt-attr">last_name</text>
+
+      <line x1="90" y1="245" x2="45" y2="245" class="attr-line"/>
+      <ellipse cx="25" cy="245" rx="22" ry="10" class="attr-oval"/>
+      <text x="25" y="248" class="txt-attr">gender</text>
+
+      <line x1="110" y1="261" x2="70" y2="285" class="attr-line"/>
+      <ellipse cx="50" cy="295" rx="26" ry="10" class="attr-oval"/>
+      <text x="50" y="298" class="txt-attr">birth_year</text>
+
+      <line x1="150" y1="261" x2="150" y2="295" class="attr-line"/>
+      <ellipse cx="150" cy="305" rx="28" ry="10" class="attr-oval"/>
+      <text x="150" y="308" class="txt-attr">nationality</text>
+
+
+      <!-- ======================================================== -->
+      <!-- BOTTOM LEFT: DIRECTORS & directs (M:N) -> MovieDirectors -->
+      <!-- ======================================================== -->
+      <polygon points="340,345 375,368 340,390 305,368" class="rel-diamond"/>
+      <text x="340" y="371" class="txt-rel">directs</text>
+
+      <line x1="480" y1="263" x2="370" y2="355" class="conn-line"/>
+      <text x="440" y="305" class="txt-card">M</text>
+      <text x="420" y="320" class="txt-minmax">(1,N)</text>
+
+      <line x1="305" y1="368" x2="210" y2="368" class="conn-line"/>
+      <text x="260" y="362" class="txt-card">N</text>
+      <text x="260" y="378" class="txt-minmax">(1,M)</text>
+
+      <!-- Entity: DIRECTORS -->
+      <rect x="90" y="345" width="120" height="46" class="ent-rect"/>
+      <text x="150" y="372" class="txt-ent">DIRECTORS</text>
+
+      <!-- Attributes of Directors -->
+      <line x1="90" y1="368" x2="45" y2="368" class="attr-line"/>
+      <ellipse cx="25" cy="368" rx="22" ry="10" class="key-oval"/>
+      <text x="25" y="371" class="txt-attr"><u>dir_id</u></text>
+
+      <line x1="110" y1="391" x2="70" y2="420" class="attr-line"/>
+      <ellipse cx="50" cy="430" rx="26" ry="10" class="attr-oval"/>
+      <text x="50" y="433" class="txt-attr">first_name</text>
+
+      <line x1="150" y1="391" x2="150" y2="425" class="attr-line"/>
+      <ellipse cx="150" cy="435" rx="26" ry="10" class="attr-oval"/>
+      <text x="150" y="438" class="txt-attr">last_name</text>
+
+      <line x1="190" y1="391" x2="225" y2="420" class="attr-line"/>
+      <ellipse cx="240" cy="430" rx="28" ry="10" class="attr-oval"/>
+      <text x="240" y="433" class="txt-attr">awards_won</text>
+
+
+      <!-- ======================================================== -->
+      <!-- TOP RIGHT: USERS & REVIEWS (M:N) & WATCHLISTS (M:N) -->
+      <!-- ======================================================== -->
+      <!-- Entity: USERS -->
+      <rect x="180" y="55" width="115" height="44" class="ent-rect"/>
+      <text x="237" y="81" class="txt-ent">USERS</text>
+
+      <!-- Attributes of Users -->
+      <line x1="180" y1="70" x2="135" y2="55" class="attr-line"/>
+      <ellipse cx="115" cy="48" rx="24" ry="10" class="key-oval"/>
+      <text x="115" y="51" class="txt-attr"><u>user_id</u></text>
+
+      <line x1="210" y1="55" x2="195" y2="25" class="attr-line"/>
+      <ellipse cx="185" cy="18" rx="24" ry="10" class="attr-oval"/>
+      <text x="185" y="21" class="txt-attr">username</text>
+
+      <line x1="240" y1="55" x2="240" y2="25" class="attr-line"/>
+      <ellipse cx="240" cy="18" rx="20" ry="10" class="attr-oval"/>
+      <text x="240" y="21" class="txt-attr">email</text>
+
+      <line x1="270" y1="55" x2="285" y2="25" class="attr-line"/>
+      <ellipse cx="295" cy="18" rx="18" ry="10" class="attr-oval"/>
+      <text x="295" y="21" class="txt-attr">role</text>
+
+      <!-- Relationship 1: bookmarks (Watchlists M:N) -->
+      <polygon points="360,55 395,77 360,99 325,77" class="rel-diamond"/>
+      <text x="360" y="80" class="txt-rel">bookmarks</text>
+
+      <line x1="295" y1="77" x2="325" y2="77" class="conn-line"/>
+      <text x="310" y="71" class="txt-card">1</text>
+      <text x="310" y="87" class="txt-minmax">(0,N)</text>
+
+      <line x1="395" y1="77" x2="510" y2="215" class="conn-line"/>
+      <text x="440" y="140" class="txt-card">N</text>
+      <text x="440" y="156" class="txt-minmax">(0,N)</text>
+
+      <!-- Audit Entity: ACTIVITY_LOGS (Generated by Triggers) -->
+      <polygon points="460,55 490,72 460,89 430,72" class="rel-diamond"/>
+      <text x="460" y="75" class="txt-rel">logs</text>
+      <line x1="395" y1="77" x2="430" y2="72" class="conn-line"/>
+
+      <line x1="490" y1="72" x2="520" y2="72" class="conn-line"/>
+      <rect x="520" y="52" width="130" height="40" class="ent-weak"/>
+      <rect x="523" y="55" width="124" height="34" class="ent-weak" fill="none"/>
+      <text x="585" y="76" class="txt-ent">ACTIVITY_LOGS</text>
+
+      <line x1="650" y1="65" x2="685" y2="55" class="attr-line"/>
+      <ellipse cx="705" cy="50" rx="24" ry="10" class="key-oval"/>
+      <text x="705" y="53" class="txt-attr"><u>log_id</u></text>
+
+      <line x1="650" y1="77" x2="690" y2="77" class="attr-line"/>
+      <ellipse cx="720" cy="77" rx="30" ry="10" class="attr-oval"/>
+      <text x="720" y="80" class="txt-attr">action_type</text>
+
+
+      <!-- Relationship 2: rates (Reviews M:N between Users & Movies) -->
+      <polygon points="360,130 395,152 360,175 325,152" class="rel-diamond"/>
+      <text x="360" y="155" class="txt-rel">reviews/rates</text>
+
+      <line x1="250" y1="99" x2="335" y2="145" class="conn-line"/>
+      <text x="280" y="125" class="txt-card">M</text>
+      <text x="270" y="138" class="txt-minmax">(0,N)</text>
+
+      <line x1="395" y1="152" x2="480" y2="218" class="conn-line"/>
+      <text x="445" y="180" class="txt-card">N</text>
+      <text x="445" y="196" class="txt-minmax">(0,N)</text>
+
+      <!-- Attributes on reviews/rates relationship (Reviews table) -->
+      <line x1="360" y1="175" x2="360" y2="198" class="attr-line"/>
+      <ellipse cx="360" cy="206" rx="30" ry="10" class="attr-oval"/>
+      <text x="360" y="209" class="txt-attr">rating_score</text>
+
+      <line x1="385" y1="165" x2="410" y2="190" class="attr-line"/>
+      <ellipse cx="425" cy="198" rx="26" ry="10" class="attr-oval"/>
+      <text x="425" y="201" class="txt-attr">review_text</text>
+
+
+      <!-- ======================================================== -->
+      <!-- MIDDLE RIGHT: PRODUCTION_STUDIOS & produces (M:N) -> MovieStudios -->
+      <!-- ======================================================== -->
+      <polygon points="760,130 800,152 760,175 720,152" class="rel-diamond"/>
+      <text x="760" y="155" class="txt-rel">produces</text>
+
+      <line x1="590" y1="215" x2="725" y2="160" class="conn-line"/>
+      <text x="645" y="180" class="txt-card">M</text>
+      <text x="645" y="195" class="txt-minmax">(1,N)</text>
+
+      <line x1="800" y1="152" x2="890" y2="152" class="conn-line"/>
+      <text x="845" y="146" class="txt-card">N</text>
+      <text x="845" y="162" class="txt-minmax">(1,M)</text>
+
+      <!-- Entity: PRODUCTION_STUDIOS -->
+      <rect x="890" y="130" width="150" height="46" class="ent-rect"/>
+      <text x="965" y="157" class="txt-ent">PRODUCTION_STUDIOS</text>
+
+      <line x1="1040" y1="140" x2="1065" y2="125" class="attr-line"/>
+      <ellipse cx="1060" cy="115" rx="26" ry="10" class="key-oval"/>
+      <text x="1060" y="118" class="txt-attr"><u>studio_id</u></text>
+
+      <line x1="965" y1="130" x2="965" y2="105" class="attr-line"/>
+      <ellipse cx="965" cy="95" rx="34" ry="10" class="attr-oval"/>
+      <text x="965" y="98" class="txt-attr">studio_name</text>
+
+      <line x1="1010" y1="130" x2="1035" y2="100" class="attr-line"/>
+      <ellipse cx="1045" cy="90" rx="34" ry="10" class="attr-oval"/>
+      <text x="1045" y="93" class="txt-attr">headquarters</text>
+
+
+      <!-- ======================================================== -->
+      <!-- BOTTOM RIGHT: GENRES & categorized_as (M:N) -> MovieGenres -->
+      <!-- ======================================================== -->
+      <polygon points="760,335 800,358 760,380 720,358" class="rel-diamond"/>
+      <text x="760" y="361" class="txt-rel">categorized</text>
+
+      <line x1="590" y1="263" x2="730" y2="345" class="conn-line"/>
+      <text x="680" y="295" class="txt-card">M</text>
+      <text x="660" y="310" class="txt-minmax">(1,N)</text>
+
+      <line x1="800" y1="358" x2="890" y2="358" class="conn-line"/>
+      <text x="845" y="352" class="txt-card">N</text>
+      <text x="845" y="368" class="txt-minmax">(1,M)</text>
+
+      <!-- Entity: GENRES -->
+      <rect x="890" y="335" width="130" height="46" class="ent-rect"/>
+      <text x="955" y="362" class="txt-ent">GENRES</text>
+
+      <line x1="1020" y1="345" x2="1055" y2="335" class="attr-line"/>
+      <ellipse cx="1060" cy="325" rx="26" ry="10" class="key-oval"/>
+      <text x="1060" y="328" class="txt-attr"><u>genre_id</u></text>
+
+      <line x1="955" y1="381" x2="955" y2="415" class="attr-line"/>
+      <ellipse cx="955" cy="425" rx="32" ry="10" class="attr-oval"/>
+      <text x="955" y="428" class="txt-attr">genre_name</text>
+
+      <line x1="1000" y1="381" x2="1025" y2="415" class="attr-line"/>
+      <ellipse cx="1035" cy="425" rx="30" ry="10" class="attr-oval"/>
+      <text x="1035" y="428" class="txt-attr">description</text>
+
+    </svg>
+  </div>
+
+  <div class="footer">
+    <span>PES University CSE • FilmMatrix Chen ER Model</span>
+    <span>Matches <code>sql/01_ddl_create_tables.sql</code> (14 Tables, Cardinality Ratios, Participation & Min-Max)</span>
+    <span>Evaluator Signature: _______________________</span>
+  </div>
+</div>
+
+
+<!-- ======================================================================= -->
+<!-- PAGE 2: RELATIONAL SCHEMA (EXACT 14 NORMALIZED TABLES + ARROWS) -->
+<!-- ======================================================================= -->
+<div class="page">
+  <div class="header">
     <div>
-      <div class="doc-header">
-        <div>
-          <h1 class="pes-heading">PES UNIVERSITY — DEPARTMENT OF COMPUTER SCIENCE &amp; ENGINEERING</h1>
-          <p class="pes-dept">UE23CS352A Database Management Systems • Experiential Learning Level 3 Mini-Project</p>
-        </div>
-        <div class="meta-box">
-          <div><strong>Project:</strong> FilmMatrix Analytics</div>
-          <div><strong>Team:</strong> Tanmayi Nagabhairava (<code>PES1UG24CS493</code>) &amp; Varsha A Patil (<code>PES1UG24CS516</code>)</div>
-          <div><strong>Section:</strong> Section I • Date: 17 November 2026</div>
-        </div>
-      </div>
-
-      <div class="page-title">
-        <span>PAGE 2: RELATIONAL SCHEMA WITH REFERENTIAL INTEGRITY ARROWS</span>
-        <span style="font-size: 8pt; color: #475569; font-weight: normal; text-transform: none;">
-          Evaluation Rubric: <strong>Col G (Relational Schema, Keys &amp; Constraints — 3 Marks)</strong>
-        </span>
-      </div>
-
-      <div class="legend-bar">
-        <strong>Relational Notation (PES Lab-3 Standard):</strong>
-        <span class="legend-item"><span style="text-decoration:underline; font-weight:bold;"><u>Underlined</u></span> = Primary Key</span>
-        <span class="legend-item"><span style="color:#2563eb; font-weight:bold;">FK</span> = Foreign Key</span>
-        <span class="legend-item"><span style="color:#2563eb;">&rarr; Curved Arrow</span> = Referential Integrity (points from Child FK to Parent PK)</span>
-        <span class="legend-item"><span style="color:#b45309; font-weight:bold;">[CASCADE]</span> = ON DELETE CASCADE ON UPDATE CASCADE</span>
-      </div>
-
-      <!-- High-Resolution Vector SVG with Exact Tables & Curved Arrows -->
-      <svg viewBox="0 0 1060 480" style="width:100%; height:auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:4px;">
-        <defs>
-          <style>
-            .tbl-title { font-family: sans-serif; font-size: 9.5px; font-weight: 800; fill: #0f172a; }
-            .cell-box { fill: #f8fafc; stroke: #334155; stroke-width: 1.2; }
-            .cell-pk { fill: #fef3c7; stroke: #b45309; stroke-width: 1.4; font-weight: bold; }
-            .cell-fk { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.2; }
-            .cell-txt { font-family: ui-monospace, monospace; font-size: 8px; fill: #0f172a; text-anchor: middle; }
-            .ref-arrow { fill: none; stroke: #2563eb; stroke-width: 1.5; marker-end: url(#arrowhead); }
-            .ref-arrow-orange { fill: none; stroke: #b45309; stroke-width: 1.6; marker-end: url(#arrowhead-orange); }
-          </style>
-
-          <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-            <polygon points="0 0, 6 2, 0 4" fill="#2563eb" />
-          </marker>
-          <marker id="arrowhead-orange" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-            <polygon points="0 0, 6 2, 0 4" fill="#b45309" />
-          </marker>
-        </defs>
-
-        <!-- TABLE 1: MOVIES (CENTRAL) -->
-        <text x="30" y="22" class="tbl-title">Movies</text>
-        <g id="table-movies">
-          <rect x="30" y="26" width="90" height="22" class="cell-pk"/>
-          <text x="75" y="40" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>movie_id</u></text>
-
-          <rect x="120" y="26" width="110" height="22" class="cell-box"/>
-          <text x="175" y="40" class="cell-txt">title</text>
-
-          <rect x="230" y="26" width="85" height="22" class="cell-box"/>
-          <text x="272" y="40" class="cell-txt">release_year</text>
-
-          <rect x="315" y="26" width="120" height="22" class="cell-box"/>
-          <text x="375" y="40" class="cell-txt">box_office_earnings</text>
-
-          <rect x="435" y="26" width="85" height="22" class="cell-box"/>
-          <text x="477" y="40" class="cell-txt">synopsis</text>
-
-          <rect x="520" y="26" width="85" height="22" class="cell-fk"/>
-          <text x="562" y="40" class="cell-txt" fill="#2563eb">studio_id (FK)</text>
-        </g>
-
-        <!-- TABLE 2: PRODUCTION BUDGETS (1:1 CASCADE) -->
-        <text x="30" y="80" class="tbl-title">ProductionBudgets (1:1 Strict Financial Ledger)</text>
-        <g id="table-budgets">
-          <rect x="30" y="84" width="80" height="22" class="cell-pk"/>
-          <text x="70" y="98" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>budget_id</u></text>
-
-          <rect x="110" y="84" width="100" height="22" class="cell-fk"/>
-          <text x="160" y="98" class="cell-txt" fill="#2563eb">movie_id (FK)</text>
-
-          <rect x="210" y="84" width="110" height="22" class="cell-box"/>
-          <text x="265" y="98" class="cell-txt">production_cost</text>
-
-          <rect x="320" y="84" width="110" height="22" class="cell-box"/>
-          <text x="375" y="98" class="cell-txt">marketing_spend</text>
-
-          <rect x="430" y="84" width="70" height="22" class="cell-box"/>
-          <text x="465" y="98" class="cell-txt">currency</text>
-        </g>
-
-        <!-- TABLE 3: STUDIOS -->
-        <text x="690" y="22" class="tbl-title">Studios</text>
-        <g id="table-studios">
-          <rect x="690" y="26" width="85" height="22" class="cell-pk"/>
-          <text x="732" y="40" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>studio_id</u></text>
-
-          <rect x="775" y="26" width="115" height="22" class="cell-box"/>
-          <text x="832" y="40" class="cell-txt">studio_name</text>
-
-          <rect x="890" y="26" width="105" height="22" class="cell-box"/>
-          <text x="942" y="40" class="cell-txt">headquarters</text>
-        </g>
-
-        <!-- TABLE 4: ACTORS -->
-        <text x="30" y="140" class="tbl-title">Actors</text>
-        <g id="table-actors">
-          <rect x="30" y="144" width="85" height="22" class="cell-pk"/>
-          <text x="72" y="158" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>actor_id</u></text>
-
-          <rect x="115" y="144" width="125" height="22" class="cell-box"/>
-          <text x="177" y="158" class="cell-txt">name</text>
-
-          <rect x="240" y="144" width="75" height="22" class="cell-box"/>
-          <text x="277" y="158" class="cell-txt">birth_year</text>
-
-          <rect x="315" y="144" width="95" height="22" class="cell-box"/>
-          <text x="362" y="158" class="cell-txt">nationality</text>
-
-          <rect x="410" y="144" width="95" height="22" class="cell-box"/>
-          <text x="457" y="158" class="cell-txt">oscar_wins</text>
-        </g>
-
-        <!-- TABLE 5: MOVIE_CAST (M:N JUNCTION) -->
-        <text x="30" y="200" class="tbl-title">MovieCast (M:N Bridge: Movies &harr; Actors)</text>
-        <g id="table-moviecast">
-          <rect x="30" y="204" width="75" height="22" class="cell-pk"/>
-          <text x="67" y="218" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>cast_id</u></text>
-
-          <rect x="105" y="204" width="95" height="22" class="cell-fk"/>
-          <text x="152" y="218" class="cell-txt" fill="#2563eb">movie_id (FK)</text>
-
-          <rect x="200" y="204" width="95" height="22" class="cell-fk"/>
-          <text x="247" y="218" class="cell-txt" fill="#2563eb">actor_id (FK)</text>
-
-          <rect x="295" y="204" width="130" height="22" class="cell-box"/>
-          <text x="360" y="218" class="cell-txt">character_name</text>
-
-          <rect x="425" y="204" width="85" height="22" class="cell-box"/>
-          <text x="467" y="218" class="cell-txt">billing_order</text>
-        </g>
-
-        <!-- TABLE 6: DIRECTORS -->
-        <text x="630" y="140" class="tbl-title">Directors</text>
-        <g id="table-directors">
-          <rect x="630" y="144" width="85" height="22" class="cell-pk"/>
-          <text x="672" y="158" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>director_id</u></text>
-
-          <rect x="715" y="144" width="120" height="22" class="cell-box"/>
-          <text x="775" y="158" class="cell-txt">name</text>
-
-          <rect x="835" y="144" width="90" height="22" class="cell-box"/>
-          <text x="880" y="158" class="cell-txt">nationality</text>
-        </g>
-
-        <!-- TABLE 7: MOVIE_DIRECTORS (M:N JUNCTION) -->
-        <text x="630" y="200" class="tbl-title">MovieDirectors (M:N Bridge: Movies &harr; Directors)</text>
-        <g id="table-moviedirectors">
-          <rect x="630" y="204" width="100" height="22" class="cell-pk"/>
-          <text x="680" y="218" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>movie_id (FK)</u></text>
-
-          <rect x="730" y="204" width="105" height="22" class="cell-pk"/>
-          <text x="782" y="218" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>director_id (FK)</u></text>
-
-          <rect x="835" y="204" width="115" height="22" class="cell-box"/>
-          <text x="892" y="218" class="cell-txt">is_primary_director</text>
-        </g>
-
-        <!-- TABLE 8: GENRES -->
-        <text x="30" y="260" class="tbl-title">Genres</text>
-        <g id="table-genres">
-          <rect x="30" y="264" width="80" height="22" class="cell-pk"/>
-          <text x="70" y="278" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>genre_id</u></text>
-
-          <rect x="110" y="264" width="100" height="22" class="cell-box"/>
-          <text x="160" y="278" class="cell-txt">genre_name</text>
-
-          <rect x="210" y="264" width="115" height="22" class="cell-box"/>
-          <text x="267" y="278" class="cell-txt">description</text>
-        </g>
-
-        <!-- TABLE 9: MOVIE_GENRES (M:N JUNCTION) -->
-        <text x="380" y="260" class="tbl-title">MovieGenres (M:N Bridge: Movies &harr; Genres)</text>
-        <g id="table-moviegenres">
-          <rect x="380" y="264" width="95" height="22" class="cell-pk"/>
-          <text x="427" y="278" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>movie_id (FK)</u></text>
-
-          <rect x="475" y="264" width="95" height="22" class="cell-pk"/>
-          <text x="522" y="278" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>genre_id (FK)</u></text>
-        </g>
-
-        <!-- TABLE 10: USERS -->
-        <text x="30" y="320" class="tbl-title">Users</text>
-        <g id="table-users">
-          <rect x="30" y="324" width="75" height="22" class="cell-pk"/>
-          <text x="67" y="338" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>user_id</u></text>
-
-          <rect x="105" y="324" width="100" height="22" class="cell-box"/>
-          <text x="155" y="338" class="cell-txt">username</text>
-
-          <rect x="205" y="324" width="130" height="22" class="cell-box"/>
-          <text x="270" y="338" class="cell-txt">email</text>
-
-          <rect x="335" y="324" width="75" height="22" class="cell-box"/>
-          <text x="372" y="338" class="cell-txt">role</text>
-
-          <rect x="410" y="324" width="100" height="22" class="cell-box"/>
-          <text x="460" y="338" class="cell-txt">password_hash</text>
-        </g>
-
-        <!-- TABLE 11: WATCHLISTS -->
-        <text x="30" y="380" class="tbl-title">Watchlists</text>
-        <g id="table-watchlists">
-          <rect x="30" y="384" width="95" height="22" class="cell-pk"/>
-          <text x="77" y="398" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>watchlist_id</u></text>
-
-          <rect x="125" y="384" width="90" height="22" class="cell-fk"/>
-          <text x="170" y="398" class="cell-txt" fill="#2563eb">user_id (FK)</text>
-
-          <rect x="215" y="384" width="95" height="22" class="cell-fk"/>
-          <text x="262" y="398" class="cell-txt" fill="#2563eb">movie_id (FK)</text>
-
-          <rect x="310" y="384" width="85" height="22" class="cell-box"/>
-          <text x="352" y="398" class="cell-txt">added_at</text>
-        </g>
-
-        <!-- TABLE 12: WATCHLIST ACTIVITY LOGS (TRIGGER AUDIT) -->
-        <text x="460" y="380" class="tbl-title">WatchlistActivityLogs (Populated by MySQL Triggers)</text>
-        <g id="table-activitylogs">
-          <rect x="460" y="384" width="65" height="22" class="cell-pk"/>
-          <text x="492" y="398" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>log_id</u></text>
-
-          <rect x="525" y="384" width="95" height="22" class="cell-fk"/>
-          <text x="572" y="398" class="cell-txt" fill="#2563eb">watchlist_id (FK)</text>
-
-          <rect x="620" y="384" width="85" height="22" class="cell-fk"/>
-          <text x="662" y="398" class="cell-txt" fill="#2563eb">user_id (FK)</text>
-
-          <rect x="705" y="384" width="90" height="22" class="cell-fk"/>
-          <text x="750" y="398" class="cell-txt" fill="#2563eb">movie_id (FK)</text>
-
-          <rect x="795" y="384" width="85" height="22" class="cell-box"/>
-          <text x="837" y="398" class="cell-txt">action_type</text>
-
-          <rect x="880" y="384" width="115" height="22" class="cell-box"/>
-          <text x="937" y="398" class="cell-txt">logged_at</text>
-        </g>
-
-        <!-- TABLE 13: REVIEWS -->
-        <text x="560" y="320" class="tbl-title">Reviews</text>
-        <g id="table-reviews">
-          <rect x="560" y="324" width="75" height="22" class="cell-pk"/>
-          <text x="597" y="338" class="cell-txt" style="text-decoration:underline; font-weight:bold;"><u>review_id</u></text>
-
-          <rect x="635" y="324" width="80" height="22" class="cell-fk"/>
-          <text x="675" y="338" class="cell-txt" fill="#2563eb">user_id (FK)</text>
-
-          <rect x="715" y="324" width="90" height="22" class="cell-fk"/>
-          <text x="760" y="338" class="cell-txt" fill="#2563eb">movie_id (FK)</text>
-
-          <rect x="805" y="324" width="60" height="22" class="cell-box"/>
-          <text x="835" y="338" class="cell-txt">rating</text>
-
-          <rect x="865" y="324" width="110" height="22" class="cell-box"/>
-          <text x="920" y="338" class="cell-txt">review_text</text>
-        </g>
-
-
-        <!-- ================= CURVED REFERENTIAL ARROWS ================= -->
-        <!-- Arrow 1: ProductionBudgets.movie_id -> Movies.movie_id -->
-        <path d="M 160 84 C 160 65, 80 65, 80 48" class="ref-arrow-orange"/>
-
-        <!-- Arrow 2: Movies.studio_id -> Studios.studio_id -->
-        <path d="M 562 26 C 562 10, 730 10, 730 26" class="ref-arrow"/>
-
-        <!-- Arrow 3: MovieCast.movie_id -> Movies.movie_id -->
-        <path d="M 152 204 C 152 70, 70 70, 70 48" class="ref-arrow"/>
-
-        <!-- Arrow 4: MovieCast.actor_id -> Actors.actor_id -->
-        <path d="M 247 204 C 247 180, 75 180, 75 166" class="ref-arrow"/>
-
-        <!-- Arrow 5: MovieDirectors.movie_id -> Movies.movie_id -->
-        <path d="M 680 204 C 680 90, 85 90, 85 48" class="ref-arrow"/>
-
-        <!-- Arrow 6: MovieDirectors.director_id -> Directors.director_id -->
-        <path d="M 782 204 C 782 180, 675 180, 675 166" class="ref-arrow"/>
-
-        <!-- Arrow 7: MovieGenres.movie_id -> Movies.movie_id -->
-        <path d="M 427 264 C 427 100, 65 100, 65 48" class="ref-arrow"/>
-
-        <!-- Arrow 8: MovieGenres.genre_id -> Genres.genre_id -->
-        <path d="M 522 264 C 522 250, 70 250, 70 264" class="ref-arrow"/>
-
-        <!-- Arrow 9: Watchlists.user_id -> Users.user_id -->
-        <path d="M 170 384 C 170 360, 70 360, 70 346" class="ref-arrow"/>
-
-        <!-- Arrow 10: Watchlists.movie_id -> Movies.movie_id -->
-        <path d="M 262 384 C 262 110, 60 110, 60 48" class="ref-arrow"/>
-
-        <!-- Arrow 11: Reviews.user_id -> Users.user_id -->
-        <path d="M 675 324 C 675 310, 80 310, 80 324" class="ref-arrow"/>
-
-        <!-- Arrow 12: Reviews.movie_id -> Movies.movie_id -->
-        <path d="M 760 324 C 760 115, 95 115, 95 48" class="ref-arrow"/>
-
-        <!-- Arrow 13: WatchlistActivityLogs.watchlist_id -> Watchlists.watchlist_id -->
-        <path d="M 572 384 C 572 360, 80 360, 80 384" class="ref-arrow"/>
-
-      </svg>
-
-      <div class="footer-sign">
-        <span>PES University • Department of CSE • DBMS Mini-Project Level 3</span>
-        <span>Tanmayi Nagabhairava (PES1UG24CS493) &amp; Varsha A Patil (PES1UG24CS516)</span>
-        <span>Evaluator Signature: ___________________________</span>
-      </div>
+      <h1 class="dept-title">PES UNIVERSITY — DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING</h1>
+      <div class="course-sub">UE23CS352A Database Management Systems • Experiential Learning Level 3 Mini-Project</div>
+    </div>
+    <div class="meta-right">
+      <strong>Project:</strong> FilmMatrix Global Movie Analytics<br>
+      <strong>Team:</strong> Tanmayi Nagabhairava (PES1UG24CS493) & Varsha A Patil (PES1UG24CS516)<br>
+      <strong>Section:</strong> Section I • <strong>Date:</strong> 17 November 2026
     </div>
   </div>
+
+  <div class="page-banner">
+    <span class="page-title">PAGE 2: RELATIONAL SCHEMA WITH REFERENTIAL INTEGRITY ARROWS (14 TABLES)</span>
+    <span class="rubric-pill">RUBRIC: COL G (RELATIONAL SCHEMA & CONSTRAINTS — 3 MARKS)</span>
+  </div>
+
+  <div style="flex: 1; position: relative; overflow: hidden;">
+    <svg viewBox="0 0 1080 500" style="width: 100%; height: 100%;">
+      <defs>
+        <style>
+          .t-name { font-family: sans-serif; font-size: 8.5px; font-weight: 800; fill: #0f172a; }
+          .c-box { fill: #f8fafc; stroke: #334155; stroke-width: 1.1; }
+          .c-pk { fill: #fef3c7; stroke: #b45309; stroke-width: 1.3; }
+          .c-fk { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.2; }
+          .c-txt { font-family: ui-monospace, monospace; font-size: 7.2px; fill: #0f172a; text-anchor: middle; }
+          .c-txt-pk { font-family: ui-monospace, monospace; font-size: 7.2px; font-weight: bold; fill: #78350f; text-anchor: middle; text-decoration: underline; }
+          .c-txt-fk { font-family: ui-monospace, monospace; font-size: 7px; fill: #1d4ed8; text-anchor: middle; font-style: italic; }
+          .arrow { fill: none; stroke: #2563eb; stroke-width: 1.3; marker-end: url(#ah-blue); }
+          .arrow-amber { fill: none; stroke: #b45309; stroke-width: 1.4; marker-end: url(#ah-amber); }
+        </style>
+
+        <marker id="ah-blue" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+          <polygon points="0 0, 6 2, 0 4" fill="#2563eb" />
+        </marker>
+        <marker id="ah-amber" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+          <polygon points="0 0, 6 2, 0 4" fill="#b45309" />
+        </marker>
+      </defs>
+
+      <!-- ======================================================== -->
+      <!-- ROW 1: MOVIES (CENTRAL) & PRODUCTION BUDGETS -->
+      <!-- ======================================================== -->
+      <!-- Table 1: Movies -->
+      <text x="25" y="18" class="t-name">Movies (Strong Entity)</text>
+      <g id="tbl-movies">
+        <rect x="25" y="22" width="75" height="19" class="c-pk"/>
+        <text x="62" y="34" class="c-txt-pk"><u>movie_id</u></text>
+
+        <rect x="100" y="22" width="85" height="19" class="c-box"/>
+        <text x="142" y="34" class="c-txt">title</text>
+
+        <rect x="185" y="22" width="70" height="19" class="c-box"/>
+        <text x="220" y="34" class="c-txt">release_year</text>
+
+        <rect x="255" y="22" width="80" height="19" class="c-box"/>
+        <text x="295" y="34" class="c-txt">duration_mins</text>
+
+        <rect x="335" y="22" width="55" height="19" class="c-box"/>
+        <text x="362" y="34" class="c-txt">language</text>
+
+        <rect x="390" y="22" width="105" height="19" class="c-box"/>
+        <text x="442" y="34" class="c-txt">box_office_earnings</text>
+
+        <rect x="495" y="22" width="65" height="19" class="c-box"/>
+        <text x="527" y="34" class="c-txt">mpaa_rating</text>
+
+        <rect x="560" y="22" width="65" height="19" class="c-box"/>
+        <text x="592" y="34" class="c-txt">synopsis</text>
+      </g>
+
+      <!-- Table 2: ProductionBudgets (1:1 Identifying) -->
+      <text x="660" y="18" class="t-name">ProductionBudgets (1:1 Identifying - ON DELETE CASCADE)</text>
+      <g id="tbl-budgets">
+        <rect x="660" y="22" width="65" height="19" class="c-pk"/>
+        <text x="692" y="34" class="c-txt-pk"><u>budget_id</u></text>
+
+        <rect x="725" y="22" width="75" height="19" class="c-fk"/>
+        <text x="762" y="34" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="800" y="22" width="85" height="19" class="c-box"/>
+        <text x="842" y="34" class="c-txt">production_cost</text>
+
+        <rect x="885" y="22" width="85" height="19" class="c-box"/>
+        <text x="927" y="34" class="c-txt">marketing_spend</text>
+
+        <rect x="970" y="22" width="65" height="19" class="c-box"/>
+        <text x="1002" y="34" class="c-txt">vfx_budget</text>
+      </g>
+
+
+      <!-- ======================================================== -->
+      <!-- ROW 2: ACTORS, MOVIE_CAST & DIRECTORS -->
+      <!-- ======================================================== -->
+      <!-- Table 3: Actors -->
+      <text x="25" y="75" class="t-name">Actors (Strong Entity)</text>
+      <g id="tbl-actors">
+        <rect x="25" y="79" width="65" height="19" class="c-pk"/>
+        <text x="57" y="91" class="c-txt-pk"><u>actor_id</u></text>
+
+        <rect x="90" y="79" width="65" height="19" class="c-box"/>
+        <text x="122" y="91" class="c-txt">first_name</text>
+
+        <rect x="155" y="79" width="65" height="19" class="c-box"/>
+        <text x="187" y="91" class="c-txt">last_name</text>
+
+        <rect x="220" y="79" width="50" height="19" class="c-box"/>
+        <text x="245" y="91" class="c-txt">gender</text>
+
+        <rect x="270" y="79" width="55" height="19" class="c-box"/>
+        <text x="297" y="91" class="c-txt">birth_year</text>
+
+        <rect x="325" y="79" width="65" height="19" class="c-box"/>
+        <text x="357" y="91" class="c-txt">nationality</text>
+      </g>
+
+      <!-- Table 4: MovieCast (M:N Bridge) -->
+      <text x="420" y="75" class="t-name">MovieCast (M:N Associative Bridge: Movies &harr; Actors)</text>
+      <g id="tbl-moviecast">
+        <rect x="420" y="79" width="60" height="19" class="c-pk"/>
+        <text x="450" y="91" class="c-txt-pk"><u>cast_id</u></text>
+
+        <rect x="480" y="79" width="75" height="19" class="c-fk"/>
+        <text x="517" y="91" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="555" y="79" width="75" height="19" class="c-fk"/>
+        <text x="592" y="91" class="c-txt-fk">actor_id [FK]</text>
+
+        <rect x="630" y="79" width="95" height="19" class="c-box"/>
+        <text x="677" y="91" class="c-txt">character_name</text>
+
+        <rect x="725" y="79" width="65" height="19" class="c-box"/>
+        <text x="757" y="91" class="c-txt">billing_order</text>
+
+        <rect x="790" y="79" width="60" height="19" class="c-box"/>
+        <text x="820" y="91" class="c-txt">salary</text>
+      </g>
+
+
+      <!-- ======================================================== -->
+      <!-- ROW 3: DIRECTORS & MOVIE_DIRECTORS -->
+      <!-- ======================================================== -->
+      <!-- Table 5: Directors -->
+      <text x="25" y="132" class="t-name">Directors (Strong Entity)</text>
+      <g id="tbl-directors">
+        <rect x="25" y="136" width="65" height="19" class="c-pk"/>
+        <text x="57" y="148" class="c-txt-pk"><u>director_id</u></text>
+
+        <rect x="90" y="136" width="65" height="19" class="c-box"/>
+        <text x="122" y="148" class="c-txt">first_name</text>
+
+        <rect x="155" y="136" width="65" height="19" class="c-box"/>
+        <text x="187" y="148" class="c-txt">last_name</text>
+
+        <rect x="220" y="136" width="55" height="19" class="c-box"/>
+        <text x="247" y="148" class="c-txt">birth_year</text>
+
+        <rect x="275" y="136" width="65" height="19" class="c-box"/>
+        <text x="307" y="148" class="c-txt">nationality</text>
+
+        <rect x="340" y="136" width="65" height="19" class="c-box"/>
+        <text x="372" y="148" class="c-txt">awards_won</text>
+      </g>
+
+      <!-- Table 6: MovieDirectors (M:N Bridge) -->
+      <text x="440" y="132" class="t-name">MovieDirectors (M:N Associative Bridge: Movies &harr; Directors)</text>
+      <g id="tbl-moviedirectors">
+        <rect x="440" y="136" width="85" height="19" class="c-pk"/>
+        <text x="482" y="148" class="c-txt-pk"><u>movie_dir_id</u></text>
+
+        <rect x="525" y="136" width="75" height="19" class="c-fk"/>
+        <text x="562" y="148" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="600" y="136" width="80" height="19" class="c-fk"/>
+        <text x="640" y="148" class="c-txt-fk">director_id [FK]</text>
+
+        <rect x="680" y="136" width="75" height="19" class="c-box"/>
+        <text x="717" y="148" class="c-txt">role_type</text>
+      </g>
+
+
+      <!-- ======================================================== -->
+      <!-- ROW 4: GENRES, MOVIE_GENRES, STUDIOS, MOVIE_STUDIOS -->
+      <!-- ======================================================== -->
+      <!-- Table 7: Genres -->
+      <text x="25" y="189" class="t-name">Genres (Strong Entity)</text>
+      <g id="tbl-genres">
+        <rect x="25" y="193" width="60" height="19" class="c-pk"/>
+        <text x="55" y="205" class="c-txt-pk"><u>genre_id</u></text>
+
+        <rect x="85" y="193" width="75" height="19" class="c-box"/>
+        <text x="122" y="205" class="c-txt">genre_name</text>
+
+        <rect x="160" y="193" width="95" height="19" class="c-box"/>
+        <text x="207" y="205" class="c-txt">description</text>
+      </g>
+
+      <!-- Table 8: MovieGenres (M:N Bridge) -->
+      <text x="285" y="189" class="t-name">MovieGenres (M:N Bridge)</text>
+      <g id="tbl-moviegenres">
+        <rect x="285" y="193" width="75" height="19" class="c-pk"/>
+        <text x="322" y="205" class="c-txt-pk"><u>movie_genre_id</u></text>
+
+        <rect x="360" y="193" width="75" height="19" class="c-fk"/>
+        <text x="397" y="205" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="435" y="193" width="75" height="19" class="c-fk"/>
+        <text x="472" y="205" class="c-txt-fk">genre_id [FK]</text>
+      </g>
+
+      <!-- Table 9: ProductionStudios -->
+      <text x="545" y="189" class="t-name">ProductionStudios (Strong Entity)</text>
+      <g id="tbl-studios">
+        <rect x="545" y="193" width="65" height="19" class="c-pk"/>
+        <text x="577" y="205" class="c-txt-pk"><u>studio_id</u></text>
+
+        <rect x="610" y="193" width="90" height="19" class="c-box"/>
+        <text x="655" y="205" class="c-txt">studio_name</text>
+
+        <rect x="700" y="193" width="95" height="19" class="c-box"/>
+        <text x="747" y="205" class="c-txt">headquarters</text>
+
+        <rect x="795" y="193" width="65" height="19" class="c-box"/>
+        <text x="827" y="205" class="c-txt">founded_year</text>
+      </g>
+
+      <!-- Table 10: MovieStudios (M:N Bridge) -->
+      <text x="890" y="189" class="t-name">MovieStudios (M:N Bridge)</text>
+      <g id="tbl-moviestudios">
+        <rect x="890" y="193" width="75" height="19" class="c-pk"/>
+        <text x="927" y="205" class="c-txt-pk"><u>movie_std_id</u></text>
+
+        <rect x="965" y="193" width="65" height="19" class="c-fk"/>
+        <text x="997" y="205" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="1030" y="193" width="60" height="19" class="c-fk"/>
+        <text x="1060" y="205" class="c-txt-fk">std_id [FK]</text>
+      </g>
+
+
+      <!-- ======================================================== -->
+      <!-- ROW 5: USERS, REVIEWS, WATCHLISTS, WATCHLIST_ACTIVITY_LOGS -->
+      <!-- ======================================================== -->
+      <!-- Table 11: Users -->
+      <text x="25" y="246" class="t-name">Users (RBAC Strong Entity)</text>
+      <g id="tbl-users">
+        <rect x="25" y="250" width="60" height="19" class="c-pk"/>
+        <text x="55" y="262" class="c-txt-pk"><u>user_id</u></text>
+
+        <rect x="85" y="250" width="75" height="19" class="c-box"/>
+        <text x="122" y="262" class="c-txt">username</text>
+
+        <rect x="160" y="250" width="85" height="19" class="c-box"/>
+        <text x="202" y="262" class="c-txt">email</text>
+
+        <rect x="245" y="250" width="75" height="19" class="c-box"/>
+        <text x="282" y="262" class="c-txt">password_hash</text>
+
+        <rect x="320" y="250" width="55" height="19" class="c-box"/>
+        <text x="347" y="262" class="c-txt">role [ENUM]</text>
+      </g>
+
+      <!-- Table 12: Reviews (M:N Bridge: Users &harr; Movies) -->
+      <text x="410" y="246" class="t-name">Reviews (M:N Bridge: Users &harr; Movies with Rating Score)</text>
+      <g id="tbl-reviews">
+        <rect x="410" y="250" width="65" height="19" class="c-pk"/>
+        <text x="442" y="262" class="c-txt-pk"><u>review_id</u></text>
+
+        <rect x="475" y="250" width="65" height="19" class="c-fk"/>
+        <text x="507" y="262" class="c-txt-fk">user_id [FK]</text>
+
+        <rect x="540" y="250" width="65" height="19" class="c-fk"/>
+        <text x="572" y="262" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="605" y="250" width="65" height="19" class="c-box"/>
+        <text x="637" y="262" class="c-txt">rating_score</text>
+
+        <rect x="670" y="250" width="75" height="19" class="c-box"/>
+        <text x="707" y="262" class="c-txt">review_title</text>
+
+        <rect x="745" y="250" width="75" height="19" class="c-box"/>
+        <text x="782" y="262" class="c-txt">review_text</text>
+      </g>
+
+      <!-- Table 13: Watchlists (M:N Bridge: Users &harr; Movies) -->
+      <text x="25" y="303" class="t-name">Watchlists (User Bookmarks - Triggers AFTER INSERT/DELETE)</text>
+      <g id="tbl-watchlists">
+        <rect x="25" y="307" width="75" height="19" class="c-pk"/>
+        <text x="62" y="319" class="c-txt-pk"><u>watchlist_id</u></text>
+
+        <rect x="100" y="307" width="65" height="19" class="c-fk"/>
+        <text x="132" y="319" class="c-txt-fk">user_id [FK]</text>
+
+        <rect x="165" y="307" width="65" height="19" class="c-fk"/>
+        <text x="197" y="319" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="230" y="307" width="75" height="19" class="c-box"/>
+        <text x="267" y="319" class="c-txt">added_at</text>
+      </g>
+
+      <!-- Table 14: WatchlistActivityLogs (Populated Exclusively by Triggers) -->
+      <text x="350" y="303" class="t-name">WatchlistActivityLogs (Immutable Audit Ledger Populated by MySQL Triggers)</text>
+      <g id="tbl-logs">
+        <rect x="350" y="307" width="55" height="19" class="c-pk"/>
+        <text x="377" y="319" class="c-txt-pk"><u>log_id</u></text>
+
+        <rect x="405" y="307" width="75" height="19" class="c-fk"/>
+        <text x="442" y="319" class="c-txt-fk">watchlist_id [FK]</text>
+
+        <rect x="480" y="307" width="65" height="19" class="c-fk"/>
+        <text x="512" y="319" class="c-txt-fk">user_id [FK]</text>
+
+        <rect x="545" y="307" width="65" height="19" class="c-fk"/>
+        <text x="577" y="319" class="c-txt-fk">movie_id [FK]</text>
+
+        <rect x="610" y="307" width="75" height="19" class="c-box"/>
+        <text x="647" y="319" class="c-txt">action_type</text>
+
+        <rect x="685" y="307" width="115" height="19" class="c-box"/>
+        <text x="742" y="319" class="c-txt">details</text>
+
+        <rect x="800" y="307" width="85" height="19" class="c-box"/>
+        <text x="842" y="319" class="c-txt">logged_at</text>
+      </g>
+
+
+      <!-- ======================================================== -->
+      <!-- REFERENTIAL INTEGRITY ARROWS (CHILD FK -> PARENT PK) -->
+      <!-- ======================================================== -->
+      <!-- 1. ProductionBudgets.movie_id -> Movies.movie_id -->
+      <path d="M 762 22 C 762 -5, 62 -5, 62 22" class="arrow" />
+
+      <!-- 2. MovieCast.movie_id -> Movies.movie_id -->
+      <path d="M 517 79 C 517 55, 62 55, 62 41" class="arrow" />
+
+      <!-- 3. MovieCast.actor_id -> Actors.actor_id -->
+      <path d="M 592 98 C 592 115, 57 115, 57 98" class="arrow" />
+
+      <!-- 4. MovieDirectors.movie_id -> Movies.movie_id -->
+      <path d="M 562 136 C 562 60, 75 60, 75 41" class="arrow" />
+
+      <!-- 5. MovieDirectors.director_id -> Directors.director_id -->
+      <path d="M 640 155 C 640 170, 57 170, 57 155" class="arrow" />
+
+      <!-- 6. MovieGenres.movie_id -> Movies.movie_id -->
+      <path d="M 397 193 C 397 50, 85 50, 85 41" class="arrow" />
+
+      <!-- 7. MovieGenres.genre_id -> Genres.genre_id -->
+      <path d="M 472 212 C 472 225, 55 225, 55 212" class="arrow" />
+
+      <!-- 8. MovieStudios.movie_id -> Movies.movie_id -->
+      <path d="M 997 193 C 997 10, 100 10, 100 22" class="arrow" />
+
+      <!-- 9. MovieStudios.studio_id -> ProductionStudios.studio_id -->
+      <path d="M 1060 212 C 1060 225, 577 225, 577 212" class="arrow" />
+
+      <!-- 10. Reviews.user_id -> Users.user_id -->
+      <path d="M 507 269 C 507 285, 55 285, 55 269" class="arrow" />
+
+      <!-- 11. Reviews.movie_id -> Movies.movie_id -->
+      <path d="M 572 250 C 572 65, 110 65, 110 41" class="arrow" />
+
+      <!-- 12. Watchlists.user_id -> Users.user_id -->
+      <path d="M 132 307 C 132 280, 55 280, 55 269" class="arrow" />
+
+      <!-- 13. Watchlists.movie_id -> Movies.movie_id -->
+      <path d="M 197 307 C 197 70, 45 70, 45 41" class="arrow" />
+
+      <!-- 14. WatchlistActivityLogs.watchlist_id -> Watchlists.watchlist_id -->
+      <path d="M 442 326 C 442 345, 62 345, 62 326" class="arrow" />
+
+    </svg>
+  </div>
+
+  <div class="footer">
+    <span>PES University CSE • FilmMatrix Relational Schema (14 Tables in 3NF)</span>
+    <span>Referential Integrity: Child Foreign Key &rarr; Parent Primary Key [ON DELETE CASCADE]</span>
+    <span>Evaluator Signature: _______________________</span>
+  </div>
+</div>
 
 </body>
 </html>
