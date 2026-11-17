@@ -85,12 +85,24 @@ LIMIT 8`;
         .filter(r => r.release_year >= 2020)
         .slice(0, 8);
 
+      const sanitizedRecords = (records.length > 0 ? records : fallbackRecords).map((r: any) => {
+        const obj: any = {};
+        for (const [k, v] of Object.entries(r)) {
+          if (v && typeof v === 'object' && 'low' in (v as any) && 'high' in (v as any)) {
+            obj[k] = (v as any).low;
+          } else {
+            obj[k] = v;
+          }
+        }
+        return obj;
+      });
+
       return NextResponse.json({
         success: true,
         action: 'READ',
         cypher,
         isFallback,
-        records: records.length > 0 ? records : fallbackRecords
+        records: sanitizedRecords
       });
     }
 
