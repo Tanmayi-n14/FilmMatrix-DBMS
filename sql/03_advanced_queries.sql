@@ -299,32 +299,47 @@ WHERE b.production_cost > (
 
 -- Recursive Query A: Year-by-Year Cumulative Industry Financial Milestone Expansion
 -- Demonstrates anchor member, recursive union member, and termination condition:
-WITH RECURSIVE YearlyTimelineCTE AS (
-    -- Anchor Member: Base starting year
+WITH RECURSIVE 
+YearlyAggregates AS (
     SELECT 
-        2005 AS timeline_year,
-        IFNULL((SELECT SUM(box_office_earnings) FROM Movies WHERE release_year = 2005), 0.00) AS year_earnings,
-        IFNULL((SELECT SUM(box_office_earnings) FROM Movies WHERE release_year = 2005), 0.00) AS cumulative_earnings,
-        1 AS recursion_depth
-        
+        release_year,
+        COUNT(movie_id) AS films_released,
+        SUM(box_office_earnings) AS annual_box_office
+    FROM Movies
+    GROUP BY release_year
+),
+YearlyTimelineCTE AS (
+    -- Anchor Member: Base starting year in catalog
+    SELECT 
+        y.release_year,
+        y.films_released,
+        y.annual_box_office,
+        y.annual_box_office AS cumulative_box_office,
+        1 AS iteration_depth
+    FROM YearlyAggregates y
+    WHERE y.release_year = (SELECT MIN(release_year) FROM Movies)
+
     UNION ALL
-    
+
     -- Recursive Member: Recursively step through subsequent production years
     SELECT 
-        y.timeline_year + 1,
-        IFNULL((SELECT SUM(box_office_earnings) FROM Movies WHERE release_year = y.timeline_year + 1), 0.00),
-        y.cumulative_earnings + IFNULL((SELECT SUM(box_office_earnings) FROM Movies WHERE release_year = y.timeline_year + 1), 0.00),
-        y.recursion_depth + 1
-    FROM YearlyTimelineCTE y
-    WHERE y.timeline_year < 2024
+        curr.release_year + 1,
+        IFNULL(y_next.films_released, 0),
+        IFNULL(y_next.annual_box_office, 0.00),
+        curr.cumulative_box_office + IFNULL(y_next.annual_box_office, 0.00),
+        curr.iteration_depth + 1
+    FROM YearlyTimelineCTE curr
+    LEFT JOIN YearlyAggregates y_next ON y_next.release_year = curr.release_year + 1
+    WHERE curr.release_year + 1 <= 2024 -- Termination Guard
 )
 SELECT 
-    timeline_year,
-    year_earnings,
-    cumulative_earnings,
-    recursion_depth
+    release_year,
+    films_released,
+    annual_box_office,
+    cumulative_box_office,
+    iteration_depth
 FROM YearlyTimelineCTE
-ORDER BY timeline_year ASC;
+ORDER BY release_year ASC;
 
 -- Recursive Query B: Multi-Hop Co-Star Collaboration Recursion in Relational SQL
 -- Demonstrates recursive graph path traversal in pure SQL, providing the technical

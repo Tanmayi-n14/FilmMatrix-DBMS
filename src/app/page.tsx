@@ -4505,7 +4505,7 @@ WHERE profitability_rank <= 10;`}
                           </span>
                           <button
                             type="button"
-                            onClick={() => copyToClipboard(`-- =============================================================================\n-- RECURSIVE CTE 1: Yearly Cumulative Box Office Growth Timeline\n-- =============================================================================\nWITH RECURSIVE YearlyTimelineCTE AS (\n    -- Anchor Member: Earliest benchmark year in catalog\n    SELECT \n        MIN(release_year) AS release_year,\n        COUNT(movie_id) AS films_released,\n        IFNULL(SUM(box_office_earnings), 0.00) AS annual_box_office,\n        IFNULL(SUM(box_office_earnings), 0.00) AS cumulative_box_office,\n        1 AS iteration_depth\n    FROM Movies\n    WHERE release_year = (SELECT MIN(release_year) FROM Movies)\n    GROUP BY release_year\n\n    UNION ALL\n\n    -- Recursive Member: Progressively increments release_year + 1\n    SELECT \n        curr.release_year + 1,\n        COUNT(m.movie_id) AS films_released,\n        IFNULL(SUM(m.box_office_earnings), 0.00) AS annual_box_office,\n        curr.cumulative_box_office + IFNULL(SUM(m.box_office_earnings), 0.00) AS cumulative_box_office,\n        curr.iteration_depth + 1\n    FROM YearlyTimelineCTE curr\n    LEFT JOIN Movies m ON m.release_year = curr.release_year + 1\n    WHERE curr.release_year + 1 <= 2024 -- Termination Guard\n    GROUP BY curr.release_year, curr.cumulative_box_office, curr.iteration_depth\n)\nSELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`, 'cli_cte_recursive')}
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- RECURSIVE CTE 1: Yearly Cumulative Box Office Growth Timeline\n-- =============================================================================\nWITH RECURSIVE \nYearlyAggregates AS (\n    SELECT \n        release_year,\n        COUNT(movie_id) AS films_released,\n        SUM(box_office_earnings) AS annual_box_office\n    FROM Movies\n    GROUP BY release_year\n),\nYearlyTimelineCTE AS (\n    -- Anchor Member: Earliest benchmark year in catalog\n    SELECT \n        y.release_year,\n        y.films_released,\n        y.annual_box_office,\n        y.annual_box_office AS cumulative_box_office,\n        1 AS iteration_depth\n    FROM YearlyAggregates y\n    WHERE y.release_year = (SELECT MIN(release_year) FROM Movies)\n\n    UNION ALL\n\n    -- Recursive Member: Progressively increments release_year + 1\n    SELECT \n        curr.release_year + 1,\n        IFNULL(y_next.films_released, 0),\n        IFNULL(y_next.annual_box_office, 0.00),\n        curr.cumulative_box_office + IFNULL(y_next.annual_box_office, 0.00),\n        curr.iteration_depth + 1\n    FROM YearlyTimelineCTE curr\n    LEFT JOIN YearlyAggregates y_next ON y_next.release_year = curr.release_year + 1\n    WHERE curr.release_year + 1 <= 2024 -- Termination Guard\n)\nSELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`, 'cli_cte_recursive')}
                             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
                           >
                             {copiedTriggerCode === 'cli_cte_recursive' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -4513,24 +4513,26 @@ WHERE profitability_rank <= 10;`}
                           </button>
                         </div>
                         <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
-{`-- Terminal Verification Query (Recursive SQL with Anchor, Recursive Member & Guard):
-WITH RECURSIVE YearlyTimelineCTE AS (
-    -- Anchor Member:
-    SELECT MIN(release_year) AS release_year, COUNT(movie_id) AS films_released,
-           IFNULL(SUM(box_office_earnings), 0.00) AS annual_box_office,
-           IFNULL(SUM(box_office_earnings), 0.00) AS cumulative_box_office, 1 AS iteration_depth
-    FROM Movies WHERE release_year = (SELECT MIN(release_year) FROM Movies)
-    GROUP BY release_year
+{`-- Terminal Verification Query (Clean ANSI/MySQL 8.0 Recursive CTE):
+WITH RECURSIVE 
+YearlyAggregates AS (
+    SELECT release_year, COUNT(movie_id) AS films_released, SUM(box_office_earnings) AS annual_box_office
+    FROM Movies GROUP BY release_year
+),
+YearlyTimelineCTE AS (
+    -- Anchor Member: Earliest benchmark year in catalog
+    SELECT y.release_year, y.films_released, y.annual_box_office,
+           y.annual_box_office AS cumulative_box_office, 1 AS iteration_depth
+    FROM YearlyAggregates y WHERE y.release_year = (SELECT MIN(release_year) FROM Movies)
     UNION ALL
-    -- Recursive Member:
-    SELECT curr.release_year + 1, COUNT(m.movie_id) AS films_released,
-           IFNULL(SUM(m.box_office_earnings), 0.00) AS annual_box_office,
-           curr.cumulative_box_office + IFNULL(SUM(m.box_office_earnings), 0.00) AS cumulative_box_office,
+    -- Recursive Member: Progressively increments release_year + 1
+    SELECT curr.release_year + 1, IFNULL(y_next.films_released, 0),
+           IFNULL(y_next.annual_box_office, 0.00),
+           curr.cumulative_box_office + IFNULL(y_next.annual_box_office, 0.00),
            curr.iteration_depth + 1
     FROM YearlyTimelineCTE curr
-    LEFT JOIN Movies m ON m.release_year = curr.release_year + 1
+    LEFT JOIN YearlyAggregates y_next ON y_next.release_year = curr.release_year + 1
     WHERE curr.release_year + 1 <= 2024 -- Termination Guard
-    GROUP BY curr.release_year, curr.cumulative_box_office, curr.iteration_depth
 )
 SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`}
                         </pre>

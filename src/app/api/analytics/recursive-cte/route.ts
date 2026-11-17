@@ -73,38 +73,36 @@ export async function GET(req: NextRequest) {
 
     // Default: Timeline Expansion
     const sql = `
-      WITH RECURSIVE YearlyTimelineCTE AS (
+      WITH RECURSIVE 
+      YearlyAggregates AS (
           SELECT 
-              2008 AS release_year,
-              1 AS films_released,
-              1006234167.00 AS annual_box_office,
-              1006234167.00 AS cumulative_box_office,
+              release_year,
+              COUNT(movie_id) AS films_released,
+              SUM(box_office_earnings) AS annual_box_office
+          FROM Movies
+          GROUP BY release_year
+      ),
+      YearlyTimelineCTE AS (
+          SELECT 
+              y.release_year,
+              y.films_released,
+              y.annual_box_office,
+              y.annual_box_office AS cumulative_box_office,
               1 AS iteration_depth
-              
+          FROM YearlyAggregates y
+          WHERE y.release_year = (SELECT MIN(release_year) FROM Movies)
+
           UNION ALL
-          
+
           SELECT 
-              y.release_year + 2,
-              CASE WHEN y.release_year + 2 = 2022 THEN 2 ELSE 1 END,
-              CASE 
-                  WHEN y.release_year + 2 = 2010 THEN 836800000.00
-                  WHEN y.release_year + 2 = 2014 THEN 701729206.00
-                  WHEN y.release_year + 2 = 2020 THEN 365304105.00
-                  WHEN y.release_year + 2 = 2022 THEN 2320250281.00
-                  WHEN y.release_year + 2 = 2024 THEN 711844358.00
-                  ELSE 450000000.00
-              END,
-              y.cumulative_box_office + CASE 
-                  WHEN y.release_year + 2 = 2010 THEN 836800000.00
-                  WHEN y.release_year + 2 = 2014 THEN 701729206.00
-                  WHEN y.release_year + 2 = 2020 THEN 365304105.00
-                  WHEN y.release_year + 2 = 2022 THEN 2320250281.00
-                  WHEN y.release_year + 2 = 2024 THEN 711844358.00
-                  ELSE 450000000.00
-              END,
-              y.iteration_depth + 1
-          FROM YearlyTimelineCTE y
-          WHERE y.release_year < 2024
+              curr.release_year + 1,
+              IFNULL(y_next.films_released, 0),
+              IFNULL(y_next.annual_box_office, 0.00),
+              curr.cumulative_box_office + IFNULL(y_next.annual_box_office, 0.00),
+              curr.iteration_depth + 1
+          FROM YearlyTimelineCTE curr
+          LEFT JOIN YearlyAggregates y_next ON y_next.release_year = curr.release_year + 1
+          WHERE curr.release_year + 1 <= 2024
       )
       SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;
     `;
