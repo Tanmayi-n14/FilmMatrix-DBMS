@@ -32,7 +32,7 @@ export default function Navbar() {
     try {
       await fetch('/api/auth/me', { method: 'POST' });
       setCurrentUser(null);
-      window.location.reload();
+      window.location.href = '/login';
     } catch (e) {
       console.error('Logout error:', e);
     }

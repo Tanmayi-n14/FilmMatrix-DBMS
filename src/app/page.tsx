@@ -307,7 +307,7 @@ export default function MasterPresentationDashboard() {
 
   const fetchCteData = async () => {
     try {
-      const res = await fetch('/api/analytics/rankings-cte?limit=8');
+      const res = await fetch('/api/analytics/rankings-cte?limit=10');
       const data = await res.json();
       setCteData(data.rankings || []);
     } catch (err) {
@@ -4176,11 +4176,11 @@ SELECT
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
                       {(viewData.length > 0 ? viewData : movies).slice(0, 8).map((m: any) => {
-                        const cost = Number(m.production_cost || m.total_investment || 100000000);
+                        const cost = Number(m.total_investment || (Number(m.production_cost || 0) + Number(m.marketing_spend || 0)) || 100000000);
                         const gross = Number(m.box_office_earnings || 0);
-                        const profit = gross - cost;
-                        const roi = cost > 0 ? ((profit / cost) * 100).toFixed(1) : '0.0';
-                        const status = profit >= 500000000 ? 'Blockbuster Hit' : profit > 0 ? 'Profitable' : 'Break-even';
+                        const profit = Number(m.net_profit ?? (gross - cost));
+                        const roi = m.roi_percentage != null ? Number(m.roi_percentage).toFixed(1) : (cost > 0 ? ((profit / cost) * 100).toFixed(1) : '0.0');
+                        const status = m.financial_status || (profit >= 500000000 ? 'Blockbuster Hit' : profit > 0 ? 'Profitable' : 'Break-even');
                         return (
                           <tr key={m.movie_id} className="hover:opacity-90">
                             <td className="p-2.5 font-sans font-bold">{m.title}</td>
@@ -4353,7 +4353,7 @@ LIMIT 8;`}
                           </tr>
                         </thead>
                         <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-                          {cteData.slice(0, 8).map((row, idx) => (
+                          {cteData.slice(0, 10).map((row, idx) => (
                             <tr key={idx}>
                               <td className="p-2.5 font-bold" style={{ color: 'var(--color-primary)' }}>#{row.profitability_rank || (idx + 1)}</td>
                               <td className="p-2.5 font-sans font-bold">{row.title}</td>
