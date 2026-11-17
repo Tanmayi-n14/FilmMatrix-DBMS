@@ -4088,14 +4088,16 @@ WHERE b.production_cost > (
                       </p>
                       <pre className="p-2.5 rounded-lg border font-mono text-[10px] overflow-x-auto leading-relaxed" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>{`SELECT 
     m.title, m.release_year,
-    d.name AS director_name,
-    s.name AS studio_name,
+    CONCAT(d.first_name, ' ', d.last_name) AS director_name,
+    s.studio_name,
     b.production_cost,
     m.box_office_earnings,
     (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
 FROM Movies m
-INNER JOIN Directors d ON m.director_id = d.director_id
-INNER JOIN Studios s ON m.studio_id = s.studio_id
+INNER JOIN MovieDirectors md ON m.movie_id = md.movie_id
+INNER JOIN Directors d ON md.director_id = d.director_id
+INNER JOIN MovieStudios ms ON m.movie_id = ms.movie_id
+INNER JOIN ProductionStudios s ON ms.studio_id = s.studio_id
 INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
 WHERE m.box_office_earnings > 500000000.00
 ORDER BY net_profit DESC;`}</pre>
@@ -4117,13 +4119,12 @@ ORDER BY net_profit DESC;`}</pre>
                       <pre className="p-2.5 rounded-lg border font-mono text-[10px] overflow-x-auto leading-relaxed" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>{`SELECT 
     m.movie_id, m.title, m.release_year,
     COUNT(r.review_id) AS total_reviews,
-    IFNULL(ROUND(AVG(r.rating), 2), 0.00) AS avg_user_rating,
+    IFNULL(ROUND(AVG(r.rating_score), 2), 0.00) AS avg_user_rating,
     COUNT(w.watchlist_id) AS total_bookmarks
 FROM Movies m
 LEFT OUTER JOIN Reviews r ON m.movie_id = r.movie_id
 LEFT OUTER JOIN Watchlists w ON m.movie_id = w.movie_id
 GROUP BY m.movie_id, m.title, m.release_year
-HAVING COUNT(r.review_id) = 0 -- Unreviewed films audit
 ORDER BY m.release_year DESC;`}</pre>
                     </div>
                   </div>

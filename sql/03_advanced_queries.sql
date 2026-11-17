@@ -333,12 +333,12 @@ WITH RECURSIVE ActorGraphPath AS (
     -- Anchor Member: Direct co-stars of actor Leonardo DiCaprio (actor_id = 6)
     SELECT 
         a.actor_id AS current_actor_id,
-        a.name AS actor_name,
+        CONCAT(a.first_name, ' ', a.last_name) AS actor_name,
         m.title AS shared_movie,
         1 AS degree_level,
-        CAST(CONCAT('Leonardo DiCaprio -> ', a.name) AS CHAR(500)) AS collaboration_trail
-    FROM CastMembers cm1
-    INNER JOIN CastMembers cm2 ON cm1.movie_id = cm2.movie_id AND cm1.actor_id != cm2.actor_id
+        CAST(CONCAT('Leonardo DiCaprio -> ', a.first_name, ' ', a.last_name) AS CHAR(500)) AS collaboration_trail
+    FROM MovieCast cm1
+    INNER JOIN MovieCast cm2 ON cm1.movie_id = cm2.movie_id AND cm1.actor_id != cm2.actor_id
     INNER JOIN Actors a ON cm2.actor_id = a.actor_id
     INNER JOIN Movies m ON cm1.movie_id = m.movie_id
     WHERE cm1.actor_id = 6
@@ -348,17 +348,17 @@ WITH RECURSIVE ActorGraphPath AS (
     -- Recursive Member: Recursively explore talent connections up to 3 degrees
     SELECT 
         next_a.actor_id,
-        next_a.name,
+        CONCAT(next_a.first_name, ' ', next_a.last_name),
         m2.title,
         agp.degree_level + 1,
-        CONCAT(agp.collaboration_trail, ' -> ', next_a.name)
+        CONCAT(agp.collaboration_trail, ' -> ', next_a.first_name, ' ', next_a.last_name)
     FROM ActorGraphPath agp
-    INNER JOIN CastMembers cm_from ON agp.current_actor_id = cm_from.actor_id
-    INNER JOIN CastMembers cm_to ON cm_from.movie_id = cm_to.movie_id AND cm_from.actor_id != cm_to.actor_id
+    INNER JOIN MovieCast cm_from ON agp.current_actor_id = cm_from.actor_id
+    INNER JOIN MovieCast cm_to ON cm_from.movie_id = cm_to.movie_id AND cm_from.actor_id != cm_to.actor_id
     INNER JOIN Actors next_a ON cm_to.actor_id = next_a.actor_id
     INNER JOIN Movies m2 ON cm_to.movie_id = m2.movie_id
     WHERE agp.degree_level < 2
-      AND LOCATE(next_a.name, agp.collaboration_trail) = 0 -- Prevent cyclic loops
+      AND LOCATE(CONCAT(next_a.first_name, ' ', next_a.last_name), agp.collaboration_trail) = 0 -- Prevent cyclic loops
 )
 SELECT * FROM ActorGraphPath
 ORDER BY degree_level, actor_name
@@ -373,29 +373,32 @@ LIMIT 25;
 SELECT 
     m.title,
     m.release_year,
-    d.name AS director_name,
-    s.name AS studio_name,
+    CONCAT(d.first_name, ' ', d.last_name) AS director_name,
+    s.studio_name,
     b.production_cost,
-    m.box_office_earnings
+    m.box_office_earnings,
+    (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
 FROM Movies m
 INNER JOIN MovieDirectors md ON m.movie_id = md.movie_id
 INNER JOIN Directors d ON md.director_id = d.director_id
 INNER JOIN MovieStudios ms ON m.movie_id = ms.movie_id
 INNER JOIN ProductionStudios s ON ms.studio_id = s.studio_id
 INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
-ORDER BY m.box_office_earnings DESC
-LIMIT 10;
+WHERE m.box_office_earnings > 500000000.00
+ORDER BY net_profit DESC;
 
--- Query B: LEFT OUTER JOIN (Detecting Unreviewed or Orphaned Entity States)
+-- Query B: LEFT OUTER JOIN (Detecting Unreviewed Films & Watchlist Bookmarks)
 SELECT 
     m.movie_id,
     m.title,
     m.release_year,
     COUNT(r.review_id) AS total_reviews,
-    IFNULL(ROUND(AVG(r.rating), 1), 'No Ratings') AS average_rating
+    IFNULL(ROUND(AVG(r.rating_score), 2), 0.00) AS avg_user_rating,
+    COUNT(w.watchlist_id) AS total_bookmarks
 FROM Movies m
-LEFT JOIN Reviews r ON m.movie_id = r.movie_id
+LEFT OUTER JOIN Reviews r ON m.movie_id = r.movie_id
+LEFT OUTER JOIN Watchlists w ON m.movie_id = w.movie_id
 GROUP BY m.movie_id, m.title, m.release_year
-ORDER BY total_reviews ASC, m.title ASC;
+ORDER BY m.release_year DESC;
 
 
