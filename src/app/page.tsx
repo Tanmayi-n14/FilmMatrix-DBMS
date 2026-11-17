@@ -26,7 +26,8 @@ import {
   Award,
   Play,
   Calculator,
-  Users as UsersIcon
+  Users as UsersIcon,
+  Printer
 } from 'lucide-react';
 
 export default function MasterPresentationDashboard() {
@@ -738,6 +739,14 @@ export default function MasterPresentationDashboard() {
                 >
                   📋 14-Table Entity Specs (3NF)
                 </button>
+                <Link
+                  href="/printable-er"
+                  target="_blank"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold border transition-all cursor-pointer bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800 hover:opacity-90"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>🖨️ Hard Copy Print View</span>
+                </Link>
               </div>
             </div>
 
