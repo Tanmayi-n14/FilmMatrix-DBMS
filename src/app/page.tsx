@@ -231,8 +231,19 @@ export default function MasterPresentationDashboard() {
   const [pathLoading, setPathLoading] = useState(false);
   const [collaborations, setCollaborations] = useState<any[]>([]);
 
-  // Load initial data & sync URL step parameter
+  // Auth check & load initial data & sync URL step parameter
   useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.authenticated || !data.user) {
+          window.location.href = '/login';
+        }
+      })
+      .catch(() => {
+        window.location.href = '/login';
+      });
+
     fetchMovies();
     fetchAuditLogs();
     fetchCteData();
@@ -780,7 +791,7 @@ export default function MasterPresentationDashboard() {
             {/* VIEW A: VISUAL ER DIAGRAM & CARDINALITY TOPOLOGY */}
             {step1View === 'er_diagram' && (
               <div className="space-y-4">
-                {/* Chen ER Diagram Notation Index & Viva Cheat Sheet */}
+                {/* Chen ER Diagram Notation Guide & Architecture Reference */}
                 <div 
                   className="p-4 rounded-xl border space-y-3 text-xs"
                   style={{
@@ -1406,6 +1417,11 @@ export default function MasterPresentationDashboard() {
 CREATE DATABASE IF NOT EXISTS filmmatrix_db;
 USE filmmatrix_db;
 
+-- Clean drop for idempotent re-execution (Prevents Error 1050 / Table already exists)
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS WatchlistActivityLogs, Watchlists, Reviews, MovieStudios, MovieGenres, MovieDirectors, MovieCast, ProductionBudgets, Movies, ProductionStudios, Genres, Directors, Actors, Users;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- 1. STRONG ENTITY: Users
 CREATE TABLE Users (
     user_id INT AUTO_INCREMENT,
@@ -1688,7 +1704,7 @@ ALTER TABLE MovieCast ADD INDEX idx_cast_billing (billing_order);`,
           >
             {(ddlFilter === 'all' || ddlFilter === 'core') && (
               <div className="mb-5">
-                <span className="font-bold opacity-75">// --- 1. CORE CATALOG & WEAK IDENTIFYING ENTITIES ---</span>
+                <span className="font-bold opacity-75">-- --- 1. CORE CATALOG & WEAK IDENTIFYING ENTITIES ---</span>
                 <pre className="mt-1">{`CREATE TABLE Users (
     user_id INT AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL,
@@ -1738,7 +1754,7 @@ CREATE TABLE ProductionBudgets (
 
             {(ddlFilter === 'all' || ddlFilter === 'talent') && (
               <div className="mb-5">
-                <span className="font-bold opacity-75">// --- 2. TALENT DIRECTORY & PRODUCTION HOUSES ---</span>
+                <span className="font-bold opacity-75">-- --- 2. TALENT DIRECTORY & PRODUCTION HOUSES ---</span>
                 <pre className="mt-1">{`CREATE TABLE Actors (
     actor_id INT AUTO_INCREMENT,
     first_name VARCHAR(50) NOT NULL,
@@ -1784,7 +1800,7 @@ CREATE TABLE ProductionStudios (
 
             {(ddlFilter === 'all' || ddlFilter === 'junction') && (
               <div className="mb-5">
-                <span className="font-bold opacity-75">// --- 3. ASSOCIATIVE / JUNCTION ENTITIES (RESOLVING M:N RELATIONSHIPS) ---</span>
+                <span className="font-bold opacity-75">-- --- 3. ASSOCIATIVE / JUNCTION ENTITIES (RESOLVING M:N RELATIONSHIPS) ---</span>
                 <pre className="mt-1">{`CREATE TABLE MovieCast (
     cast_id INT AUTO_INCREMENT,
     movie_id INT NOT NULL,
@@ -1836,7 +1852,7 @@ CREATE TABLE MovieStudios (
 
             {(ddlFilter === 'all' || ddlFilter === 'audit') && (
               <div className="mb-5">
-                <span className="font-bold opacity-75">// --- 4. REVIEWS, WATCHLISTS & AUDITING ---</span>
+                <span className="font-bold opacity-75">-- --- 4. REVIEWS, WATCHLISTS & AUDITING ---</span>
                 <pre className="mt-1">{`CREATE TABLE Reviews (
     review_id INT AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -1878,7 +1894,7 @@ CREATE TABLE WatchlistActivityLogs (
 
             {(ddlFilter === 'all' || ddlFilter === 'indexes') && (
               <div>
-                <span className="font-bold opacity-75">// --- 5. INDEXING & SCHEMA EVOLUTION (ALTER STATEMENTS) ---</span>
+                <span className="font-bold opacity-75">-- --- 5. INDEXING & SCHEMA EVOLUTION (ALTER STATEMENTS) ---</span>
                 <pre className="mt-1">{`-- Indexing high-frequency query paths to guarantee logarithmic lookup O(log N)
 ALTER TABLE Movies ADD INDEX idx_movie_release_year (release_year);
 ALTER TABLE Movies ADD INDEX idx_movie_box_office (box_office_earnings);
@@ -1935,6 +1951,24 @@ ALTER TABLE MovieCast ADD INDEX idx_cast_billing (billing_order);`}</pre>
 -- FILM MATRIX: DML INSERT STATEMENTS (ALL 14 NORMALIZED TABLES)
 -- =============================================================================
 USE filmmatrix_db;
+
+-- Clean truncate for safe re-execution (Prevents Error 1062 / Duplicate primary key)
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE WatchlistActivityLogs;
+TRUNCATE TABLE Watchlists;
+TRUNCATE TABLE Reviews;
+TRUNCATE TABLE MovieStudios;
+TRUNCATE TABLE MovieGenres;
+TRUNCATE TABLE MovieDirectors;
+TRUNCATE TABLE MovieCast;
+TRUNCATE TABLE ProductionBudgets;
+TRUNCATE TABLE Movies;
+TRUNCATE TABLE ProductionStudios;
+TRUNCATE TABLE Genres;
+TRUNCATE TABLE Directors;
+TRUNCATE TABLE Actors;
+TRUNCATE TABLE Users;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. INSERT INTO Users (8 Records)
 INSERT INTO Users (user_id, username, email, password_hash, role) VALUES
@@ -2309,7 +2343,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
           >
             {(dmlFilter === 'all' || dmlFilter === 'core') && (
               <div className="mb-6">
-                <span className="font-bold opacity-75">// --- 1. INSERT INTO Users (RBAC: Admin, Viewer, Critic - 8 Records) ---</span>
+                <span className="font-bold opacity-75">-- --- 1. INSERT INTO Users (RBAC: Admin, Viewer, Critic - 8 Records) ---</span>
                 <pre className="mt-1">{`INSERT INTO Users (user_id, username, email, password_hash, role) VALUES
 (1, 'admin_tanmayi', 'tanmayi@filmmatrix.pes.edu', '$2a$10$wK1mJ.b2k/xX6P7P6G0iAup4M4b9y7nB8y2Kq1mR4L7v0nB8y2Kq1', 'Admin'),
 (2, 'viewer_varsha', 'varsha@filmmatrix.pes.edu', '$2a$10$tZ9vL0m1j.c3l/yY7Q8jBvq5N5c0z8oC9z3Lr2nS5M8w1oC9z3Lr2', 'Viewer'),
@@ -2321,7 +2355,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
 (8, 'viewer_sophia', 'sophia.chen@films.io', '$2a$10$tZ9vL0m1j.c3l/yY7Q8jBvq5N5c0z8oC9z3Lr2nS5M8w1oC9z3Lr2', 'Viewer');`}</pre>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 6. INSERT INTO Movies (20 Iconic Blockbuster Films) ---</span>
+                  <span className="font-bold opacity-75">-- --- 6. INSERT INTO Movies (20 Iconic Blockbuster Films) ---</span>
                   <pre className="mt-1">{`INSERT INTO Movies (movie_id, title, release_year, duration_minutes, language, box_office_earnings, mpaa_rating, synopsis) VALUES
 (1, 'Oppenheimer', 2023, 180, 'English', 957000000.00, 'R', 'The story of theoretical physicist J. Robert Oppenheimer and his leadership of the Manhattan Project.'),
 (2, 'Inception', 2010, 148, 'English', 836800000.00, 'PG-13', 'A master thief who extracts secrets from deep within the subconscious mind during dream states.'),
@@ -2346,7 +2380,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
                 </div>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 7. INSERT INTO ProductionBudgets (Production Cost, Marketing &amp; VFX - 20 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 7. INSERT INTO ProductionBudgets (Production Cost, Marketing &amp; VFX - 20 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO ProductionBudgets (budget_id, movie_id, production_cost, marketing_spend, vfx_budget) VALUES
 (1, 1, 100000000.00, 65000000.00, 15000000.00),
 (2, 2, 160000000.00, 100000000.00, 45000000.00),
@@ -2374,7 +2408,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
 
             {(dmlFilter === 'all' || dmlFilter === 'talent') && (
               <div className="mb-6">
-                <span className="font-bold opacity-75">// --- 2. INSERT INTO Genres (Taxonomy Classification - 10 Records) ---</span>
+                <span className="font-bold opacity-75">-- --- 2. INSERT INTO Genres (Taxonomy Classification - 10 Records) ---</span>
                 <pre className="mt-1">{`INSERT INTO Genres (genre_id, genre_name, description) VALUES
 (1, 'Sci-Fi', 'Speculative fiction exploring science, space travel, and technology.'),
 (2, 'Drama', 'Narrative fiction focusing on in-depth emotional and character development.'),
@@ -2388,7 +2422,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
 (10, 'Fantasy', 'Mythological and magical worldbuilding unbound by real-world laws.');`}</pre>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 3. INSERT INTO ProductionStudios (Hollywood Studios - 8 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 3. INSERT INTO ProductionStudios (Hollywood Studios - 8 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO ProductionStudios (studio_id, studio_name, headquarters, founded_year) VALUES
 (1, 'Warner Bros. Pictures', 'Burbank, California', 1923),
 (2, 'Universal Pictures', 'Universal City, California', 1912),
@@ -2401,7 +2435,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
                 </div>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 4. INSERT INTO Directors (Award-Winning Filmmakers - 8 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 4. INSERT INTO Directors (Award-Winning Filmmakers - 8 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO Directors (director_id, first_name, last_name, birth_year, nationality, awards_won) VALUES
 (1, 'Christopher', 'Nolan', 1970, 'British', 11),
 (2, 'Denis', 'Villeneuve', 1967, 'Canadian', 6),
@@ -2414,7 +2448,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
                 </div>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 5. INSERT INTO Actors (Hollywood Roster - 25 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 5. INSERT INTO Actors (Hollywood Roster - 25 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO Actors (actor_id, first_name, last_name, gender, birth_year, nationality) VALUES
 (1, 'Leonardo', 'DiCaprio', 'Male', 1974, 'American'),
 (2, 'Cillian', 'Murphy', 'Male', 1976, 'Irish'),
@@ -2447,7 +2481,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
 
             {(dmlFilter === 'all' || dmlFilter === 'junction') && (
               <div className="mb-6">
-                <span className="font-bold opacity-75">// --- 8. INSERT INTO MovieDirectors (M:N Movie ↔ Director Links - 20 Records) ---</span>
+                <span className="font-bold opacity-75">-- --- 8. INSERT INTO MovieDirectors (M:N Movie ↔ Director Links - 20 Records) ---</span>
                 <pre className="mt-1">{`INSERT INTO MovieDirectors (movie_id, director_id, role_type) VALUES
 (1, 1, 'Principal Director'), (2, 1, 'Principal Director'), (3, 1, 'Principal Director'),
 (4, 2, 'Principal Director'), (5, 3, 'Principal Director'), (6, 1, 'Principal Director'),
@@ -2458,7 +2492,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
 (19, 1, 'Principal Director'), (20, 1, 'Principal Director');`}</pre>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 9. INSERT INTO MovieCast (M:N Movie ↔ Actor Billing &amp; Salaries - 38 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 9. INSERT INTO MovieCast (M:N Movie ↔ Actor Billing &amp; Salaries - 38 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO MovieCast (movie_id, actor_id, character_name, billing_order, salary) VALUES
 (1, 2, 'J. Robert Oppenheimer', 1, 10000000.00),
 (1, 5, 'Jean Tatlock', 2, 4000000.00),
@@ -2505,7 +2539,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
                 </div>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 10. INSERT INTO MovieGenres (M:N Movie ↔ Genre Mappings - 43 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 10. INSERT INTO MovieGenres (M:N Movie ↔ Genre Mappings - 43 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO MovieGenres (movie_id, genre_id) VALUES
 (1, 2), (1, 7), (1, 8), (2, 1), (2, 3), (2, 4), (3, 1), (3, 2), (3, 5),
 (4, 1), (4, 3), (4, 5), (5, 6), (5, 2), (6, 3), (6, 4), (6, 9), (7, 1), (7, 3), (7, 5),
@@ -2516,7 +2550,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
                 </div>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 11. INSERT INTO MovieStudios (M:N Movie ↔ Studio Co-Productions - 25 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 11. INSERT INTO MovieStudios (M:N Movie ↔ Studio Co-Productions - 25 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO MovieStudios (movie_id, studio_id, is_lead_studio) VALUES
 (1, 2, TRUE), (1, 8, FALSE), (2, 1, TRUE), (2, 3, FALSE), (2, 8, FALSE),
 (3, 4, TRUE), (3, 1, FALSE), (3, 3, FALSE), (4, 1, TRUE), (4, 3, FALSE),
@@ -2531,7 +2565,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
 
             {(dmlFilter === 'all' || dmlFilter === 'audit') && (
               <div>
-                <span className="font-bold opacity-75">// --- 12. INSERT INTO Reviews (Critical &amp; Audience Reviews 1.0 to 10.0 - 14 Records) ---</span>
+                <span className="font-bold opacity-75">-- --- 12. INSERT INTO Reviews (Critical &amp; Audience Reviews 1.0 to 10.0 - 14 Records) ---</span>
                 <pre className="mt-1">{`INSERT INTO Reviews (user_id, movie_id, rating_score, review_title, review_text) VALUES
 (3, 1, 9.6, 'A Masterclass in Tension and Sound Design', 'Oppenheimer manages to make boardroom physics meetings as gripping as action thrillers.'),
 (4, 1, 9.4, 'Monumental Biographical Epic', 'Cillian Murphy gives the performance of a lifetime backed by Ludwig Goranssons score.'),
@@ -2549,7 +2583,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
 (4, 17, 9.3, 'A Rare Sequel That Lives Up to a Classic', 'Deakins cinematography and Villeneuves patience make Blade Runner 2049 breathtaking.');`}</pre>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 13. INSERT INTO Watchlists (User Movie Bookmarks - 10 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 13. INSERT INTO Watchlists (User Movie Bookmarks - 10 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO Watchlists (watchlist_id, user_id, movie_id, added_at) VALUES
 (1, 1, 1, '2026-09-01 12:00:00'),
 (2, 1, 4, '2026-09-02 14:10:00'),
@@ -2564,7 +2598,7 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
                 </div>
 
                 <div className="mt-4">
-                  <span className="font-bold opacity-75">// --- 14. INSERT INTO WatchlistActivityLogs (System-Audited Trigger Baseline - 5 Records) ---</span>
+                  <span className="font-bold opacity-75">-- --- 14. INSERT INTO WatchlistActivityLogs (System-Audited Trigger Baseline - 5 Records) ---</span>
                   <pre className="mt-1">{`INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at) VALUES
 (1, 1, 1, 1, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 1 (Oppenheimer)', '2026-09-01 12:00:00'),
 (2, 2, 1, 4, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 4 (Dune: Part Two)', '2026-09-02 14:10:00'),
@@ -2690,6 +2724,67 @@ INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, acti
                 <span>{crudNotice.message}</span>
               </div>
               <button onClick={() => setCrudNotice(null)} className="opacity-60 hover:opacity-100">✕</button>
+            </div>
+          )}
+
+          {/* Step 4 Terminal CLI Verification Runbook (Live CRUD & ON DELETE CASCADE) */}
+          <div className="flex items-center justify-between pt-1">
+            <button
+              type="button"
+              onClick={() => toggleCliPanel('crud_verification')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+              style={{ borderColor: 'var(--border-subtle)' }}
+            >
+              <Code2 className="w-3.5 h-3.5 text-blue-600" />
+              <span>{expandedCliMap['crud_verification'] ? 'Hide Terminal Verification' : 'Show Terminal Verification (Live CRUD & CASCADE)'}</span>
+              {expandedCliMap['crud_verification'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+            <span className="text-[11px] font-mono opacity-70">
+              Verifies catalog count ({movies.length} films) &amp; ON DELETE CASCADE
+            </span>
+          </div>
+
+          {expandedCliMap['crud_verification'] && (
+            <div className="p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+              <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                  <Terminal className="w-3.5 h-3.5" />
+                  Terminal CLI Verification Runbook (MySQL Terminal — Live CRUD &amp; ON DELETE CASCADE)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(`-- =============================================================================\n-- STEP 4: LIVE CRUD & REFERENTIAL INTEGRITY VERIFICATION (ON DELETE CASCADE)\n-- =============================================================================\nUSE filmmatrix_db;\n\n-- 1. Check current movie count in MySQL (matches UI summary card: 21 or 22 films):\nSELECT COUNT(*) AS total_films FROM Movies;\n\n-- 2. Verify ON DELETE CASCADE: child table ProductionBudgets for Movie 6\nSELECT * FROM ProductionBudgets WHERE movie_id = 6;\n-- (Result: Empty set when deleted -> Proves ON DELETE CASCADE automatically removed child row!)\n\n-- 3. Verify cascade also cleaned child rows in MovieCast & Watchlists:\nSELECT COUNT(*) AS remaining_cast FROM MovieCast WHERE movie_id = 6;\nSELECT COUNT(*) AS remaining_bookmarks FROM Watchlists WHERE movie_id = 6;\n\n-- 4. Test DML INSERT / RESTORE Movie 6 ('The Dark Knight') to reset count to 22:\nINSERT INTO Movies (movie_id, title, release_year, duration_minutes, language, box_office_earnings, mpaa_rating, synopsis)\nVALUES (6, 'The Dark Knight', 2008, 152, 'English', 1006234167.00, 'PG-13', 'Batman battles the Joker in Gotham City.')\nON DUPLICATE KEY UPDATE title = VALUES(title);\n\nINSERT INTO ProductionBudgets (movie_id, production_cost, marketing_spend, vfx_budget)\nVALUES (6, 185000000.00, 120000000.00, 45000000.00)\nON DUPLICATE KEY UPDATE production_cost = VALUES(production_cost);\n\n-- 5. Verify restored count:\nSELECT COUNT(*) AS total_films_after_restore FROM Movies;`, 'cli_crud')}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                >
+                  {copiedTriggerCode === 'cli_crud' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedTriggerCode === 'cli_crud' ? 'Copied!' : 'Copy CLI Script'}</span>
+                </button>
+              </div>
+              <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Verify current catalog count in MySQL (matches UI card: ${movies.length} films)
+SELECT COUNT(*) AS total_films FROM Movies;
+
+-- Step 2: Verify MySQL ON DELETE CASCADE referential integrity
+-- When Movie ID 6 is deleted, linked child ProductionBudgets record is automatically purged:
+SELECT * FROM ProductionBudgets WHERE movie_id = 6;
+-- Result: Empty set (0 rows) -> Demonstrates ON DELETE CASCADE referential integrity!
+
+-- Step 3: Verify linked MovieCast and Watchlists records were also cascaded:
+SELECT COUNT(*) AS remaining_cast FROM MovieCast WHERE movie_id = 6;
+SELECT COUNT(*) AS remaining_bookmarks FROM Watchlists WHERE movie_id = 6;
+
+-- Step 4: One-click Restore Query (re-inserts Movie 6 & linked budget to restore 22 films):
+INSERT INTO Movies (movie_id, title, release_year, duration_minutes, language, box_office_earnings, mpaa_rating, synopsis)
+VALUES (6, 'The Dark Knight', 2008, 152, 'English', 1006234167.00, 'PG-13', 'Batman battles the Joker in Gotham City.')
+ON DUPLICATE KEY UPDATE title = VALUES(title);
+
+INSERT INTO ProductionBudgets (movie_id, production_cost, marketing_spend, vfx_budget)
+VALUES (6, 185000000.00, 120000000.00, 45000000.00)
+ON DUPLICATE KEY UPDATE production_cost = VALUES(production_cost);
+
+-- Step 5: Verify restored count in terminal:
+SELECT COUNT(*) AS total_films_after_restore FROM Movies;`}
+              </pre>
             </div>
           )}
 
@@ -4772,7 +4867,7 @@ SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`}
                           </span>
                           <button
                             type="button"
-                            onClick={() => copyToClipboard(`-- =============================================================================\n-- RECURSIVE CTE 2: Multi-Hop Relational Actor Graph Path Traversal\n-- =============================================================================\nWITH RECURSIVE ActorGraphPath AS (\n    -- Anchor Member: Direct 1-hop co-stars\n    SELECT \n        mc1.actor_id AS start_actor,\n        mc2.actor_id AS end_actor,\n        CAST(CONCAT(a1.first_name, ' ', a1.last_name, ' -> [', m.title, '] -> ', a2.first_name, ' ', a2.last_name) AS CHAR(1000)) AS traversal_path,\n        1 AS path_length\n    FROM MovieCast mc1\n    JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id\n    JOIN Actors a1 ON mc1.actor_id = a1.actor_id\n    JOIN Actors a2 ON mc2.actor_id = a2.actor_id\n    JOIN Movies m ON mc1.movie_id = m.movie_id\n    WHERE mc1.actor_id = 1\n\n    UNION ALL\n\n    -- Recursive Member: Expand hops while preventing loops\n    SELECT \n        agp.start_actor,\n        mc_next2.actor_id,\n        CAST(CONCAT(agp.traversal_path, ' -> [', m2.title, '] -> ', a_next.first_name, ' ', a_next.last_name) AS CHAR(1000)),\n        agp.path_length + 1\n    FROM ActorGraphPath agp\n    JOIN MovieCast mc_next1 ON agp.end_actor = mc_next1.actor_id\n    JOIN MovieCast mc_next2 ON mc_next1.movie_id = mc_next2.movie_id AND mc_next1.actor_id != mc_next2.actor_id\n    JOIN Actors a_next ON mc_next2.actor_id = a_next.actor_id\n    JOIN Movies m2 ON mc_next1.movie_id = m2.movie_id\n    WHERE agp.path_length < 2\n      AND LOCATE(CONCAT(a_next.first_name, ' ', a_next.last_name), agp.traversal_path) = 0\n)\nSELECT traversal_path, path_length FROM ActorGraphPath LIMIT 10;`, 'cli_cte_graph')}
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- RECURSIVE CTE 2: Multi-Hop Relational Actor Graph Path Traversal\n-- =============================================================================\nWITH RECURSIVE ActorGraphPath AS (\n    SELECT \n        a.actor_id AS current_actor_id,\n        CAST('Leonardo DiCaprio' AS CHAR(100)) AS current_actor,\n        CAST(CONCAT(a.first_name, ' ', a.last_name) AS CHAR(100)) AS connected_actor,\n        m.title AS movie_title,\n        1 AS hop_depth,\n        CAST(CONCAT('Leonardo DiCaprio ➔ [', m.title, '] ➔ ', a.first_name, ' ', a.last_name) AS CHAR(500)) AS path_trail\n    FROM MovieCast mc1\n    INNER JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id\n    INNER JOIN Actors a ON mc2.actor_id = a.actor_id\n    INNER JOIN Movies m ON mc1.movie_id = m.movie_id\n    WHERE mc1.actor_id = 1\n\n    UNION ALL\n\n    SELECT \n        next_a.actor_id,\n        CAST(agp.connected_actor AS CHAR(100)),\n        CAST(CONCAT(next_a.first_name, ' ', next_a.last_name) AS CHAR(100)),\n        m2.title,\n        agp.hop_depth + 1,\n        CAST(CONCAT(agp.path_trail, ' ➔ [', m2.title, '] ➔ ', next_a.first_name, ' ', next_a.last_name) AS CHAR(500))\n    FROM ActorGraphPath agp\n    INNER JOIN MovieCast mc_from ON agp.current_actor_id = mc_from.actor_id\n    INNER JOIN MovieCast mc_to ON mc_from.movie_id = mc_to.movie_id AND mc_from.actor_id != mc_to.actor_id\n    INNER JOIN Actors next_a ON mc_to.actor_id = next_a.actor_id\n    INNER JOIN Movies m2 ON mc_to.movie_id = m2.movie_id\n    WHERE agp.hop_depth < 2\n      AND LOCATE(CONCAT(next_a.first_name, ' ', next_a.last_name), agp.path_trail) = 0\n)\nSELECT hop_depth, current_actor, connected_actor, movie_title, path_trail \nFROM ActorGraphPath \nORDER BY hop_depth, connected_actor\nLIMIT 12;`, 'cli_cte_graph')}
                             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
                           >
                             {copiedTriggerCode === 'cli_cte_graph' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -4782,30 +4877,42 @@ SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`}
                         <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
 {`-- Terminal Verification Query (Recursive Relational Multi-Hop Graph Traversal):
 WITH RECURSIVE ActorGraphPath AS (
-    -- Anchor Member:
-    SELECT mc1.actor_id AS start_actor, mc2.actor_id AS end_actor,
-           CAST(CONCAT(a1.first_name, ' ', a1.last_name, ' -> [', m.title, '] -> ', a2.first_name, ' ', a2.last_name) AS CHAR(1000)) AS traversal_path,
-           1 AS path_length
+    -- Anchor Member: 1-hop direct co-stars with Leonardo DiCaprio (actor_id = 1)
+    SELECT 
+        a.actor_id AS current_actor_id,
+        CAST('Leonardo DiCaprio' AS CHAR(100)) AS current_actor,
+        CAST(CONCAT(a.first_name, ' ', a.last_name) AS CHAR(100)) AS connected_actor,
+        m.title AS movie_title,
+        1 AS hop_depth,
+        CAST(CONCAT('Leonardo DiCaprio ➔ [', m.title, '] ➔ ', a.first_name, ' ', a.last_name) AS CHAR(500)) AS path_trail
     FROM MovieCast mc1
-    JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id
-    JOIN Actors a1 ON mc1.actor_id = a1.actor_id
-    JOIN Actors a2 ON mc2.actor_id = a2.actor_id
-    JOIN Movies m ON mc1.movie_id = m.movie_id
+    INNER JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id
+    INNER JOIN Actors a ON mc2.actor_id = a.actor_id
+    INNER JOIN Movies m ON mc1.movie_id = m.movie_id
     WHERE mc1.actor_id = 1
+
     UNION ALL
-    -- Recursive Member:
-    SELECT agp.start_actor, mc_next2.actor_id,
-           CAST(CONCAT(agp.traversal_path, ' -> [', m2.title, '] -> ', a_next.first_name, ' ', a_next.last_name) AS CHAR(1000)),
-           agp.path_length + 1
+
+    -- Recursive Member: Traverse to 2nd-degree co-stars through shared films
+    SELECT 
+        next_a.actor_id,
+        CAST(agp.connected_actor AS CHAR(100)),
+        CAST(CONCAT(next_a.first_name, ' ', next_a.last_name) AS CHAR(100)),
+        m2.title,
+        agp.hop_depth + 1,
+        CAST(CONCAT(agp.path_trail, ' ➔ [', m2.title, '] ➔ ', next_a.first_name, ' ', next_a.last_name) AS CHAR(500))
     FROM ActorGraphPath agp
-    JOIN MovieCast mc_next1 ON agp.end_actor = mc_next1.actor_id
-    JOIN MovieCast mc_next2 ON mc_next1.movie_id = mc_next2.movie_id AND mc_next1.actor_id != mc_next2.actor_id
-    JOIN Actors a_next ON mc_next2.actor_id = a_next.actor_id
-    JOIN Movies m2 ON mc_next1.movie_id = m2.movie_id
-    WHERE agp.path_length < 2
-      AND LOCATE(CONCAT(a_next.first_name, ' ', a_next.last_name), agp.traversal_path) = 0
+    INNER JOIN MovieCast mc_from ON agp.current_actor_id = mc_from.actor_id
+    INNER JOIN MovieCast mc_to ON mc_from.movie_id = mc_to.movie_id AND mc_from.actor_id != mc_to.actor_id
+    INNER JOIN Actors next_a ON mc_to.actor_id = next_a.actor_id
+    INNER JOIN Movies m2 ON mc_to.movie_id = m2.movie_id
+    WHERE agp.hop_depth < 2
+      AND LOCATE(CONCAT(next_a.first_name, ' ', next_a.last_name), agp.path_trail) = 0
 )
-SELECT traversal_path, path_length FROM ActorGraphPath LIMIT 10;`}
+SELECT hop_depth, current_actor, connected_actor, movie_title, path_trail 
+FROM ActorGraphPath 
+ORDER BY hop_depth, connected_actor
+LIMIT 12;`}
                         </pre>
                       </div>
                     )}

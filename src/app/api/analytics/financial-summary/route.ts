@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') || '';
-    const sortBy = searchParams.get('sort') || 'roi_percentage';
+    const sortBy = searchParams.get('sort') || 'net_profit';
     const order = searchParams.get('order')?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     // Directly query MySQL View: vw_movie_financial_summary (Rubric Criteria)
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     }
 
     const allowedSortCols = ['net_profit', 'roi_percentage', 'box_office_earnings', 'total_investment', 'release_year'];
-    const safeSort = allowedSortCols.includes(sortBy) ? sortBy : 'roi_percentage';
+    const safeSort = allowedSortCols.includes(sortBy) ? sortBy : 'net_profit';
     sql += ` ORDER BY ${safeSort} ${order}`;
 
     const { rows, isFallback, error } = await query(sql, params);
