@@ -345,7 +345,7 @@ ORDER BY release_year ASC;
 -- Demonstrates recursive graph path traversal in pure SQL, providing the technical
 -- justification for why relational engines suffer O(V^N) combinatorial explosions:
 WITH RECURSIVE ActorGraphPath AS (
-    -- Anchor Member: Direct co-stars of actor Leonardo DiCaprio (actor_id = 6)
+    -- Anchor Member: Direct co-stars of actor Leonardo DiCaprio (actor_id = 1)
     SELECT 
         a.actor_id AS current_actor_id,
         CONCAT(a.first_name, ' ', a.last_name) AS actor_name,
@@ -356,7 +356,7 @@ WITH RECURSIVE ActorGraphPath AS (
     INNER JOIN MovieCast cm2 ON cm1.movie_id = cm2.movie_id AND cm1.actor_id != cm2.actor_id
     INNER JOIN Actors a ON cm2.actor_id = a.actor_id
     INNER JOIN Movies m ON cm1.movie_id = m.movie_id
-    WHERE cm1.actor_id = 6
+    WHERE cm1.actor_id = 1
 
     UNION ALL
 

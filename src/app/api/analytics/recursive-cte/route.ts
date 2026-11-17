@@ -11,33 +11,33 @@ export async function GET(req: NextRequest) {
         WITH RECURSIVE ActorGraphPath AS (
             SELECT 
                 a.actor_id AS current_actor_id,
-                a.name AS connected_actor,
-                'Leonardo DiCaprio' AS current_actor,
+                CAST(CONCAT(a.first_name, ' ', a.last_name) AS CHAR(100)) AS connected_actor,
+                CAST('Leonardo DiCaprio' AS CHAR(100)) AS current_actor,
                 m.title AS movie_title,
                 1 AS hop_depth,
-                CAST(CONCAT('Leonardo DiCaprio ➔ [', m.title, '] ➔ ', a.name) AS CHAR(500)) AS path_trail
+                CAST(CONCAT('Leonardo DiCaprio ➔ [', m.title, '] ➔ ', a.first_name, ' ', a.last_name) AS CHAR(500)) AS path_trail
             FROM MovieCast mc1
             INNER JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id
             INNER JOIN Actors a ON mc2.actor_id = a.actor_id
             INNER JOIN Movies m ON mc1.movie_id = m.movie_id
-            WHERE mc1.actor_id = 6
+            WHERE mc1.actor_id = 1
 
             UNION ALL
 
             SELECT 
                 next_a.actor_id,
-                next_a.name,
-                agp.connected_actor,
+                CAST(CONCAT(next_a.first_name, ' ', next_a.last_name) AS CHAR(100)),
+                CAST(agp.connected_actor AS CHAR(100)),
                 m2.title,
                 agp.hop_depth + 1,
-                CONCAT(agp.path_trail, ' ➔ [', m2.title, '] ➔ ', next_a.name)
+                CAST(CONCAT(agp.path_trail, ' ➔ [', m2.title, '] ➔ ', next_a.first_name, ' ', next_a.last_name) AS CHAR(500))
             FROM ActorGraphPath agp
             INNER JOIN MovieCast mc_from ON agp.current_actor_id = mc_from.actor_id
             INNER JOIN MovieCast mc_to ON mc_from.movie_id = mc_to.movie_id AND mc_from.actor_id != mc_to.actor_id
             INNER JOIN Actors next_a ON mc_to.actor_id = next_a.actor_id
             INNER JOIN Movies m2 ON mc_to.movie_id = m2.movie_id
             WHERE agp.hop_depth < 2
-              AND LOCATE(next_a.name, agp.path_trail) = 0
+              AND LOCATE(CONCAT(next_a.first_name, ' ', next_a.last_name), agp.path_trail) = 0
         )
         SELECT * FROM ActorGraphPath
         ORDER BY hop_depth, connected_actor
