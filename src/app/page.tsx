@@ -4353,7 +4353,9 @@ LIMIT 8;`}
                               <td className="p-2.5 font-semibold" style={{ color: Number(row.net_profit) >= 0 ? 'var(--color-primary)' : '#b91c1c' }}>
                                 {formatCurrency(row.net_profit)}
                               </td>
-                              <td className="p-2.5 opacity-90">+{row.roi_pct}%</td>
+                              <td className="p-2.5 font-bold font-mono text-emerald-600">
+                                +{Number(row.roi_pct ?? row.roi_percentage ?? 0).toFixed(1)}%
+                              </td>
                             </tr>
                           ))}
                         </tbody>

@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
               m.box_office_earnings,
               b.production_cost,
               b.marketing_spend,
+              (b.production_cost + b.marketing_spend) AS total_cost,
               (b.production_cost + b.marketing_spend) AS total_investment,
               (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
           FROM Movies m
@@ -30,9 +31,11 @@ export async function GET(req: NextRequest) {
               title,
               release_year,
               box_office_earnings,
+              total_cost,
               total_investment,
               net_profit,
-              ROUND((net_profit / total_investment) * 100, 2) AS roi_percentage,
+              ROUND((net_profit / total_cost) * 100, 2) AS roi_pct,
+              ROUND((net_profit / total_cost) * 100, 2) AS roi_percentage,
               DENSE_RANK() OVER (ORDER BY net_profit DESC) AS profitability_rank
           FROM MovieFinancialMetrics
       )
@@ -56,8 +59,10 @@ export async function GET(req: NextRequest) {
           title: m.title,
           release_year: m.release_year,
           box_office_earnings: m.box_office_earnings,
+          total_cost: total_inv,
           total_investment: total_inv,
           net_profit: net_prof,
+          roi_pct: roi,
           roi_percentage: roi
         };
       });
