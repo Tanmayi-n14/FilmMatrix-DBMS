@@ -27,7 +27,8 @@ Traditional media production architectures struggle when attempting to store bot
 
 ```text
 Jackfruit_FilmMatrix/
-├── docs/                                  # Official PES University DBMS Rubric & Specifications
+├── docs/                                  # Official PES University DBMS Rubric, Specs & Viva Guide
+│   ├── GRILL_DEFENSE_AND_VIVA_GUIDE.md    # 🎓 Complete Rubric Mapping (Col F-S), Viva Q&A & Code Mod Cheat Sheet
 │   ├── DBMS_Level_3_Project_Requirements.pdf
 │   └── DBMS_Level_3_Rubric.pdf
 ├── sql/                                   # Standalone Production SQL Scripts (14 Tables, 234 Seed Records)
