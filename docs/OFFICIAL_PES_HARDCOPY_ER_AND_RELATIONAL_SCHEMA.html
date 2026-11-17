@@ -855,8 +855,8 @@
     <rect x="320" y="264" width="50" height="18" class="cell-pk"/>
     <text x="345" y="276" class="txt-pk">log_id</text>
 
-    <rect x="370" y="264" width="75" height="18" class="cell-box"/>
-    <text x="407" y="276" class="txt-col">watchlist_id (ref)</text>
+    <rect x="370" y="264" width="75" height="18" class="cell-fk"/>
+    <text x="407" y="276" class="txt-fk">watchlist_id [FK]</text>
 
     <rect x="445" y="264" width="65" height="18" class="cell-fk"/>
     <text x="477" y="276" class="txt-fk">user_id (FK)</text>
@@ -920,6 +920,9 @@
 
   <!-- 15. WatchlistActivityLogs.movie_id -> Movies.movie_id -->
   <path d="M 545 282 C 545 315, 35 315, 35 42" class="arrow" />
+
+  <!-- 16. WatchlistActivityLogs.watchlist_id -> Watchlists.watchlist_id -->
+  <path d="M 407 264 C 407 242, 57 242, 57 264" class="arrow" />
 
 </svg>
   </div>

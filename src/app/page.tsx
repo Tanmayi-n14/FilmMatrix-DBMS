@@ -27,7 +27,11 @@ import {
   Play,
   Calculator,
   Users as UsersIcon,
-  Printer
+  Printer,
+  Terminal,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export default function MasterPresentationDashboard() {
@@ -98,6 +102,10 @@ export default function MasterPresentationDashboard() {
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [testingTrigger, setTestingTrigger] = useState(false);
   const [triggerNotice, setTriggerNotice] = useState<string | null>(null);
+  const [runningTriggerAction, setRunningTriggerAction] = useState<string | null>(null);
+  const [triggerTestResult, setTriggerTestResult] = useState<any | null>(null);
+  const [expandedTriggerCode, setExpandedTriggerCode] = useState<string | null>('before_insert');
+  const [copiedTriggerCode, setCopiedTriggerCode] = useState<string | null>(null);
   const [cteData, setCteData] = useState<any[]>([]);
 
   // Procedure 1 State (sp_calculate_financial_metrics)
@@ -498,27 +506,34 @@ export default function MasterPresentationDashboard() {
     }
   };
 
-  const handleTestTrigger = async () => {
-    setTestingTrigger(true);
-    setTriggerNotice(null);
+  const handleExecuteTriggerTest = async (action: 'before_insert' | 'after_insert' | 'after_delete') => {
+    setRunningTriggerAction(action);
+    setTriggerTestResult(null);
     try {
-      const res = await fetch('/api/watchlists', {
+      const res = await fetch('/api/triggers/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ movie_id: 1 })
+        body: JSON.stringify({ action })
       });
       const data = await res.json();
       if (res.ok) {
-        setTriggerNotice('✓ Trigger trg_watchlist_after_insert executed automatically by MySQL upon row insertion!');
+        setTriggerTestResult(data);
         fetchAuditLogs();
       } else {
-        setTriggerNotice(`Trigger noticed: ${data.error || 'Movie already bookmarked'}`);
-        fetchAuditLogs();
+        setTriggerTestResult({ error: data.error || 'Trigger test failed' });
       }
     } catch (err: any) {
-      setTriggerNotice(`Trigger fired: ${err.message}`);
+      setTriggerTestResult({ error: err.message });
     } finally {
-      setTestingTrigger(false);
+      setRunningTriggerAction(null);
+    }
+  };
+
+  const copyToClipboard = (text: string, id: string) => {
+    if (typeof window !== 'undefined' && navigator?.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedTriggerCode(id);
+      setTimeout(() => setCopiedTriggerCode(null), 2000);
     }
   };
 
@@ -3044,27 +3059,33 @@ DELIMITER ;`,
             </button>
           </div>
 
-          {/* TAB 1: TRIGGERS (BEFORE VS AFTER) */}
+          {/* TAB 1: TRIGGERS (BEFORE VS AFTER & LIVE TERMINAL VERIFICATION) */}
           {advancedTab === 'triggers' && (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Architecture Intro Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div 
-                  className="p-4 rounded-xl border space-y-2"
+                  className="p-4 rounded-xl border space-y-2 shadow-sm"
                   style={{
                     backgroundColor: 'var(--bg-surface-elevated)',
                     borderColor: 'var(--border-subtle)'
                   }}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-accent)' }} />
-                    <strong className="font-bold text-xs" style={{ color: 'var(--color-accent)' }}>
-                      BEFORE Trigger: <code className="font-mono">trg_movies_before_insert</code>
-                    </strong>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-accent)' }} />
+                      <strong className="font-bold text-xs" style={{ color: 'var(--color-accent)' }}>
+                        BEFORE Trigger: <code className="font-mono">trg_movies_before_insert</code>
+                      </strong>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-bold border border-purple-200">
+                      In-Memory Interception
+                    </span>
                   </div>
                   <ul className="space-y-1 opacity-85 list-disc list-inside">
                     <li>Fires <strong>before</strong> the row is committed to the disk table.</li>
                     <li><strong>Can inspect and modify</strong> incoming <code className="font-mono">NEW</code> values.</li>
-                    <li>Used for data sanitization, formatting, and domain constraint checks.</li>
+                    <li>Used for data sanitization, string trimming, and domain constraint checks.</li>
                     <li><strong>In FilmMatrix:</strong> Trims whitespace from titles and validates release year boundaries.</li>
                   </ul>
                   <div className="p-2.5 rounded-lg border font-mono text-[11px] opacity-90" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
@@ -3075,22 +3096,27 @@ DELIMITER ;`,
                 </div>
 
                 <div 
-                  className="p-4 rounded-xl border space-y-2"
+                  className="p-4 rounded-xl border space-y-2 shadow-sm"
                   style={{
                     backgroundColor: 'var(--bg-surface-elevated)',
                     borderColor: 'var(--border-subtle)'
                   }}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-                    <strong className="font-bold text-xs" style={{ color: 'var(--color-primary)' }}>
-                      AFTER Trigger: <code className="font-mono text-emerald-700">trg_watchlist_after_insert</code>
-                    </strong>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                      <strong className="font-bold text-xs" style={{ color: 'var(--color-primary)' }}>
+                        AFTER Triggers: <code className="font-mono text-emerald-700">trg_watchlist_after_insert/delete</code>
+                      </strong>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
+                      Disk Commit Audit
+                    </span>
                   </div>
                   <ul className="space-y-1 opacity-85 list-disc list-inside">
                     <li>Fires <strong>after</strong> the row is written and committed to disk.</li>
-                    <li><strong>Cannot modify</strong> the row (it is already saved).</li>
-                    <li>Used for secondary side-effects and system audit logging.</li>
+                    <li><strong>Cannot modify</strong> the row (it is already permanently saved).</li>
+                    <li>Used for secondary side-effects and tamper-evident audit logging.</li>
                     <li><strong>In FilmMatrix:</strong> Automatically inserts an audit record into <code className="font-mono">WatchlistActivityLogs</code>.</li>
                   </ul>
                   <div className="p-2.5 rounded-lg border font-mono text-[11px] opacity-90" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
@@ -3101,58 +3127,418 @@ DELIMITER ;`,
                 </div>
               </div>
 
-              {/* Interactive Live Trigger Demonstration Button */}
+              {/* LIVE TRIGGER TEST BENCH & TERMINAL VERIFICATION SUITE */}
               <div 
-                className="p-4 rounded-xl border space-y-3"
+                className="p-5 rounded-xl border space-y-4 shadow-sm"
                 style={{
                   backgroundColor: 'var(--bg-surface-elevated)',
                   borderColor: 'var(--border-subtle)'
                 }}
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3" style={{ borderColor: 'var(--border-subtle)' }}>
                   <div>
-                    <span className="font-bold text-xs">Live Trigger Test Bench:</span>
-                    <span className="text-xs opacity-75 ml-2 font-mono">Current Audit Log Rows: {auditLogs.length}</span>
+                    <div className="flex items-center gap-2">
+                      <Terminal className="w-4 h-4 text-purple-600" />
+                      <h4 className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>
+                        Live Trigger Test Bench &amp; Terminal CLI Verification Suite
+                      </h4>
+                    </div>
+                    <p className="text-xs opacity-75 mt-0.5">
+                      Execute MySQL triggers live and inspect Before vs After database state with copy-paste terminal verification commands.
+                    </p>
                   </div>
-                  <button
-                    onClick={handleTestTrigger}
-                    disabled={testingTrigger}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white font-semibold text-xs shadow-sm transition-all"
-                    style={{ backgroundColor: 'var(--color-primary)' }}
-                  >
-                    <Zap className="w-3.5 h-3.5" />
-                    <span>{testingTrigger ? 'Executing Trigger in MySQL...' : '⚡ Fire AFTER Trigger (Bookmark Film)'}</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={fetchAuditLogs}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Refresh Audit Logs ({auditLogs.length})</span>
+                    </button>
+                  </div>
                 </div>
 
-                {triggerNotice && (
-                  <div className="p-2.5 rounded-lg border text-xs font-mono bg-emerald-50 text-emerald-800 border-emerald-200">
-                    {triggerNotice}
-                  </div>
-                )}
+                {/* 3 Interactive Trigger Action Cards */}
+                <div className="grid grid-cols-1 gap-4">
 
-                {/* Audit Logs Table */}
-                <div className="overflow-x-auto border rounded-lg" style={{ borderColor: 'var(--border-subtle)' }}>
-                  <table className="w-full text-left text-xs font-mono">
-                    <thead className="border-b opacity-75" style={{ borderColor: 'var(--border-subtle)' }}>
-                      <tr>
-                        <th className="p-2">Log ID</th>
-                        <th className="p-2">Action</th>
-                        <th className="p-2">Details Recorded by Trigger</th>
-                        <th className="p-2">Timestamp</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-                      {auditLogs.slice(0, 5).map(log => (
-                        <tr key={log.log_id}>
-                          <td className="p-2 font-bold">{log.log_id}</td>
-                          <td className="p-2 text-emerald-700 font-bold">{log.action_type}</td>
-                          <td className="p-2 opacity-85">{log.details}</td>
-                          <td className="p-2 opacity-70">{new Date(log.logged_at).toLocaleTimeString()}</td>
+                  {/* TRIGGER 1: BEFORE INSERT */}
+                  <div className="p-4 rounded-lg border space-y-3 bg-[var(--bg-surface)]" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                            BEFORE INSERT
+                          </span>
+                          <span className="font-bold text-xs">trg_movies_before_insert (Data Sanitization &amp; Auto-Trim)</span>
+                        </div>
+                        <p className="text-[11px] opacity-75 mt-1">
+                          Passes untrimmed title <code className="font-mono bg-slate-200 dark:bg-slate-800 px-1 rounded">&apos;   Avatar: Fire and Ash (AutoTrim Test)   &apos;</code>. The trigger intercepts and trims it before disk write.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setExpandedTriggerCode(expandedTriggerCode === 'before_insert' ? null : 'before_insert')}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{expandedTriggerCode === 'before_insert' ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                          {expandedTriggerCode === 'before_insert' ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+
+                        <button
+                          onClick={() => handleExecuteTriggerTest('before_insert')}
+                          disabled={runningTriggerAction === 'before_insert'}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white font-semibold text-xs shadow-sm bg-purple-600 hover:bg-purple-700 transition-all"
+                        >
+                          <Play className="w-3.5 h-3.5" />
+                          <span>{runningTriggerAction === 'before_insert' ? 'Executing in MySQL...' : 'Test BEFORE INSERT Trigger'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Live Result Box */}
+                    {triggerTestResult && triggerTestResult.trigger === 'trg_movies_before_insert' && (
+                      <div className="p-3 rounded-lg border bg-purple-50 dark:bg-purple-950/40 border-purple-300 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between font-bold text-purple-800 dark:text-purple-300">
+                          <span className="flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            Live MySQL Execution Verified!
+                          </span>
+                          <span className="font-mono text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded">
+                            TRIM() Executed Successfully
+                          </span>
+                        </div>
+                        <div className="font-mono text-[11px] grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
+                          <div className="p-2 rounded bg-white dark:bg-slate-900 border border-purple-200">
+                            <span className="text-red-600 font-bold">1. Raw Input Sent:</span>
+                            <div className="text-slate-800 dark:text-slate-200 mt-0.5 font-bold">{JSON.stringify(triggerTestResult.rawInput)}</div>
+                            <div className="text-[10px] text-slate-500 mt-0.5">(Notice 3 leading and 3 trailing spaces)</div>
+                          </div>
+                          <div className="p-2 rounded bg-white dark:bg-slate-900 border border-purple-200">
+                            <span className="text-emerald-600 font-bold">2. Saved to MySQL Disk:</span>
+                            <div className="text-slate-800 dark:text-slate-200 mt-0.5 font-bold">{JSON.stringify(triggerTestResult.storedTitle)}</div>
+                            <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">&check; Clean trimmed string without outer spaces!</div>
+                          </div>
+                        </div>
+                        <div className="text-[11px] text-purple-900 dark:text-purple-200 pt-1">
+                          {triggerTestResult.message}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expandable Terminal CLI Verification Code */}
+                    {expandedTriggerCode === 'before_insert' && (
+                      <div className="p-3 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                        <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                          <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                            <Terminal className="w-3.5 h-3.5" />
+                            Terminal CLI Verification Runbook (MySQL Terminal)
+                          </span>
+                          <button
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 1: trg_movies_before_insert (Data Sanitization)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_movies_before_insert;\nDELIMITER $$\nCREATE TRIGGER trg_movies_before_insert\nBEFORE INSERT ON Movies FOR EACH ROW\nBEGIN\n    SET NEW.title = TRIM(NEW.title);\n    IF NEW.box_office_earnings < 0.00 THEN\n        SET NEW.box_office_earnings = 0.00;\n    END IF;\nEND $$\nDELIMITER ;\n\n-- Test Query (Notice untrimmed spaces):\nINSERT INTO Movies (title, release_year, duration_minutes, box_office_earnings, synopsis)\nVALUES ('   Avatar: Fire and Ash (AutoTrim Test)   ', 2025, 190, 850000000.00, 'Data sanitization check.');\n\n-- Terminal Verification Query (Proves trimming occurred):\nSELECT movie_id, CONCAT('[', title, ']') AS sanitized_title, box_office_earnings \nFROM Movies \nWHERE title = 'Avatar: Fire and Ash (AutoTrim Test)';`, 'cli_before_insert')}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"
+                          >
+                            {copiedTriggerCode === 'cli_before_insert' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedTriggerCode === 'cli_before_insert' ? 'Copied!' : 'Copy CLI Script'}</span>
+                          </button>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Create the BEFORE Trigger
+DROP TRIGGER IF EXISTS trg_movies_before_insert;
+DELIMITER $$
+CREATE TRIGGER trg_movies_before_insert
+BEFORE INSERT ON Movies FOR EACH ROW
+BEGIN
+    SET NEW.title = TRIM(NEW.title);
+    IF NEW.box_office_earnings < 0.00 THEN
+        SET NEW.box_office_earnings = 0.00;
+    END IF;
+END $$
+DELIMITER ;
+
+-- Step 2: Insert row with leading & trailing spaces:
+INSERT INTO Movies (title, release_year, duration_minutes, box_office_earnings, synopsis)
+VALUES ('   Avatar: Fire and Ash (AutoTrim Test)   ', 2025, 190, 850000000.00, 'Data sanitization check.');
+
+-- Step 3: Terminal Verification Query (Verify brackets [] have no inner spaces):
+SELECT movie_id, CONCAT('[', title, ']') AS sanitized_title, box_office_earnings 
+FROM Movies 
+WHERE title = 'Avatar: Fire and Ash (AutoTrim Test)';`}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+
+
+                  {/* TRIGGER 2: AFTER INSERT */}
+                  <div className="p-4 rounded-lg border space-y-3 bg-[var(--bg-surface)]" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            AFTER INSERT
+                          </span>
+                          <span className="font-bold text-xs">trg_watchlist_after_insert (Bookmark Audit Trail)</span>
+                        </div>
+                        <p className="text-[11px] opacity-75 mt-1">
+                          Inserts a movie bookmark into <code className="font-mono bg-slate-200 dark:bg-slate-800 px-1 rounded">Watchlists</code>. The trigger writes an immutable record to <code className="font-mono bg-slate-200 dark:bg-slate-800 px-1 rounded">WatchlistActivityLogs</code>.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setExpandedTriggerCode(expandedTriggerCode === 'after_insert' ? null : 'after_insert')}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{expandedTriggerCode === 'after_insert' ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                          {expandedTriggerCode === 'after_insert' ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+
+                        <button
+                          onClick={() => handleExecuteTriggerTest('after_insert')}
+                          disabled={runningTriggerAction === 'after_insert'}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white font-semibold text-xs shadow-sm bg-emerald-600 hover:bg-emerald-700 transition-all"
+                        >
+                          <Zap className="w-3.5 h-3.5" />
+                          <span>{runningTriggerAction === 'after_insert' ? 'Executing in MySQL...' : 'Fire AFTER INSERT Trigger'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Live Result Box */}
+                    {triggerTestResult && triggerTestResult.trigger === 'trg_watchlist_after_insert' && (
+                      <div className="p-3 rounded-lg border bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between font-bold text-emerald-800 dark:text-emerald-300">
+                          <span className="flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            Audit Log Created Automatically by MySQL AFTER INSERT Trigger!
+                          </span>
+                          <span className="font-mono text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded">
+                            Logs: {triggerTestResult.beforeCount} &rarr; {triggerTestResult.afterCount} (+1)
+                          </span>
+                        </div>
+                        {triggerTestResult.newLog && (
+                          <div className="p-2 rounded bg-white dark:bg-slate-900 border border-emerald-200 font-mono text-[11px] space-y-1">
+                            <div><strong className="text-slate-600">Action:</strong> <span className="text-emerald-700 font-bold">{triggerTestResult.newLog.action_type}</span></div>
+                            <div><strong className="text-slate-600">Audit Details:</strong> {triggerTestResult.newLog.details}</div>
+                            <div><strong className="text-slate-600">Generated Log ID:</strong> #{triggerTestResult.newLog.log_id} | <strong className="text-slate-600">Watchlist ID:</strong> #{triggerTestResult.newLog.watchlist_id}</div>
+                          </div>
+                        )}
+                        <div className="text-[11px] text-emerald-900 dark:text-emerald-200 pt-0.5">
+                          {triggerTestResult.message}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expandable Terminal CLI Verification Code */}
+                    {expandedTriggerCode === 'after_insert' && (
+                      <div className="p-3 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                        <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                          <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                            <Terminal className="w-3.5 h-3.5" />
+                            Terminal CLI Verification Runbook (MySQL Terminal)
+                          </span>
+                          <button
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 2: trg_watchlist_after_insert (Audit Log Creation)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_insert;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_insert\nAFTER INSERT ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        NEW.watchlist_id,\n        NEW.user_id,\n        NEW.movie_id,\n        'WATCHLIST_ADD',\n        CONCAT('User ID ', NEW.user_id, ' bookmarked Movie ID ', NEW.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before trigger\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Insert into Watchlists (fires trigger)\nINSERT INTO Watchlists (user_id, movie_id) VALUES (1, 3);\n\n-- Step 3: Terminal Verification Query (Verify new audit log row appeared)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_insert')}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"
+                          >
+                            {copiedTriggerCode === 'cli_after_insert' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedTriggerCode === 'cli_after_insert' ? 'Copied!' : 'Copy CLI Script'}</span>
+                          </button>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Create the AFTER INSERT Trigger
+DROP TRIGGER IF EXISTS trg_watchlist_after_insert;
+DELIMITER $$
+CREATE TRIGGER trg_watchlist_after_insert
+AFTER INSERT ON Watchlists FOR EACH ROW
+BEGIN
+    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)
+    VALUES (
+        NEW.watchlist_id,
+        NEW.user_id,
+        NEW.movie_id,
+        'WATCHLIST_ADD',
+        CONCAT('User ID ', NEW.user_id, ' bookmarked Movie ID ', NEW.movie_id, ' at ', CURRENT_TIMESTAMP),
+        CURRENT_TIMESTAMP
+    );
+END $$
+DELIMITER ;
+
+-- Step 2: Check log count BEFORE trigger:
+SELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;
+
+-- Step 3: Insert row into Watchlists (MySQL fires trigger):
+INSERT INTO Watchlists (user_id, movie_id) VALUES (1, 3);
+
+-- Step 4: Terminal Verification Query (Verify newly generated audit record):
+SELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at
+FROM WatchlistActivityLogs
+ORDER BY log_id DESC LIMIT 1;`}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+
+
+                  {/* TRIGGER 3: AFTER DELETE */}
+                  <div className="p-4 rounded-lg border space-y-3 bg-[var(--bg-surface)]" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                            AFTER DELETE
+                          </span>
+                          <span className="font-bold text-xs">trg_watchlist_after_delete (Bookmark Removal Audit)</span>
+                        </div>
+                        <p className="text-[11px] opacity-75 mt-1">
+                          Removes a bookmark row from <code className="font-mono bg-slate-200 dark:bg-slate-800 px-1 rounded">Watchlists</code>. The trigger automatically appends a <code className="font-mono bg-slate-200 dark:bg-slate-800 px-1 rounded">WATCHLIST_REMOVE</code> audit log.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setExpandedTriggerCode(expandedTriggerCode === 'after_delete' ? null : 'after_delete')}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                          style={{ borderColor: 'var(--border-subtle)' }}
+                        >
+                          <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{expandedTriggerCode === 'after_delete' ? 'Hide Terminal Verification' : 'Show Terminal Verification'}</span>
+                          {expandedTriggerCode === 'after_delete' ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+
+                        <button
+                          onClick={() => handleExecuteTriggerTest('after_delete')}
+                          disabled={runningTriggerAction === 'after_delete'}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white font-semibold text-xs shadow-sm bg-rose-600 hover:bg-rose-700 transition-all"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>{runningTriggerAction === 'after_delete' ? 'Executing in MySQL...' : 'Fire AFTER DELETE Trigger'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Live Result Box */}
+                    {triggerTestResult && triggerTestResult.trigger === 'trg_watchlist_after_delete' && (
+                      <div className="p-3 rounded-lg border bg-rose-50 dark:bg-rose-950/40 border-rose-300 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between font-bold text-rose-800 dark:text-rose-300">
+                          <span className="flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-rose-600" />
+                            Removal Audit Log Recorded by MySQL AFTER DELETE Trigger!
+                          </span>
+                          <span className="font-mono text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded">
+                            Logs: {triggerTestResult.beforeCount} &rarr; {triggerTestResult.afterCount} (+1)
+                          </span>
+                        </div>
+                        {triggerTestResult.newLog && (
+                          <div className="p-2 rounded bg-white dark:bg-slate-900 border border-rose-200 font-mono text-[11px] space-y-1">
+                            <div><strong className="text-slate-600">Action:</strong> <span className="text-rose-700 font-bold">{triggerTestResult.newLog.action_type}</span></div>
+                            <div><strong className="text-slate-600">Audit Details:</strong> {triggerTestResult.newLog.details}</div>
+                            <div><strong className="text-slate-600">Deleted Watchlist Ref:</strong> #{triggerTestResult.deletedWatchlistId}</div>
+                          </div>
+                        )}
+                        <div className="text-[11px] text-rose-900 dark:text-rose-200 pt-0.5">
+                          {triggerTestResult.message}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expandable Terminal CLI Verification Code */}
+                    {expandedTriggerCode === 'after_delete' && (
+                      <div className="p-3 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                        <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                          <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                            <Terminal className="w-3.5 h-3.5" />
+                            Terminal CLI Verification Runbook (MySQL Terminal)
+                          </span>
+                          <button
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 3: trg_watchlist_after_delete (Removal Audit Log)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_delete;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_delete\nAFTER DELETE ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        OLD.watchlist_id,\n        OLD.user_id,\n        OLD.movie_id,\n        'WATCHLIST_REMOVE',\n        CONCAT('User ID ', OLD.user_id, ' removed bookmark on Movie ID ', OLD.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before delete\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Delete from Watchlists (fires trigger)\nDELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 3;\n\n-- Step 3: Terminal Verification Query (Verify removal audit log was recorded)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_delete')}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"
+                          >
+                            {copiedTriggerCode === 'cli_after_delete' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedTriggerCode === 'cli_after_delete' ? 'Copied!' : 'Copy CLI Script'}</span>
+                          </button>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-400 leading-relaxed text-[11px] whitespace-pre-wrap">
+{`-- Step 1: Create the AFTER DELETE Trigger
+DROP TRIGGER IF EXISTS trg_watchlist_after_delete;
+DELIMITER $$
+CREATE TRIGGER trg_watchlist_after_delete
+AFTER DELETE ON Watchlists FOR EACH ROW
+BEGIN
+    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)
+    VALUES (
+        OLD.watchlist_id,
+        OLD.user_id,
+        OLD.movie_id,
+        'WATCHLIST_REMOVE',
+        CONCAT('User ID ', OLD.user_id, ' removed bookmark on Movie ID ', OLD.movie_id, ' at ', CURRENT_TIMESTAMP),
+        CURRENT_TIMESTAMP
+    );
+END $$
+DELIMITER ;
+
+-- Step 2: Check log count BEFORE delete:
+SELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;
+
+-- Step 3: Delete row from Watchlists (MySQL fires trigger):
+DELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 3;
+
+-- Step 4: Terminal Verification Query (Verify WATCHLIST_REMOVE row appended):
+SELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at
+FROM WatchlistActivityLogs
+ORDER BY log_id DESC LIMIT 1;`}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Live WatchlistActivityLogs Table */}
+                <div className="space-y-2 pt-2 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs">Live WatchlistActivityLogs Table (Direct from MySQL):</span>
+                    <span className="text-[10px] font-mono opacity-75">Showing latest {Math.min(auditLogs.length, 10)} records</span>
+                  </div>
+                  <div className="overflow-x-auto border rounded-lg" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <table className="w-full text-left text-xs font-mono">
+                      <thead className="border-b opacity-75" style={{ borderColor: 'var(--border-subtle)' }}>
+                        <tr>
+                          <th className="p-2">Log ID</th>
+                          <th className="p-2">Action</th>
+                          <th className="p-2">Watchlist Ref</th>
+                          <th className="p-2">Details Recorded by Trigger</th>
+                          <th className="p-2">Timestamp</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+                        {auditLogs.slice(0, 8).map(log => (
+                          <tr key={log.log_id}>
+                            <td className="p-2 font-bold">#{log.log_id}</td>
+                            <td className="p-2 font-bold">
+                              <span className={`px-2 py-0.5 rounded text-[10px] border ${
+                                log.action_type === 'WATCHLIST_REMOVE' 
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300' 
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300'
+                              }`}>
+                                {log.action_type}
+                              </span>
+                            </td>
+                            <td className="p-2 text-slate-500 font-mono">
+                              {log.watchlist_id ? `#${log.watchlist_id}` : 'NULL'}
+                            </td>
+                            <td className="p-2 opacity-85">{log.details}</td>
+                            <td className="p-2 opacity-70">{new Date(log.logged_at).toLocaleTimeString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
