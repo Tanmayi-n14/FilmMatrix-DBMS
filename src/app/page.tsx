@@ -560,6 +560,73 @@ export default function MasterPresentationDashboard() {
     setExpandedCliMap(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const getNosqlCliScript = (action: string, actor: string, movie: string, role: string, oscars: number) => {
+    switch (action) {
+      case 'create':
+        return `// =============================================================================
+// STEP 6: NEO4J GRAPH CREATE OPERATION & RELATIONSHIP BINDING
+// =============================================================================
+// 1. Create or Match Actor and Movie Nodes, then create directed ACTED_IN edge:
+MERGE (a:Actor {name: '${actor}'})
+ON CREATE SET a.nationality = 'American', a.birth_year = 1974, a.oscar_wins = ${oscars}, a.created_at = datetime()
+MERGE (m:Movie {title: '${movie}'})
+ON CREATE SET m.release_year = 2024, m.box_office = 221000000
+MERGE (a)-[r:ACTED_IN {role: '${role}', billing_order: 1}]->(m)
+RETURN a.name AS actor, r.role AS role, m.title AS movie;
+
+// 2. Terminal Verification Query (Verify Node & Relationship in Graph):
+MATCH (a:Actor {name: '${actor}'})-[r:ACTED_IN]->(m:Movie {title: '${movie}'})
+RETURN a.name AS actor_name, a.oscar_wins AS oscars, r.role AS character_played, m.title AS movie_title;`;
+
+      case 'read':
+        return `// =============================================================================
+// STEP 6: NEO4J GRAPH READ OPERATION (MATCH CO-STAR TALENT NETWORK)
+// =============================================================================
+// Matches all actors and movies released >= 2020 ordered by box office gross:
+MATCH (a:Actor)-[r:ACTED_IN]->(m:Movie)
+WHERE m.release_year >= 2020
+RETURN 
+    a.name AS actor, 
+    r.role AS character_name, 
+    m.title AS movie, 
+    m.release_year AS release_year, 
+    m.box_office AS box_office
+ORDER BY m.box_office DESC
+LIMIT 8;`;
+
+      case 'update':
+        return `// =============================================================================
+// STEP 6: NEO4J GRAPH UPDATE OPERATION (MUTATE NODE PROPERTY)
+// =============================================================================
+// 1. Mutate oscar_wins and accolade timestamp on Actor Node:
+MATCH (a:Actor {name: '${actor}'})
+SET a.oscar_wins = ${oscars},
+    a.last_accolade = 'Academy Award Best Actor',
+    a.updated_at = datetime()
+RETURN a.name AS actor, a.oscar_wins AS oscar_wins, a.last_accolade AS accolade;
+
+// 2. Terminal Verification Query (Verify Mutated Node State):
+MATCH (a:Actor {name: '${actor}'})
+RETURN a.name, a.oscar_wins, a.last_accolade, a.updated_at;`;
+
+      case 'delete':
+        return `// =============================================================================
+// STEP 6: NEO4J GRAPH DELETE OPERATION (DETACH & DELETE NODE)
+// =============================================================================
+// 1. Detach all [:ACTED_IN] relationships and delete Actor Node:
+MATCH (a:Actor {name: '${actor}'})
+DETACH DELETE a;
+
+// 2. Terminal Verification Query (Proves Node was completely pruned):
+MATCH (a:Actor {name: '${actor}'})
+RETURN count(a) AS remaining_actors;
+// Expected Output: 0 (Node and all connected edges severed successfully)`;
+
+      default:
+        return `MATCH (a:Actor) RETURN a LIMIT 5;`;
+    }
+  };
+
   const formatCurrency = (val: number) => {
     if (!val && val !== 0) return '$0';
     if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
@@ -5881,7 +5948,7 @@ ORDER BY m.release_year DESC;`}
               {/* CRUD Live Result Panel */}
               {nosqlCrudResult && (
                 <div 
-                  className="p-3.5 rounded-lg border space-y-2 text-xs font-mono"
+                  className="p-3.5 rounded-lg border space-y-3 text-xs font-mono"
                   style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2" style={{ borderColor: 'var(--border-subtle)' }}>
@@ -5894,7 +5961,7 @@ ORDER BY m.release_year DESC;`}
                       </span>
                     </div>
                     <span className="text-[10px] opacity-70">
-                      {nosqlCrudResult.nodes_affected || 1} Graph Element(s) Mutated
+                      {nosqlCrudResult.records ? `${nosqlCrudResult.records.length} Record(s) Returned` : `${nosqlCrudResult.nodes_affected || 1} Graph Element(s) Mutated`}
                     </span>
                   </div>
 
@@ -5905,19 +5972,169 @@ ORDER BY m.release_year DESC;`}
                     </pre>
                   </div>
 
-                  {nosqlCrudResult.data && (
+                  {/* 1. READ Results Table */}
+                  {nosqlCrudResult.records && nosqlCrudResult.records.length > 0 && (
                     <div className="pt-1">
-                      <div className="font-sans font-semibold text-[10px] uppercase opacity-75 mb-1">Returned Subgraph JSON:</div>
-                      <pre className="p-2 rounded border bg-black/5 dark:bg-black/30 text-[10px] overflow-x-auto max-h-40" style={{ borderColor: 'var(--border-subtle)' }}>
-                        {JSON.stringify(nosqlCrudResult.data, null, 2)}
-                      </pre>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="font-sans font-semibold text-[10px] uppercase opacity-75">
+                          Matched Graph Nodes &amp; Relationships ({nosqlCrudResult.records.length} records):
+                        </div>
+                        <span className="text-[10px] text-emerald-600 font-mono font-semibold">✓ Index-Free Graph Traversal</span>
+                      </div>
+                      <div className="overflow-x-auto rounded border" style={{ borderColor: 'var(--border-subtle)' }}>
+                        <table className="w-full text-left font-mono text-[10.5px]">
+                          <thead className="bg-black/5 dark:bg-black/30 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                            <tr>
+                              <th className="p-2 text-slate-700 dark:text-slate-300">#</th>
+                              <th className="p-2 text-blue-700 dark:text-blue-400">Actor Node (:Actor)</th>
+                              <th className="p-2 text-amber-700 dark:text-amber-400">Relationship [:ACTED_IN]</th>
+                              <th className="p-2 text-purple-700 dark:text-purple-400">Movie Node (:Movie)</th>
+                              <th className="p-2 text-slate-700 dark:text-slate-300">Year</th>
+                              <th className="p-2 text-emerald-700 dark:text-emerald-400">Box Office Gross</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-black/5 dark:divide-white/5">
+                            {nosqlCrudResult.records.map((r: any, idx: number) => (
+                              <tr key={idx} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                <td className="p-2 text-slate-500 font-bold">{idx + 1}</td>
+                                <td className="p-2 font-bold text-blue-700 dark:text-blue-400">{r.actor}</td>
+                                <td className="p-2 font-semibold text-amber-700 dark:text-amber-400">{r.character_name || r.role || 'Lead Role'}</td>
+                                <td className="p-2 font-bold text-purple-700 dark:text-purple-400">{r.movie}</td>
+                                <td className="p-2">{r.release_year}</td>
+                                <td className="p-2 font-semibold text-emerald-700 dark:text-emerald-400">
+                                  ${Number(r.box_office || 0).toLocaleString()}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 2. CREATE Subgraph Confirmation */}
+                  {nosqlCrudAction === 'create' && nosqlCrudResult.data && (
+                    <div className="pt-1">
+                      <div className="font-sans font-semibold text-[10px] uppercase opacity-75 mb-1.5">
+                        Created Graph Subgraph &amp; Directed Edge:
+                      </div>
+                      <div className="p-3 rounded-lg border bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className="px-2.5 py-1 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-300 font-bold">
+                            (:Actor &#123;name: &quot;{nosqlCrudResult.data.actor}&quot;, oscars: {nosqlCrudOscars}&#125;)
+                          </span>
+                          <span className="font-bold text-amber-600">
+                            ──[:ACTED_IN &#123;role: &quot;{nosqlCrudResult.data.role}&quot;&#125;]──&gt;
+                          </span>
+                          <span className="px-2.5 py-1 rounded bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 border border-purple-300 font-bold">
+                            (:Movie &#123;title: &quot;{nosqlCrudResult.data.movie}&quot;&#125;)
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-emerald-800 dark:text-emerald-300 font-sans">
+                          ✓ Node and Directed Edge persisted in Neo4j graph space. Ready for graph traversal queries.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. UPDATE Confirmation */}
+                  {nosqlCrudAction === 'update' && (
+                    <div className="pt-1">
+                      <div className="font-sans font-semibold text-[10px] uppercase opacity-75 mb-1.5">
+                        Mutated Node State in Neo4j:
+                      </div>
+                      <div className="p-3 rounded-lg border bg-amber-50/50 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800 space-y-1.5">
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-300 font-bold">
+                            (:Actor &#123;name: &quot;{nosqlCrudActor}&quot;&#125;)
+                          </span>
+                          <span className="font-bold text-amber-700">SET oscar_wins = {nosqlCrudOscars}</span>
+                        </div>
+                        <div className="text-[10px] text-amber-800 dark:text-amber-300 font-sans">
+                          ✓ Property mutated on node without table locking or relational schema alteration.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 4. DELETE Confirmation */}
+                  {nosqlCrudAction === 'delete' && (
+                    <div className="pt-1">
+                      <div className="font-sans font-semibold text-[10px] uppercase opacity-75 mb-1.5">
+                        Detached &amp; Deleted Graph Node:
+                      </div>
+                      <div className="p-3 rounded-lg border bg-red-50/50 dark:bg-red-950/20 border-red-300 dark:border-red-800 space-y-1.5">
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 border border-red-300 font-bold">
+                            DETACH DELETE (:Actor &#123;name: &quot;{nosqlCrudActor}&quot;&#125;)
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-red-800 dark:text-red-300 font-sans">
+                          ✓ Node and all associated [:ACTED_IN] relationships pruned from graph index-free structure.
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
-            </div>
-          </div>
 
+              {/* Terminal Verification Runbook for Step 6 Neo4j */}
+              <div className="pt-1">
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => toggleCliPanel('nosql_crud')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                    style={{ borderColor: 'var(--border-subtle)' }}
+                  >
+                    <Code2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>{expandedCliMap['nosql_crud'] ? 'Hide Terminal Verification' : 'Show Terminal Verification (Neo4j Browser / Cypher CLI)'}</span>
+                    {expandedCliMap['nosql_crud'] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                  <span className="text-[11px] font-mono opacity-70">
+                    Cypher Runbook for {nosqlCrudAction.toUpperCase()} Operation
+                  </span>
+                </div>
+
+                {expandedCliMap['nosql_crud'] && (
+                  <div className="mt-2 p-3.5 rounded-lg border bg-slate-900 text-slate-100 font-mono text-[11px] space-y-2">
+                    <div className="flex items-center justify-between pb-1 border-b border-slate-700">
+                      <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                        <Terminal className="w-3.5 h-3.5" />
+                        Neo4j Browser / Cypher Shell Verification Runbook ({nosqlCrudAction.toUpperCase()})
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(getNosqlCliScript(nosqlCrudAction, nosqlCrudActor, nosqlCrudMovie, nosqlCrudRole, nosqlCrudOscars), 'cli_nosql')}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer"
+                      >
+                        {copiedTriggerCode === 'cli_nosql' ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Copy Cypher Script</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="text-[10px] text-slate-400 font-sans">
+                      Execute in <strong>Neo4j Browser</strong> (<code>http://localhost:7474</code> or Neo4j Aura console) or via <code>cypher-shell</code>:
+                    </div>
+
+                    <pre className="p-2.5 rounded bg-black/50 text-emerald-300 text-[10.5px] overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                      {getNosqlCliScript(nosqlCrudAction, nosqlCrudActor, nosqlCrudMovie, nosqlCrudRole, nosqlCrudOscars)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Co-Starring Collaborations Table */}
           <div 
             className="p-4 rounded-xl border space-y-2 text-xs"
