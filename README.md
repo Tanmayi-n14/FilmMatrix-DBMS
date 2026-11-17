@@ -28,7 +28,6 @@ Traditional media production architectures struggle when attempting to store bot
 ```text
 Jackfruit_FilmMatrix/
 ├── docs/                                  # Official PES University DBMS Rubric, Specs & Viva Guide
-│   ├── GRILL_DEFENSE_AND_VIVA_GUIDE.md    # 🎓 Complete Rubric Mapping (Col F-S), Viva Q&A & Code Mod Cheat Sheet
 │   ├── DBMS_Level_3_Project_Requirements.pdf
 │   └── DBMS_Level_3_Rubric.pdf
 ├── sql/                                   # Standalone Production SQL Scripts (14 Tables, 234 Seed Records)
@@ -62,7 +61,6 @@ Jackfruit_FilmMatrix/
 │       └── auth.ts                        # JWT Authentication & BCrypt Password Verification
 ├── neo4j_schema.cypher                    # Standalone Neo4j Cypher Schema & Seed Data
 ├── schema.sql                             # Master Monolithic MySQL DDL + DML + Advanced SQL
-├── PRESENTATION_GUIDE.md                  # Step-by-Step Presentation Script & Defense Strategy
 ├── package.json                           # Dependencies & NPM Scripts
 ├── tsconfig.json                          # TypeScript Compiler Configuration
 └── tailwind.config.ts                     # Tailwind CSS & Warm Sand Theme Palette

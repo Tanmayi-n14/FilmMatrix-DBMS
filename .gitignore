@@ -34,3 +34,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
+# Private Viva & Evaluation Guides (Local Only)
+docs/GRILL_DEFENSE_AND_VIVA_GUIDE.md
+PRESENTATION_GUIDE.md
+*GRILL*
+*VIVA*
+*PRESENTATION_GUIDE*
