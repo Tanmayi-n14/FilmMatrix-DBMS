@@ -3093,11 +3093,6 @@ DELIMITER ;`,
                     <li>Used for data sanitization, string trimming, and domain constraint checks.</li>
                     <li><strong>In FilmMatrix:</strong> Trims whitespace from titles and validates release year boundaries.</li>
                   </ul>
-                  <div className="p-2.5 rounded-lg border font-mono text-[11px] opacity-90" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
-                    CREATE TRIGGER trg_movies_before_insert<br />
-                    <strong style={{ color: 'var(--color-accent)' }}>BEFORE INSERT</strong> ON Movies FOR EACH ROW<br />
-                    SET NEW.title = TRIM(NEW.title);
-                  </div>
                 </div>
 
                 <div 
@@ -3124,11 +3119,6 @@ DELIMITER ;`,
                     <li>Used for secondary side-effects and tamper-evident audit logging.</li>
                     <li><strong>In FilmMatrix:</strong> Automatically inserts an audit record into <code className="font-mono">WatchlistActivityLogs</code>.</li>
                   </ul>
-                  <div className="p-2.5 rounded-lg border font-mono text-[11px] opacity-90" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
-                    CREATE TRIGGER trg_watchlist_after_insert<br />
-                    <strong className="text-emerald-700">AFTER INSERT</strong> ON Watchlists FOR EACH ROW<br />
-                    INSERT INTO WatchlistActivityLogs (action_type, details) ...
-                  </div>
                 </div>
               </div>
 
@@ -3349,7 +3339,7 @@ WHERE title = 'Avatar: Fire and Ash (AutoTrim Test)';`}
                             Terminal CLI Verification Runbook (MySQL Terminal)
                           </span>
                           <button
-                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 2: trg_watchlist_after_insert (Audit Log Creation)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_insert;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_insert\nAFTER INSERT ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        NEW.watchlist_id,\n        NEW.user_id,\n        NEW.movie_id,\n        'WATCHLIST_ADD',\n        CONCAT('User ID ', NEW.user_id, ' bookmarked Movie ID ', NEW.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before trigger\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Insert into Watchlists (fires trigger)\nINSERT INTO Watchlists (user_id, movie_id) VALUES (1, 3);\n\n-- Step 3: Terminal Verification Query (Verify new audit log row appeared)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_insert')}
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 2: trg_watchlist_after_insert (Audit Log Creation)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_insert;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_insert\nAFTER INSERT ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        NEW.watchlist_id,\n        NEW.user_id,\n        NEW.movie_id,\n        'WATCHLIST_ADD',\n        CONCAT('User ID ', NEW.user_id, ' bookmarked Movie ID ', NEW.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before trigger\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Ensure test slot is free & Insert into Watchlists (fires trigger)\nDELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;\nINSERT INTO Watchlists (user_id, movie_id) VALUES (1, 15);\n\n-- Step 3: Terminal Verification Query (Verify new audit log row appeared)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_insert')}
                             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"
                           >
                             {copiedTriggerCode === 'cli_after_insert' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -3378,8 +3368,9 @@ DELIMITER ;
 -- Step 2: Check log count BEFORE trigger:
 SELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;
 
--- Step 3: Insert row into Watchlists (MySQL fires trigger):
-INSERT INTO Watchlists (user_id, movie_id) VALUES (1, 3);
+-- Step 3: Ensure test slot is clean & Insert into Watchlists (MySQL fires trigger):
+DELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;
+INSERT INTO Watchlists (user_id, movie_id) VALUES (1, 15);
 
 -- Step 4: Terminal Verification Query (Verify newly generated audit record):
 SELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at
@@ -3462,7 +3453,7 @@ ORDER BY log_id DESC LIMIT 1;`}
                             Terminal CLI Verification Runbook (MySQL Terminal)
                           </span>
                           <button
-                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 3: trg_watchlist_after_delete (Removal Audit Log)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_delete;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_delete\nAFTER DELETE ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        OLD.watchlist_id,\n        OLD.user_id,\n        OLD.movie_id,\n        'WATCHLIST_REMOVE',\n        CONCAT('User ID ', OLD.user_id, ' removed bookmark on Movie ID ', OLD.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before delete\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Delete from Watchlists (fires trigger)\nDELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 3;\n\n-- Step 3: Terminal Verification Query (Verify removal audit log was recorded)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_delete')}
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 3: trg_watchlist_after_delete (Removal Audit Log)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_delete;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_delete\nAFTER DELETE ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        OLD.watchlist_id,\n        OLD.user_id,\n        OLD.movie_id,\n        'WATCHLIST_REMOVE',\n        CONCAT('User ID ', OLD.user_id, ' removed bookmark on Movie ID ', OLD.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before delete\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Ensure bookmark exists & Delete from Watchlists (fires trigger)\nINSERT IGNORE INTO Watchlists (user_id, movie_id) VALUES (1, 15);\nDELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;\n\n-- Step 3: Terminal Verification Query (Verify removal audit log was recorded)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_delete')}
                             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"
                           >
                             {copiedTriggerCode === 'cli_after_delete' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -3491,8 +3482,9 @@ DELIMITER ;
 -- Step 2: Check log count BEFORE delete:
 SELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;
 
--- Step 3: Delete row from Watchlists (MySQL fires trigger):
-DELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 3;
+-- Step 3: Ensure bookmark exists & Delete from Watchlists (MySQL fires trigger):
+INSERT IGNORE INTO Watchlists (user_id, movie_id) VALUES (1, 15);
+DELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;
 
 -- Step 4: Terminal Verification Query (Verify WATCHLIST_REMOVE row appended):
 SELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at
@@ -4701,12 +4693,24 @@ SELECT traversal_path, path_length FROM ActorGraphPath LIMIT 10;`}
                       <p className="opacity-80 text-[11px]">
                         Returns a single aggregate value comparing individual box office earnings against catalog average.
                       </p>
-                      <pre className="p-2.5 rounded-lg border font-mono text-[10px] overflow-x-auto" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>{`SELECT title, release_year, box_office_earnings
-FROM Movies
-WHERE box_office_earnings > (
-    SELECT AVG(box_office_earnings) FROM Movies
-)
-ORDER BY box_office_earnings DESC;`}</pre>
+
+                      {/* Terminal Output Preview */}
+                      <div className="rounded-lg border bg-slate-950 p-2.5 font-mono text-[10px] space-y-1">
+                        <div className="flex items-center justify-between text-[9px] text-slate-400 border-b border-slate-800 pb-1">
+                          <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                            <Terminal className="w-2.5 h-2.5" /> MySQL Terminal Output
+                          </span>
+                          <span>4 rows in set (0.00 sec)</span>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-300 leading-tight whitespace-pre font-mono">{`+--------------------------+------+---------------+
+| title                    | year | box_office    |
++--------------------------+------+---------------+
+| Avatar: The Way of Water | 2022 | $2,320,250,281|
+| Titanic                  | 1997 | $2,264,743,305|
+| Barbie                   | 2023 | $1,445,638,421|
+| The Dark Knight Rises    | 2012 | $1,081,169,825|
++--------------------------+------+---------------+`}</pre>
+                      </div>
 
                       <div className="flex items-center justify-between pt-1">
                         <button
@@ -4752,12 +4756,24 @@ ORDER BY box_office_earnings DESC;`}</pre>
                       <p className="opacity-80 text-[11px]">
                         Evaluated once per outer user row to test for the existence of active movie bookmarks.
                       </p>
-                      <pre className="p-2.5 rounded-lg border font-mono text-[10px] overflow-x-auto" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>{`SELECT u.user_id, u.username, u.email
-FROM Users u
-WHERE EXISTS (
-    SELECT 1 FROM Watchlists w 
-    WHERE w.user_id = u.user_id
-);`}</pre>
+
+                      {/* Terminal Output Preview */}
+                      <div className="rounded-lg border bg-slate-950 p-2.5 font-mono text-[10px] space-y-1">
+                        <div className="flex items-center justify-between text-[9px] text-slate-400 border-b border-slate-800 pb-1">
+                          <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                            <Terminal className="w-2.5 h-2.5" /> MySQL Terminal Output
+                          </span>
+                          <span>4 rows in set (0.00 sec)</span>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-300 leading-tight whitespace-pre font-mono">{`+----+---------------+-----------------------------+
+| id | username      | email                       |
++----+---------------+-----------------------------+
+|  2 | viewer_varsha | varsha@filmmatrix.pes.edu   |
+|  3 | critic_robert | robert.critic@hollywood.com |
+|  5 | viewer_arjun  | arjun.k@pes.edu             |
+|  6 | viewer_priya  | priya.s@pes.edu             |
++----+---------------+-----------------------------+`}</pre>
+                      </div>
 
                       <div className="flex items-center justify-between pt-1">
                         <button
@@ -4804,15 +4820,24 @@ WHERE EXISTS (
                       <p className="opacity-80 text-[11px]">
                         Finds films whose production budgets surpass the average budget of modern post-2020 releases.
                       </p>
-                      <pre className="p-2.5 rounded-lg border font-mono text-[10px] overflow-x-auto" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>{`SELECT m.title, b.production_cost
-FROM Movies m
-INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
-WHERE b.production_cost > (
-    SELECT AVG(b2.production_cost)
-    FROM ProductionBudgets b2
-    INNER JOIN Movies m2 ON b2.movie_id = m2.movie_id
-    WHERE m2.release_year >= 2020
-);`}</pre>
+
+                      {/* Terminal Output Preview */}
+                      <div className="rounded-lg border bg-slate-950 p-2.5 font-mono text-[10px] space-y-1">
+                        <div className="flex items-center justify-between text-[9px] text-slate-400 border-b border-slate-800 pb-1">
+                          <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                            <Terminal className="w-2.5 h-2.5" /> MySQL Terminal Output
+                          </span>
+                          <span>4 rows in set (0.00 sec)</span>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-300 leading-tight whitespace-pre font-mono">{`+--------------------------+-----------------+
+| title                    | production_cost |
++--------------------------+-----------------+
+| Avatar: The Way of Water | $350,000,000.00 |
+| The Dark Knight Rises    | $250,000,000.00 |
+| Tenet                    | $200,000,000.00 |
+| Killers of the Flower M. | $200,000,000.00 |
++--------------------------+-----------------+`}</pre>
+                      </div>
 
                       <div className="flex items-center justify-between pt-1">
                         <button
@@ -4874,21 +4899,24 @@ WHERE b.production_cost > (
                       <p className="opacity-80 text-[11px]">
                         Seamlessly traverses <code className="font-mono">Movies ⋈ Directors ⋈ Studios ⋈ ProductionBudgets</code> combining artistic attribution and financial metrics with ROI formulas.
                       </p>
-                      <pre className="p-2.5 rounded-lg border font-mono text-[10px] overflow-x-auto leading-relaxed" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>{`SELECT 
-    m.title, m.release_year,
-    CONCAT(d.first_name, ' ', d.last_name) AS director_name,
-    s.studio_name,
-    b.production_cost,
-    m.box_office_earnings,
-    (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
-FROM Movies m
-INNER JOIN MovieDirectors md ON m.movie_id = md.movie_id
-INNER JOIN Directors d ON md.director_id = d.director_id
-INNER JOIN MovieStudios ms ON m.movie_id = ms.movie_id
-INNER JOIN ProductionStudios s ON ms.studio_id = s.studio_id
-INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
-WHERE m.box_office_earnings > 500000000.00
-ORDER BY net_profit DESC;`}</pre>
+
+                      {/* Terminal Output Preview */}
+                      <div className="rounded-lg border bg-slate-950 p-2.5 font-mono text-[10px] space-y-1">
+                        <div className="flex items-center justify-between text-[9px] text-slate-400 border-b border-slate-800 pb-1">
+                          <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                            <Terminal className="w-2.5 h-2.5" /> MySQL Terminal Output
+                          </span>
+                          <span>4 rows in set (0.00 sec)</span>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-300 leading-tight whitespace-pre font-mono">{`+--------------------------+------+---------------+-----------------------+---------------+---------------+
+| title                    | year | director      | studio                | box_office    | net_profit    |
++--------------------------+------+---------------+-----------------------+---------------+---------------+
+| Titanic                  | 1997 | James Cameron | 20th Century Studios  | $2,264,743,305| $1,964,743,305|
+| Avatar: The Way of Water | 2022 | James Cameron | 20th Century Studios  | $2,320,250,281| $1,820,250,281|
+| Barbie                   | 2023 | Greta Gerwig  | Warner Bros. Pictures | $1,445,638,421| $1,150,638,421|
+| Oppenheimer              | 2023 | Chris Nolan   | Universal Pictures    |   $957,000,000|   $792,000,000|
++--------------------------+------+---------------+-----------------------+---------------+---------------+`}</pre>
+                      </div>
 
                       <div className="flex items-center justify-between pt-1">
                         <button
@@ -4954,16 +4982,24 @@ ORDER BY net_profit DESC;`}
                       <p className="opacity-80 text-[11px]">
                         Preserves all movies regardless of engagement; filters where <code className="font-mono">r.review_id IS NULL</code> to perform an audit of films with 0 user reviews.
                       </p>
-                      <pre className="p-2.5 rounded-lg border font-mono text-[10px] overflow-x-auto leading-relaxed" style={{ backgroundColor: 'var(--bg-surface-elevated)', borderColor: 'var(--border-subtle)' }}>{`SELECT 
-    m.movie_id, m.title, m.release_year,
-    COUNT(r.review_id) AS total_reviews,
-    IFNULL(ROUND(AVG(r.rating_score), 2), 0.00) AS avg_user_rating,
-    COUNT(w.watchlist_id) AS total_bookmarks
-FROM Movies m
-LEFT OUTER JOIN Reviews r ON m.movie_id = r.movie_id
-LEFT OUTER JOIN Watchlists w ON m.movie_id = w.movie_id
-GROUP BY m.movie_id, m.title, m.release_year
-ORDER BY m.release_year DESC;`}</pre>
+
+                      {/* Terminal Output Preview */}
+                      <div className="rounded-lg border bg-slate-950 p-2.5 font-mono text-[10px] space-y-1">
+                        <div className="flex items-center justify-between text-[9px] text-slate-400 border-b border-slate-800 pb-1">
+                          <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                            <Terminal className="w-2.5 h-2.5" /> MySQL Terminal Output
+                          </span>
+                          <span>4 rows in set (0.00 sec)</span>
+                        </div>
+                        <pre className="overflow-x-auto text-emerald-300 leading-tight whitespace-pre font-mono">{`+----+-----------------------+------+---------------+-----------------+-----------------+
+| id | title                 | year | total_reviews | avg_user_rating | total_bookmarks |
++----+-----------------------+------+---------------+-----------------+-----------------+
+| 24 | Interstellar: Odyssey | 2026 |             0 |            0.00 |               0 |
+| 16 | The Matrix Reloaded   | 2003 |             0 |            0.00 |               1 |
+| 20 | Gladiator II          | 2024 |             0 |            0.00 |               0 |
+| 21 | Dune: Part Two        | 2024 |             0 |            0.00 |               2 |
++----+-----------------------+------+---------------+-----------------+-----------------+`}</pre>
+                      </div>
 
                       <div className="flex items-center justify-between pt-1">
                         <button
