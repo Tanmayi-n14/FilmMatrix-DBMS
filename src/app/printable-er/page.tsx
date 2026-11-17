@@ -390,7 +390,370 @@ export default function PrintableERPage() {
             </span>
           </div>
 
-          <div className="svg-wrapper flex-1 flex items-center justify-center overflow-hidden" dangerouslySetInnerHTML={{ __html: "<svg viewBox=\"0 0 1100 490\" style=\"width:100%; height:100%; max-height:100%; background:#ffffff; border:1px solid #e2e8f0; border-radius:4px;\">\n  <defs>\n    <style>\n      .tbl-title { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif; font-size: 9px; font-weight: 800; fill: #0f172a; }\n      .cell-box { fill: #f8fafc; stroke: #334155; stroke-width: 1.1; }\n      .cell-pk { fill: #fef3c7; stroke: #b45309; stroke-width: 1.3; }\n      .cell-fk { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.1; }\n      .txt-pk { font-family: ui-monospace, monospace; font-size: 7.2px; font-weight: bold; fill: #92400e; text-anchor: middle; text-decoration: underline; }\n      .txt-fk { font-family: ui-monospace, monospace; font-size: 7.2px; font-weight: 600; fill: #1d4ed8; text-anchor: middle; }\n      .txt-col { font-family: ui-monospace, monospace; font-size: 7.2px; fill: #334155; text-anchor: middle; }\n      .arrow { fill: none; stroke: #2563eb; stroke-width: 1.3; marker-end: url(#arrowhead); }\n    </style>\n    <marker id=\"arrowhead\" markerWidth=\"6\" markerHeight=\"4\" refX=\"5\" refY=\"2\" orient=\"auto\">\n      <polygon points=\"0 0, 6 2, 0 4\" fill=\"#2563eb\" />\n    </marker>\n  </defs>\n\n  <!-- ================= ROW 1 ================= -->\n  <!-- Table 1: Movies -->\n  <text x=\"25\" y=\"20\" class=\"tbl-title\">Movies</text>\n  <g id=\"tbl-movies\">\n    <rect x=\"25\" y=\"24\" width=\"65\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"57\" y=\"36\" class=\"txt-pk\">movie_id</text>\n\n    <rect x=\"90\" y=\"24\" width=\"80\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"130\" y=\"36\" class=\"txt-col\">title</text>\n\n    <rect x=\"170\" y=\"24\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"202\" y=\"36\" class=\"txt-col\">release_year</text>\n\n    <rect x=\"235\" y=\"24\" width=\"80\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"275\" y=\"36\" class=\"txt-col\">duration_minutes</text>\n\n    <rect x=\"315\" y=\"24\" width=\"95\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"362\" y=\"36\" class=\"txt-col\">box_office_earnings</text>\n\n    <rect x=\"410\" y=\"24\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"442\" y=\"36\" class=\"txt-col\">mpaa_rating</text>\n  </g>\n\n  <!-- Table 2: ProductionBudgets (1:1 with Movies) -->\n  <text x=\"500\" y=\"20\" class=\"tbl-title\">ProductionBudgets (1:1 Strict Financial Ledger)</text>\n  <g id=\"tbl-budgets\">\n    <rect x=\"500\" y=\"24\" width=\"60\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"530\" y=\"36\" class=\"txt-pk\">budget_id</text>\n\n    <rect x=\"560\" y=\"24\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"595\" y=\"36\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"630\" y=\"24\" width=\"75\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"667\" y=\"36\" class=\"txt-col\">production_cost</text>\n\n    <rect x=\"705\" y=\"24\" width=\"75\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"742\" y=\"36\" class=\"txt-col\">marketing_spend</text>\n\n    <rect x=\"780\" y=\"24\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"812\" y=\"36\" class=\"txt-col\">vfx_budget</text>\n  </g>\n\n  <!-- Table 3: ProductionStudios -->\n  <text x=\"870\" y=\"20\" class=\"tbl-title\">ProductionStudios</text>\n  <g id=\"tbl-studios\">\n    <rect x=\"870\" y=\"24\" width=\"60\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"900\" y=\"36\" class=\"txt-pk\">studio_id</text>\n\n    <rect x=\"930\" y=\"24\" width=\"75\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"967\" y=\"36\" class=\"txt-col\">studio_name</text>\n\n    <rect x=\"1005\" y=\"24\" width=\"70\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"1040\" y=\"36\" class=\"txt-col\">headquarters</text>\n  </g>\n\n\n  <!-- ================= ROW 2 ================= -->\n  <!-- Table 4: Actors -->\n  <text x=\"25\" y=\"78\" class=\"tbl-title\">Actors</text>\n  <g id=\"tbl-actors\">\n    <rect x=\"25\" y=\"82\" width=\"60\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"55\" y=\"94\" class=\"txt-pk\">actor_id</text>\n\n    <rect x=\"85\" y=\"82\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"117\" y=\"94\" class=\"txt-col\">first_name</text>\n\n    <rect x=\"150\" y=\"82\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"182\" y=\"94\" class=\"txt-col\">last_name</text>\n\n    <rect x=\"215\" y=\"82\" width=\"50\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"240\" y=\"94\" class=\"txt-col\">gender</text>\n\n    <rect x=\"265\" y=\"82\" width=\"55\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"292\" y=\"94\" class=\"txt-col\">birth_year</text>\n\n    <rect x=\"320\" y=\"82\" width=\"60\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"350\" y=\"94\" class=\"txt-col\">nationality</text>\n  </g>\n\n  <!-- Table 5: MovieCast (M:N Bridge: Movies <-> Actors) -->\n  <text x=\"405\" y=\"78\" class=\"tbl-title\">MovieCast (M:N Bridge: Movies &harr; Actors)</text>\n  <g id=\"tbl-cast\">\n    <rect x=\"405\" y=\"82\" width=\"50\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"430\" y=\"94\" class=\"txt-pk\">cast_id</text>\n\n    <rect x=\"455\" y=\"82\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"490\" y=\"94\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"525\" y=\"82\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"560\" y=\"94\" class=\"txt-fk\">actor_id (FK)</text>\n\n    <rect x=\"595\" y=\"82\" width=\"80\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"635\" y=\"94\" class=\"txt-col\">character_name</text>\n\n    <rect x=\"675\" y=\"82\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"707\" y=\"94\" class=\"txt-col\">billing_order</text>\n\n    <rect x=\"740\" y=\"82\" width=\"50\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"765\" y=\"94\" class=\"txt-col\">salary</text>\n  </g>\n\n  <!-- Table 6: MovieStudios (M:N Bridge: Movies <-> ProductionStudios) -->\n  <text x=\"815\" y=\"78\" class=\"tbl-title\">MovieStudios (M:N Bridge)</text>\n  <g id=\"tbl-moviestudios\">\n    <rect x=\"815\" y=\"82\" width=\"80\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"855\" y=\"94\" class=\"txt-pk\">movie_studio_id</text>\n\n    <rect x=\"895\" y=\"82\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"930\" y=\"94\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"965\" y=\"82\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"1000\" y=\"94\" class=\"txt-fk\">studio_id (FK)</text>\n\n    <rect x=\"1035\" y=\"82\" width=\"60\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"1065\" y=\"94\" class=\"txt-col\">is_lead</text>\n  </g>\n\n\n  <!-- ================= ROW 3 ================= -->\n  <!-- Table 7: Directors -->\n  <text x=\"25\" y=\"138\" class=\"tbl-title\">Directors</text>\n  <g id=\"tbl-directors\">\n    <rect x=\"25\" y=\"142\" width=\"60\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"55\" y=\"154\" class=\"txt-pk\">director_id</text>\n\n    <rect x=\"85\" y=\"142\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"117\" y=\"154\" class=\"txt-col\">first_name</text>\n\n    <rect x=\"150\" y=\"142\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"182\" y=\"154\" class=\"txt-col\">last_name</text>\n\n    <rect x=\"215\" y=\"142\" width=\"55\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"242\" y=\"154\" class=\"txt-col\">birth_year</text>\n\n    <rect x=\"270\" y=\"142\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"302\" y=\"154\" class=\"txt-col\">nationality</text>\n  </g>\n\n  <!-- Table 8: MovieDirectors (M:N Bridge: Movies <-> Directors) -->\n  <text x=\"360\" y=\"138\" class=\"tbl-title\">MovieDirectors (M:N Bridge: Movies &harr; Directors)</text>\n  <g id=\"tbl-moviedir\">\n    <rect x=\"360\" y=\"142\" width=\"85\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"402\" y=\"154\" class=\"txt-pk\">movie_director_id</text>\n\n    <rect x=\"445\" y=\"142\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"480\" y=\"154\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"515\" y=\"142\" width=\"75\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"552\" y=\"154\" class=\"txt-fk\">director_id (FK)</text>\n\n    <rect x=\"590\" y=\"142\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"622\" y=\"154\" class=\"txt-col\">role_type</text>\n  </g>\n\n  <!-- Table 9: Genres -->\n  <text x=\"680\" y=\"138\" class=\"tbl-title\">Genres</text>\n  <g id=\"tbl-genres\">\n    <rect x=\"680\" y=\"142\" width=\"55\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"707\" y=\"154\" class=\"txt-pk\">genre_id</text>\n\n    <rect x=\"735\" y=\"142\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"767\" y=\"154\" class=\"txt-col\">genre_name</text>\n\n    <rect x=\"800\" y=\"142\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"832\" y=\"154\" class=\"txt-col\">description</text>\n  </g>\n\n  <!-- Table 10: MovieGenres (M:N Bridge) -->\n  <text x=\"885\" y=\"138\" class=\"tbl-title\">MovieGenres (M:N Bridge)</text>\n  <g id=\"tbl-moviegenres\">\n    <rect x=\"885\" y=\"142\" width=\"80\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"925\" y=\"154\" class=\"txt-pk\">movie_genre_id</text>\n\n    <rect x=\"965\" y=\"142\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"1000\" y=\"154\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"1035\" y=\"142\" width=\"60\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"1065\" y=\"154\" class=\"txt-fk\">genre_id (FK)</text>\n  </g>\n\n\n  <!-- ================= ROW 4 ================= -->\n  <!-- Table 11: Users -->\n  <text x=\"25\" y=\"200\" class=\"tbl-title\">Users</text>\n  <g id=\"tbl-users\">\n    <rect x=\"25\" y=\"204\" width=\"55\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"52\" y=\"216\" class=\"txt-pk\">user_id</text>\n\n    <rect x=\"80\" y=\"204\" width=\"70\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"115\" y=\"216\" class=\"txt-col\">username</text>\n\n    <rect x=\"150\" y=\"204\" width=\"100\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"200\" y=\"216\" class=\"txt-col\">email</text>\n\n    <rect x=\"250\" y=\"204\" width=\"50\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"275\" y=\"216\" class=\"txt-col\">role</text>\n  </g>\n\n  <!-- Table 12: Reviews (M:N Bridge: Users <-> Movies) -->\n  <text x=\"330\" y=\"200\" class=\"tbl-title\">Reviews (M:N Ratings Engine)</text>\n  <g id=\"tbl-reviews\">\n    <rect x=\"330\" y=\"204\" width=\"55\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"357\" y=\"216\" class=\"txt-pk\">review_id</text>\n\n    <rect x=\"385\" y=\"204\" width=\"65\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"417\" y=\"216\" class=\"txt-fk\">user_id (FK)</text>\n\n    <rect x=\"450\" y=\"204\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"485\" y=\"216\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"520\" y=\"204\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"552\" y=\"216\" class=\"txt-col\">rating_score</text>\n\n    <rect x=\"585\" y=\"204\" width=\"70\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"620\" y=\"216\" class=\"txt-col\">review_title</text>\n\n    <rect x=\"655\" y=\"204\" width=\"70\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"690\" y=\"216\" class=\"txt-col\">review_text</text>\n  </g>\n\n\n  <!-- ================= ROW 5 ================= -->\n  <!-- Table 13: Watchlists (M:N Bridge: Users <-> Movies) -->\n  <text x=\"25\" y=\"260\" class=\"tbl-title\">Watchlists (User Bookmarks)</text>\n  <g id=\"tbl-watchlists\">\n    <rect x=\"25\" y=\"264\" width=\"65\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"57\" y=\"276\" class=\"txt-pk\">watchlist_id</text>\n\n    <rect x=\"90\" y=\"264\" width=\"65\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"122\" y=\"276\" class=\"txt-fk\">user_id (FK)</text>\n\n    <rect x=\"155\" y=\"264\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"190\" y=\"276\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"225\" y=\"264\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"257\" y=\"276\" class=\"txt-col\">added_at</text>\n  </g>\n\n  <!-- Table 14: WatchlistActivityLogs (Populated by Triggers) -->\n  <text x=\"320\" y=\"260\" class=\"tbl-title\">WatchlistActivityLogs (Immutable Trigger Audit Ledger)</text>\n  <g id=\"tbl-logs\">\n    <rect x=\"320\" y=\"264\" width=\"50\" height=\"18\" class=\"cell-pk\"/>\n    <text x=\"345\" y=\"276\" class=\"txt-pk\">log_id</text>\n\n    <rect x=\"370\" y=\"264\" width=\"75\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"407\" y=\"276\" class=\"txt-fk\">watchlist_id [FK]</text>\n\n    <rect x=\"445\" y=\"264\" width=\"65\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"477\" y=\"276\" class=\"txt-fk\">user_id (FK)</text>\n\n    <rect x=\"510\" y=\"264\" width=\"70\" height=\"18\" class=\"cell-fk\"/>\n    <text x=\"545\" y=\"276\" class=\"txt-fk\">movie_id (FK)</text>\n\n    <rect x=\"580\" y=\"264\" width=\"70\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"615\" y=\"276\" class=\"txt-col\">action_type</text>\n\n    <rect x=\"650\" y=\"264\" width=\"100\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"700\" y=\"276\" class=\"txt-col\">details</text>\n\n    <rect x=\"750\" y=\"264\" width=\"65\" height=\"18\" class=\"cell-box\"/>\n    <text x=\"782\" y=\"276\" class=\"txt-col\">logged_at</text>\n  </g>\n\n\n  <!-- ================= REFERENTIAL INTEGRITY ARROWS (CLEANLY ROUTED DEDICATED LANES) ================= -->\n  <!-- 1. ProductionBudgets.movie_id -> Movies.movie_id (Top Overhead Arch Lane 1) -->\n  <path d=\"M 595 24 C 595 10, 65 10, 65 24\" class=\"arrow\" />\n\n  <!-- 2. MovieCast.movie_id -> Movies.movie_id (Horizontal Alley y=60) -->\n  <path d=\"M 490 82 C 490 60, 75 60, 75 42\" class=\"arrow\" />\n\n  <!-- 3. MovieCast.actor_id -> Actors.actor_id (Gap below Row 2) -->\n  <path d=\"M 560 100 C 560 122, 55 122, 55 100\" class=\"arrow\" />\n\n  <!-- 4. MovieDirectors.movie_id -> Movies.movie_id (Vertical Alley x=392 & Entry at x=85) -->\n  <path d=\"M 480 142 C 420 120, 392 52, 85 42\" class=\"arrow\" />\n\n  <!-- 5. MovieDirectors.director_id -> Directors.director_id (Gap below Row 3) -->\n  <path d=\"M 552 160 C 552 182, 55 182, 55 160\" class=\"arrow\" />\n\n  <!-- 6. MovieStudios.movie_id -> Movies.movie_id (Top Overhead Arch Lane 2, Higher Altitude) -->\n  <path d=\"M 930 82 C 930 -6, 45 -6, 45 24\" class=\"arrow\" />\n\n  <!-- 7. MovieStudios.studio_id -> ProductionStudios.studio_id (Direct Adjacent Upward) -->\n  <path d=\"M 1000 82 C 1000 58, 900 58, 900 42\" class=\"arrow\" />\n\n  <!-- 8. MovieGenres.movie_id -> Movies.movie_id (Horizontal Alley y=48) -->\n  <path d=\"M 1000 142 C 1000 48, 55 48, 55 42\" class=\"arrow\" />\n\n  <!-- 9. MovieGenres.genre_id -> Genres.genre_id (Gap below Row 3) -->\n  <path d=\"M 1065 160 C 1065 184, 707 184, 707 160\" class=\"arrow\" />\n\n  <!-- 10. Reviews.user_id -> Users.user_id (Gap below Row 4) -->\n  <path d=\"M 417 222 C 417 242, 52 242, 52 222\" class=\"arrow\" />\n\n  <!-- 11. Reviews.movie_id -> Movies.movie_id (Vertical Corridor x=345) -->\n  <path d=\"M 485 204 C 360 185, 345 66, 65 42\" class=\"arrow\" />\n\n  <!-- 12. Watchlists.user_id -> Users.user_id (Upward into Users.user_id) -->\n  <path d=\"M 122 264 C 122 238, 68 238, 68 222\" class=\"arrow\" />\n\n  <!-- 13. Watchlists.movie_id -> Movies.movie_id (Under Row 5 & Up Left Highway Lane 1) -->\n  <path d=\"M 190 282 C 190 320, 14 320, 14 160 C 14 50, 18 36, 25 36\" class=\"arrow\" />\n\n  <!-- 14. WatchlistActivityLogs.user_id -> Users.user_id (Under Row 5) -->\n  <path d=\"M 477 282 C 477 305, 38 305, 38 222\" class=\"arrow\" />\n\n  <!-- 15. WatchlistActivityLogs.movie_id -> Movies.movie_id (Under Row 5 & Up Outer Left Highway Lane 2) -->\n  <path d=\"M 545 282 C 545 340, 6 340, 6 160 C 6 40, 16 28, 25 28\" class=\"arrow\" />\n\n  <!-- 16. WatchlistActivityLogs.watchlist_id -> Watchlists.watchlist_id (Above Row 5) -->\n  <path d=\"M 407 264 C 407 246, 57 246, 57 264\" class=\"arrow\" />\n\n</svg>" }} />
+          <div className="svg-wrapper flex-1 flex items-center justify-center overflow-hidden" dangerouslySetInnerHTML={{ __html: `<svg viewBox="0 0 1100 480" style="width:100%; height:100%; max-height:100%; background:#ffffff; border:1px solid #e2e8f0; border-radius:4px;">
+  <defs>
+    <style>
+      .tbl-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 9px; font-weight: 800; fill: #0f172a; }
+      .cell-box { fill: #ffffff; stroke: #475569; stroke-width: 1.1; }
+      .cell-pk { fill: #fef3c7; stroke: #b45309; stroke-width: 1.3; }
+      .cell-fk { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.1; }
+      .txt-pk { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7px; font-weight: bold; fill: #92400e; text-anchor: middle; text-decoration: underline; }
+      .txt-fk { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7px; font-weight: 600; fill: #1d4ed8; text-anchor: middle; }
+      .txt-col { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7px; fill: #334155; text-anchor: middle; }
+      
+      .arrow-movie { fill: none; stroke: #2563eb; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arr-blue); }
+      .arrow-user { fill: none; stroke: #7c3aed; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arr-purple); }
+      .arrow-talent { fill: none; stroke: #059669; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arr-green); }
+      .arrow-tax { fill: none; stroke: #d97706; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arr-amber); }
+    </style>
+    <marker id="arr-blue" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+      <polygon points="0 0, 6 2, 0 4" fill="#2563eb" />
+    </marker>
+    <marker id="arr-purple" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+      <polygon points="0 0, 6 2, 0 4" fill="#7c3aed" />
+    </marker>
+    <marker id="arr-green" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+      <polygon points="0 0, 6 2, 0 4" fill="#059669" />
+    </marker>
+    <marker id="arr-amber" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+      <polygon points="0 0, 6 2, 0 4" fill="#d97706" />
+    </marker>
+  </defs>
+
+  <!-- ================= ROW 1: MOVIES & BUDGETS ================= -->
+  <!-- Table 1: Movies -->
+  <text x="35" y="22" class="tbl-title">Movies</text>
+  <g id="tbl-movies">
+    <rect x="35" y="26" width="65" height="19" class="cell-pk"/>
+    <text x="67" y="39" class="txt-pk">movie_id</text>
+
+    <rect x="100" y="26" width="80" height="19" class="cell-box"/>
+    <text x="140" y="39" class="txt-col">title</text>
+
+    <rect x="180" y="26" width="65" height="19" class="cell-box"/>
+    <text x="212" y="39" class="txt-col">release_year</text>
+
+    <rect x="245" y="26" width="80" height="19" class="cell-box"/>
+    <text x="285" y="39" class="txt-col">duration_minutes</text>
+
+    <rect x="325" y="26" width="95" height="19" class="cell-box"/>
+    <text x="372" y="39" class="txt-col">box_office_earnings</text>
+
+    <rect x="420" y="26" width="65" height="19" class="cell-box"/>
+    <text x="452" y="39" class="txt-col">mpaa_rating</text>
+  </g>
+
+  <!-- Table 2: ProductionBudgets (1:1 with Movies) -->
+  <text x="530" y="22" class="tbl-title">ProductionBudgets (1:1 Strict Financial Ledger)</text>
+  <g id="tbl-budgets">
+    <rect x="530" y="26" width="60" height="19" class="cell-pk"/>
+    <text x="560" y="39" class="txt-pk">budget_id</text>
+
+    <rect x="590" y="26" width="70" height="19" class="cell-fk"/>
+    <text x="625" y="39" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="660" y="26" width="80" height="19" class="cell-box"/>
+    <text x="700" y="39" class="txt-col">production_cost</text>
+
+    <rect x="740" y="26" width="80" height="19" class="cell-box"/>
+    <text x="780" y="39" class="txt-col">marketing_spend</text>
+
+    <rect x="820" y="26" width="65" height="19" class="cell-box"/>
+    <text x="852" y="39" class="txt-col">vfx_budget</text>
+  </g>
+
+
+  <!-- ================= ROW 2: ACTORS, MOVIECAST, PRODUCTIONSTUDIOS ================= -->
+  <!-- Table 3: Actors -->
+  <text x="35" y="106" class="tbl-title">Actors</text>
+  <g id="tbl-actors">
+    <rect x="35" y="110" width="60" height="19" class="cell-pk"/>
+    <text x="65" y="123" class="txt-pk">actor_id</text>
+
+    <rect x="95" y="110" width="65" height="19" class="cell-box"/>
+    <text x="127" y="123" class="txt-col">first_name</text>
+
+    <rect x="160" y="110" width="65" height="19" class="cell-box"/>
+    <text x="192" y="123" class="txt-col">last_name</text>
+
+    <rect x="225" y="110" width="50" height="19" class="cell-box"/>
+    <text x="250" y="123" class="txt-col">gender</text>
+
+    <rect x="275" y="110" width="55" height="19" class="cell-box"/>
+    <text x="302" y="123" class="txt-col">birth_year</text>
+
+    <rect x="330" y="110" width="65" height="19" class="cell-box"/>
+    <text x="362" y="123" class="txt-col">nationality</text>
+  </g>
+
+  <!-- Table 4: MovieCast (M:N Bridge: Movies <-> Actors) -->
+  <text x="425" y="106" class="tbl-title">MovieCast (M:N Bridge: Movies &harr; Actors)</text>
+  <g id="tbl-cast">
+    <rect x="425" y="110" width="50" height="19" class="cell-pk"/>
+    <text x="450" y="123" class="txt-pk">cast_id</text>
+
+    <rect x="475" y="110" width="70" height="19" class="cell-fk"/>
+    <text x="510" y="123" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="545" y="110" width="70" height="19" class="cell-fk"/>
+    <text x="580" y="123" class="txt-fk">actor_id (FK)</text>
+
+    <rect x="615" y="110" width="80" height="19" class="cell-box"/>
+    <text x="655" y="123" class="txt-col">character_name</text>
+
+    <rect x="695" y="110" width="65" height="19" class="cell-box"/>
+    <text x="727" y="123" class="txt-col">billing_order</text>
+
+    <rect x="760" y="110" width="50" height="19" class="cell-box"/>
+    <text x="785" y="123" class="txt-col">salary</text>
+  </g>
+
+  <!-- Table 5: ProductionStudios -->
+  <text x="850" y="106" class="tbl-title">ProductionStudios</text>
+  <g id="tbl-studios">
+    <rect x="850" y="110" width="60" height="19" class="cell-pk"/>
+    <text x="880" y="123" class="txt-pk">studio_id</text>
+
+    <rect x="910" y="110" width="80" height="19" class="cell-box"/>
+    <text x="950" y="123" class="txt-col">studio_name</text>
+
+    <rect x="990" y="110" width="75" height="19" class="cell-box"/>
+    <text x="1027" y="123" class="txt-col">headquarters</text>
+  </g>
+
+
+  <!-- ================= ROW 3: DIRECTORS, MOVIEDIRECTORS, MOVIESTUDIOS ================= -->
+  <!-- Table 6: Directors -->
+  <text x="35" y="191" class="tbl-title">Directors</text>
+  <g id="tbl-directors">
+    <rect x="35" y="195" width="65" height="19" class="cell-pk"/>
+    <text x="67" y="208" class="txt-pk">director_id</text>
+
+    <rect x="100" y="195" width="65" height="19" class="cell-box"/>
+    <text x="132" y="208" class="txt-col">first_name</text>
+
+    <rect x="165" y="195" width="65" height="19" class="cell-box"/>
+    <text x="197" y="208" class="txt-col">last_name</text>
+
+    <rect x="230" y="195" width="55" height="19" class="cell-box"/>
+    <text x="257" y="208" class="txt-col">birth_year</text>
+
+    <rect x="285" y="195" width="65" height="19" class="cell-box"/>
+    <text x="317" y="208" class="txt-col">nationality</text>
+  </g>
+
+  <!-- Table 7: MovieDirectors (M:N Bridge: Movies <-> Directors) -->
+  <text x="380" y="191" class="tbl-title">MovieDirectors (M:N Bridge)</text>
+  <g id="tbl-moviedir">
+    <rect x="380" y="195" width="85" height="19" class="cell-pk"/>
+    <text x="422" y="208" class="txt-pk">movie_director_id</text>
+
+    <rect x="465" y="195" width="70" height="19" class="cell-fk"/>
+    <text x="500" y="208" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="535" y="195" width="75" height="19" class="cell-fk"/>
+    <text x="572" y="208" class="txt-fk">director_id (FK)</text>
+
+    <rect x="610" y="195" width="65" height="19" class="cell-box"/>
+    <text x="642" y="208" class="txt-col">role_type</text>
+  </g>
+
+  <!-- Table 8: MovieStudios (M:N Bridge) -->
+  <text x="730" y="191" class="tbl-title">MovieStudios (M:N Bridge)</text>
+  <g id="tbl-moviestudios">
+    <rect x="730" y="195" width="80" height="19" class="cell-pk"/>
+    <text x="770" y="208" class="txt-pk">movie_studio_id</text>
+
+    <rect x="810" y="195" width="70" height="19" class="cell-fk"/>
+    <text x="845" y="208" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="880" y="195" width="70" height="19" class="cell-fk"/>
+    <text x="915" y="208" class="txt-fk">studio_id (FK)</text>
+
+    <rect x="950" y="195" width="60" height="19" class="cell-box"/>
+    <text x="980" y="208" class="txt-col">is_lead</text>
+  </g>
+
+
+  <!-- ================= ROW 4: USERS, REVIEWS, GENRES ================= -->
+  <!-- Table 9: Users -->
+  <text x="35" y="276" class="tbl-title">Users</text>
+  <g id="tbl-users">
+    <rect x="35" y="280" width="55" height="19" class="cell-pk"/>
+    <text x="62" y="293" class="txt-pk">user_id</text>
+
+    <rect x="90" y="280" width="75" height="19" class="cell-box"/>
+    <text x="127" y="293" class="txt-col">username</text>
+
+    <rect x="165" y="280" width="105" height="19" class="cell-box"/>
+    <text x="217" y="293" class="txt-col">email</text>
+
+    <rect x="270" y="280" width="50" height="19" class="cell-box"/>
+    <text x="295" y="293" class="txt-col">role</text>
+  </g>
+
+  <!-- Table 10: Reviews (M:N Ratings Engine) -->
+  <text x="355" y="276" class="tbl-title">Reviews (M:N Ratings Engine)</text>
+  <g id="tbl-reviews">
+    <rect x="355" y="280" width="55" height="19" class="cell-pk"/>
+    <text x="382" y="293" class="txt-pk">review_id</text>
+
+    <rect x="410" y="280" width="65" height="19" class="cell-fk"/>
+    <text x="442" y="293" class="txt-fk">user_id (FK)</text>
+
+    <rect x="475" y="280" width="70" height="19" class="cell-fk"/>
+    <text x="510" y="293" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="545" y="280" width="65" height="19" class="cell-box"/>
+    <text x="577" y="293" class="txt-col">rating_score</text>
+
+    <rect x="610" y="280" width="70" height="19" class="cell-box"/>
+    <text x="645" y="293" class="txt-col">review_title</text>
+
+    <rect x="680" y="280" width="70" height="19" class="cell-box"/>
+    <text x="715" y="293" class="txt-col">review_text</text>
+  </g>
+
+  <!-- Table 11: Genres -->
+  <text x="800" y="276" class="tbl-title">Genres</text>
+  <g id="tbl-genres">
+    <rect x="800" y="280" width="55" height="19" class="cell-pk"/>
+    <text x="827" y="293" class="txt-pk">genre_id</text>
+
+    <rect x="855" y="280" width="70" height="19" class="cell-box"/>
+    <text x="890" y="293" class="txt-col">genre_name</text>
+
+    <rect x="925" y="280" width="75" height="19" class="cell-box"/>
+    <text x="962" y="293" class="txt-col">description</text>
+  </g>
+
+
+  <!-- ================= ROW 5: WATCHLISTS, LOGS, MOVIEGENRES ================= -->
+  <!-- Table 12: Watchlists (User Bookmarks) -->
+  <text x="35" y="361" class="tbl-title">Watchlists (User Bookmarks)</text>
+  <g id="tbl-watchlists">
+    <rect x="35" y="365" width="65" height="19" class="cell-pk"/>
+    <text x="67" y="378" class="txt-pk">watchlist_id</text>
+
+    <rect x="100" y="365" width="65" height="19" class="cell-fk"/>
+    <text x="132" y="378" class="txt-fk">user_id (FK)</text>
+
+    <rect x="165" y="365" width="70" height="19" class="cell-fk"/>
+    <text x="200" y="378" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="235" y="365" width="65" height="19" class="cell-box"/>
+    <text x="267" y="378" class="txt-col">added_at</text>
+  </g>
+
+  <!-- Table 13: WatchlistActivityLogs (Trigger Audit Ledger) -->
+  <text x="340" y="361" class="tbl-title">WatchlistActivityLogs (Trigger Audit Ledger)</text>
+  <g id="tbl-logs">
+    <rect x="340" y="365" width="50" height="19" class="cell-pk"/>
+    <text x="365" y="378" class="txt-pk">log_id</text>
+
+    <rect x="390" y="365" width="75" height="19" class="cell-fk"/>
+    <text x="427" y="378" class="txt-fk">watchlist_id [FK]</text>
+
+    <rect x="465" y="365" width="65" height="19" class="cell-fk"/>
+    <text x="497" y="378" class="txt-fk">user_id (FK)</text>
+
+    <rect x="530" y="365" width="70" height="19" class="cell-fk"/>
+    <text x="565" y="378" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="600" y="365" width="65" height="19" class="cell-box"/>
+    <text x="632" y="378" class="txt-col">action_type</text>
+
+    <rect x="665" y="365" width="85" height="19" class="cell-box"/>
+    <text x="707" y="378" class="txt-col">details</text>
+
+    <rect x="750" y="365" width="65" height="19" class="cell-box"/>
+    <text x="782" y="378" class="txt-col">logged_at</text>
+  </g>
+
+  <!-- Table 14: MovieGenres (M:N Bridge) -->
+  <text x="860" y="361" class="tbl-title">MovieGenres (M:N Bridge)</text>
+  <g id="tbl-moviegenres">
+    <rect x="860" y="365" width="80" height="19" class="cell-pk"/>
+    <text x="900" y="378" class="txt-pk">movie_genre_id</text>
+
+    <rect x="940" y="365" width="70" height="19" class="cell-fk"/>
+    <text x="975" y="378" class="txt-fk">movie_id (FK)</text>
+
+    <rect x="1010" y="365" width="60" height="19" class="cell-fk"/>
+    <text x="1040" y="378" class="txt-fk">genre_id (FK)</text>
+  </g>
+
+
+  <!-- ================= REFERENTIAL INTEGRITY ARROWS (CLEAN ORTHOGONAL LANES) ================= -->
+
+  <!-- 1. ProductionBudgets.movie_id -> Movies.movie_id (Top Overhead Arch) -->
+  <path d="M 625 26 C 625 8, 72 8, 72 26" class="arrow-movie" />
+
+  <!-- 2. MovieCast.movie_id -> Movies.movie_id (Alley between Row 1 & 2 at y=72) -->
+  <path d="M 510 110 L 510 72 L 78 72 L 78 45" class="arrow-movie" />
+
+  <!-- 3. MovieDirectors.movie_id -> Movies.movie_id (Alley between Row 1 & 2 at y=60) -->
+  <path d="M 500 195 L 500 60 L 88 60 L 88 45" class="arrow-movie" />
+
+  <!-- 4. MovieStudios.movie_id -> Movies.movie_id (Top Overhead Highway at y=14) -->
+  <path d="M 845 195 L 845 14 L 60 14 L 60 26" class="arrow-movie" />
+
+  <!-- 5. Reviews.movie_id -> Movies.movie_id (Alley between Row 3 & 4 at y=248, then up Left Margin at x=22) -->
+  <path d="M 510 280 L 510 248 L 22 248 L 22 36 L 35 36" class="arrow-movie" />
+
+  <!-- 6. Watchlists.movie_id -> Movies.movie_id (Bottom Margin at y=418, up Outer Left Margin at x=14) -->
+  <path d="M 200 384 L 200 418 L 14 418 L 14 36 L 35 36" class="arrow-movie" />
+
+  <!-- 7. WatchlistActivityLogs.movie_id -> Movies.movie_id (Bottom Margin at y=430, up Outer Left Margin at x=8) -->
+  <path d="M 565 384 L 565 430 L 8 430 L 8 32 L 35 32" class="arrow-movie" />
+
+  <!-- 8. MovieGenres.movie_id -> Movies.movie_id (Right Corridor at x=975 up to Overhead Highway at y=6) -->
+  <path d="M 975 365 L 975 6 L 50 6 L 50 26" class="arrow-movie" />
+
+  <!-- 9. MovieCast.actor_id -> Actors.actor_id (Alley between Row 2 & 3 at y=152) -->
+  <path d="M 580 129 L 580 152 L 65 152 L 65 129" class="arrow-talent" />
+
+  <!-- 10. MovieDirectors.director_id -> Directors.director_id (Alley between Row 3 & 4 at y=238) -->
+  <path d="M 572 214 L 572 238 L 67 238 L 67 214" class="arrow-talent" />
+
+  <!-- 11. MovieStudios.studio_id -> ProductionStudios.studio_id (Upward into ProductionStudios) -->
+  <path d="M 915 195 L 915 155 L 880 155 L 880 129" class="arrow-tax" />
+
+  <!-- 12. MovieGenres.genre_id -> Genres.genre_id (Alley between Row 4 & 5 at y=336) -->
+  <path d="M 1040 365 L 1040 336 L 827 336 L 827 299" class="arrow-tax" />
+
+  <!-- 13. Reviews.user_id -> Users.user_id (Alley between Row 4 & 5 at y=328) -->
+  <path d="M 442 299 L 442 328 L 62 328 L 62 299" class="arrow-user" />
+
+  <!-- 14. Watchlists.user_id -> Users.user_id (Upward into Users.user_id) -->
+  <path d="M 132 365 L 132 338 L 72 338 L 72 299" class="arrow-user" />
+
+  <!-- 15. WatchlistActivityLogs.user_id -> Users.user_id (Alley between Row 4 & 5 at y=346) -->
+  <path d="M 497 365 L 497 346 L 82 346 L 82 299" class="arrow-user" />
+
+  <!-- 16. WatchlistActivityLogs.watchlist_id -> Watchlists.watchlist_id (Alley below Row 5 at y=408) -->
+  <path d="M 427 384 L 427 408 L 67 408 L 67 384" class="arrow-user" />
+
+
+  <!-- ================= LEGEND KEY AT BOTTOM RIGHT ================= -->
+  <g transform="translate(730, 436)">
+    <rect x="0" y="0" width="340" height="34" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="8" y="13" font-family="ui-monospace, monospace" font-size="7.5px" font-weight="bold" fill="#0f172a">FOREIGN KEY ARROW CHANNELS:</text>
+    
+    <line x1="8" y1="23" x2="22" y2="23" stroke="#2563eb" stroke-width="1.8"/>
+    <text x="26" y="25" font-family="ui-monospace, monospace" font-size="6.8px" font-weight="600" fill="#1d4ed8">movie_id</text>
+
+    <line x1="85" y1="23" x2="99" y2="23" stroke="#7c3aed" stroke-width="1.8"/>
+    <text x="103" y="25" font-family="ui-monospace, monospace" font-size="6.8px" font-weight="600" fill="#6d28d9">user/log</text>
+
+    <line x1="165" y1="23" x2="179" y2="23" stroke="#059669" stroke-width="1.8"/>
+    <text x="183" y="25" font-family="ui-monospace, monospace" font-size="6.8px" font-weight="600" fill="#047857">actor/dir</text>
+
+    <line x1="250" y1="23" x2="264" y2="23" stroke="#d97706" stroke-width="1.8"/>
+    <text x="268" y="25" font-family="ui-monospace, monospace" font-size="6.8px" font-weight="600" fill="#b45309">studio/genre</text>
+  </g>
+
+</svg>` }} />
 
           <div className="border-t border-slate-300 pt-1 mt-1 flex justify-between text-[8px] text-slate-500">
             <span>PES University CSE • FilmMatrix Relational Schema (14 Tables in 3NF)</span>
