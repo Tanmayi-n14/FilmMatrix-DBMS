@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   Film, 
-  BookOpen
+  BookOpen,
+  Shield
 } from 'lucide-react';
 import PresentationHelperModal from './PresentationHelperModal';
 
@@ -56,6 +57,19 @@ export default function Navbar() {
             >
               Section I • PES University
             </span>
+
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold shadow-sm transition-all hover:opacity-90"
+              style={{
+                backgroundColor: 'var(--bg-surface-elevated)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-main)'
+              }}
+            >
+              <Shield className="w-3.5 h-3.5 text-purple-600" />
+              <span>Login (RBAC)</span>
+            </Link>
 
             <button
               onClick={() => setShowGuide(true)}
