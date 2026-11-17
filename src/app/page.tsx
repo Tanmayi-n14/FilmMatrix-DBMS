@@ -259,9 +259,14 @@ export default function MasterPresentationDashboard() {
         }
       };
 
+      const auditInterval = setInterval(() => {
+        fetchAuditLogs();
+      }, 3000);
+
       window.addEventListener('filmmatrix-step-change', handleStepEvent);
       window.addEventListener('popstate', handleSyncStep);
       return () => {
+        clearInterval(auditInterval);
         window.removeEventListener('filmmatrix-step-change', handleStepEvent);
         window.removeEventListener('popstate', handleSyncStep);
       };
@@ -3093,6 +3098,11 @@ DELIMITER ;`,
                     <li>Used for data sanitization, string trimming, and domain constraint checks.</li>
                     <li><strong>In FilmMatrix:</strong> Trims whitespace from titles and validates release year boundaries.</li>
                   </ul>
+                  <div className="p-2.5 rounded-lg border font-mono text-[11px] opacity-90" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
+                    CREATE TRIGGER trg_movies_before_insert<br />
+                    <strong style={{ color: 'var(--color-accent)' }}>BEFORE INSERT</strong> ON Movies FOR EACH ROW<br />
+                    SET NEW.title = TRIM(NEW.title);
+                  </div>
                 </div>
 
                 <div 
@@ -3119,6 +3129,11 @@ DELIMITER ;`,
                     <li>Used for secondary side-effects and tamper-evident audit logging.</li>
                     <li><strong>In FilmMatrix:</strong> Automatically inserts an audit record into <code className="font-mono">WatchlistActivityLogs</code>.</li>
                   </ul>
+                  <div className="p-2.5 rounded-lg border font-mono text-[11px] opacity-90" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
+                    CREATE TRIGGER trg_watchlist_after_insert<br />
+                    <strong className="text-emerald-700">AFTER INSERT</strong> ON Watchlists FOR EACH ROW<br />
+                    INSERT INTO WatchlistActivityLogs (action_type, details) ...
+                  </div>
                 </div>
               </div>
 
@@ -3142,14 +3157,18 @@ DELIMITER ;`,
                       Execute MySQL triggers live and inspect Before vs After database state with copy-paste terminal verification commands.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-800">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Live Terminal Auto-Sync Active (3s)
+                    </span>
                     <button
                       onClick={fetchAuditLogs}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
                       style={{ borderColor: 'var(--border-subtle)' }}
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
-                      <span>Refresh Audit Logs ({auditLogs.length})</span>
+                      <span>Sync Now ({auditLogs.length})</span>
                     </button>
                   </div>
                 </div>
@@ -3339,7 +3358,7 @@ WHERE title = 'Avatar: Fire and Ash (AutoTrim Test)';`}
                             Terminal CLI Verification Runbook (MySQL Terminal)
                           </span>
                           <button
-                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 2: trg_watchlist_after_insert (Audit Log Creation)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_insert;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_insert\nAFTER INSERT ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        NEW.watchlist_id,\n        NEW.user_id,\n        NEW.movie_id,\n        'WATCHLIST_ADD',\n        CONCAT('User ID ', NEW.user_id, ' bookmarked Movie ID ', NEW.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before trigger\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Ensure test slot is free & Insert into Watchlists (fires trigger)\nDELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;\nINSERT INTO Watchlists (user_id, movie_id) VALUES (1, 15);\n\n-- Step 3: Terminal Verification Query (Verify new audit log row appeared)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_insert')}
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 2: trg_watchlist_after_insert (Audit Log Creation)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_insert;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_insert\nAFTER INSERT ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        NEW.watchlist_id,\n        NEW.user_id,\n        NEW.movie_id,\n        'WATCHLIST_ADD',\n        CONCAT('User ID ', NEW.user_id, ' bookmarked Movie ID ', NEW.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before trigger\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Insert into Watchlists (fires trigger)\nINSERT INTO Watchlists (user_id, movie_id) VALUES (1, 3);\n\n-- Step 3: Terminal Verification Query (Verify new audit log row appeared)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_insert')}
                             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"
                           >
                             {copiedTriggerCode === 'cli_after_insert' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -3368,9 +3387,8 @@ DELIMITER ;
 -- Step 2: Check log count BEFORE trigger:
 SELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;
 
--- Step 3: Ensure test slot is clean & Insert into Watchlists (MySQL fires trigger):
-DELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;
-INSERT INTO Watchlists (user_id, movie_id) VALUES (1, 15);
+-- Step 3: Insert row into Watchlists (MySQL fires trigger):
+INSERT INTO Watchlists (user_id, movie_id) VALUES (1, 3);
 
 -- Step 4: Terminal Verification Query (Verify newly generated audit record):
 SELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at
@@ -3453,7 +3471,7 @@ ORDER BY log_id DESC LIMIT 1;`}
                             Terminal CLI Verification Runbook (MySQL Terminal)
                           </span>
                           <button
-                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 3: trg_watchlist_after_delete (Removal Audit Log)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_delete;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_delete\nAFTER DELETE ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        OLD.watchlist_id,\n        OLD.user_id,\n        OLD.movie_id,\n        'WATCHLIST_REMOVE',\n        CONCAT('User ID ', OLD.user_id, ' removed bookmark on Movie ID ', OLD.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before delete\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Ensure bookmark exists & Delete from Watchlists (fires trigger)\nINSERT IGNORE INTO Watchlists (user_id, movie_id) VALUES (1, 15);\nDELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;\n\n-- Step 3: Terminal Verification Query (Verify removal audit log was recorded)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_delete')}
+                            onClick={() => copyToClipboard(`-- =============================================================================\n-- TRIGGER 3: trg_watchlist_after_delete (Removal Audit Log)\n-- =============================================================================\nDROP TRIGGER IF EXISTS trg_watchlist_after_delete;\nDELIMITER $$\nCREATE TRIGGER trg_watchlist_after_delete\nAFTER DELETE ON Watchlists FOR EACH ROW\nBEGIN\n    INSERT INTO WatchlistActivityLogs (watchlist_id, user_id, movie_id, action_type, details, logged_at)\n    VALUES (\n        OLD.watchlist_id,\n        OLD.user_id,\n        OLD.movie_id,\n        'WATCHLIST_REMOVE',\n        CONCAT('User ID ', OLD.user_id, ' removed bookmark on Movie ID ', OLD.movie_id, ' at ', CURRENT_TIMESTAMP),\n        CURRENT_TIMESTAMP\n    );\nEND $$\nDELIMITER ;\n\n-- Step 1: Check baseline log count before delete\nSELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;\n\n-- Step 2: Delete from Watchlists (fires trigger)\nDELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 3;\n\n-- Step 3: Terminal Verification Query (Verify removal audit log was recorded)\nSELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at\nFROM WatchlistActivityLogs\nORDER BY log_id DESC LIMIT 1;`, 'cli_after_delete')}
                             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"
                           >
                             {copiedTriggerCode === 'cli_after_delete' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -3482,9 +3500,8 @@ DELIMITER ;
 -- Step 2: Check log count BEFORE delete:
 SELECT COUNT(*) AS total_logs_before FROM WatchlistActivityLogs;
 
--- Step 3: Ensure bookmark exists & Delete from Watchlists (MySQL fires trigger):
-INSERT IGNORE INTO Watchlists (user_id, movie_id) VALUES (1, 15);
-DELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 15;
+-- Step 3: Delete row from Watchlists (MySQL fires trigger):
+DELETE FROM Watchlists WHERE user_id = 1 AND movie_id = 3;
 
 -- Step 4: Terminal Verification Query (Verify WATCHLIST_REMOVE row appended):
 SELECT log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at
