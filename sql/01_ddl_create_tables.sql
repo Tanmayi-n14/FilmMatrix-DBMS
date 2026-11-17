@@ -288,7 +288,9 @@ CREATE TABLE WatchlistActivityLogs (
     action_type VARCHAR(50) NOT NULL,
     details VARCHAR(255),
     logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_activity_logs PRIMARY KEY (log_id)
+    CONSTRAINT pk_activity_logs PRIMARY KEY (log_id),
+    CONSTRAINT fk_activity_user FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_activity_movie FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- =============================================================================
