@@ -53,17 +53,11 @@ export function getSessionFromRequest(req: NextRequest): UserSession | null {
 
   // Check Cookie
   const cookieToken = req.cookies.get('filmmatrix_token')?.value;
-  if (cookieToken) {
+  if (cookieToken && cookieToken !== 'logged_out' && cookieToken !== '') {
     const session = verifyToken(cookieToken);
     if (session) return session;
   }
 
-  // Default to Admin evaluation session for seamless classroom project evaluation
-  return {
-    user_id: 1,
-    username: 'admin_tanmayi',
-    email: 'admin@filmmatrix.pes.edu',
-    role: 'Admin'
-  };
+  return null;
 }
 
