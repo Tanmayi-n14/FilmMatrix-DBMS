@@ -3941,29 +3941,6 @@ WHERE m.movie_id = @new_movie_id;`}
                     </div>
                   )}
                 </div>
-
-                <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`CREATE PROCEDURE sp_register_movie_with_budget(
-    IN p_title VARCHAR(150), IN p_release_year INT, IN p_box_office DECIMAL(15,2),
-    IN p_production_cost DECIMAL(12,2), IN p_marketing_spend DECIMAL(12,2),
-    IN p_synopsis VARCHAR(1000), OUT p_new_movie_id INT
-)
-BEGIN
-    DECLARE exit handler for sqlexception
-    BEGIN
-        ROLLBACK; -- Prevents orphan Movie without ProductionBudgets
-        RESIGNAL;
-    END;
-
-    START TRANSACTION;
-        INSERT INTO Movies (title, release_year, box_office_earnings, synopsis)
-        VALUES (p_title, p_release_year, p_box_office, p_synopsis);
-
-        SET p_new_movie_id = LAST_INSERT_ID();
-
-        INSERT INTO ProductionBudgets (movie_id, production_cost, marketing_spend)
-        VALUES (p_new_movie_id, p_production_cost, p_marketing_spend);
-    COMMIT;
-END $$`}</pre>
               </div>
             </div>
           )}
@@ -4146,25 +4123,6 @@ SELECT
                     </div>
                   )}
                 </div>
-
-                {/* SQL Code Box */}
-                <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`CREATE FUNCTION fn_calculate_roi(
-    p_box_office DECIMAL(15,2),
-    p_prod_cost DECIMAL(12,2),
-    p_marketing DECIMAL(12,2)
-)
-RETURNS DECIMAL(10,2)
-DETERMINISTIC
-BEGIN
-    DECLARE v_total_cost DECIMAL(15,2);
-    SET v_total_cost = IFNULL(p_prod_cost, 0.00) + IFNULL(p_marketing, 0.00);
-    
-    IF v_total_cost > 0 THEN
-        RETURN ((p_box_office - v_total_cost) / v_total_cost) * 100.00;
-    ELSE
-        RETURN 0.00;
-    END IF;
-END $$`}</pre>
               </div>
             </div>
           )}
@@ -4452,21 +4410,6 @@ WHERE profitability_rank <= 10;`}
                         </pre>
                       </div>
                     )}
-
-                    <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`WITH MovieFinancialMetrics AS (
-    SELECT m.movie_id, m.title, m.release_year, m.box_office_earnings,
-           (b.production_cost + b.marketing_spend) AS total_cost,
-           (m.box_office_earnings - (b.production_cost + b.marketing_spend)) AS net_profit
-    FROM Movies m
-    INNER JOIN ProductionBudgets b ON m.movie_id = b.movie_id
-),
-RankedMovies AS (
-    SELECT movie_id, title, release_year, box_office_earnings, total_cost, net_profit,
-           ROUND((net_profit / total_cost) * 100, 2) AS roi_pct,
-           DENSE_RANK() OVER (ORDER BY net_profit DESC) AS profitability_rank
-    FROM MovieFinancialMetrics
-)
-SELECT * FROM RankedMovies WHERE profitability_rank <= 10;`}</pre>
                   </div>
                 )}
 
@@ -4591,35 +4534,6 @@ SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`}
                         </pre>
                       </div>
                     )}
-
-                    <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`-- RECURSIVE CTE 1: Yearly Cumulative Box Office Growth Timeline
-WITH RECURSIVE YearlyTimelineCTE AS (
-    -- Anchor Member: Earliest benchmark year in catalog
-    SELECT 
-        MIN(release_year) AS release_year,
-        COUNT(movie_id) AS films_released,
-        IFNULL(SUM(box_office_earnings), 0.00) AS annual_box_office,
-        IFNULL(SUM(box_office_earnings), 0.00) AS cumulative_box_office,
-        1 AS iteration_depth
-    FROM Movies
-    WHERE release_year = (SELECT MIN(release_year) FROM Movies)
-    GROUP BY release_year
-
-    UNION ALL
-
-    -- Recursive Member: Progressively increments release_year + 1
-    SELECT 
-        curr.release_year + 1,
-        COUNT(m.movie_id) AS films_released,
-        IFNULL(SUM(m.box_office_earnings), 0.00) AS annual_box_office,
-        curr.cumulative_box_office + IFNULL(SUM(m.box_office_earnings), 0.00) AS cumulative_box_office,
-        curr.iteration_depth + 1
-    FROM YearlyTimelineCTE curr
-    LEFT JOIN Movies m ON m.release_year = curr.release_year + 1
-    WHERE curr.release_year + 1 <= 2024 -- Termination Condition
-    GROUP BY curr.release_year, curr.cumulative_box_office, curr.iteration_depth
-)
-SELECT * FROM YearlyTimelineCTE ORDER BY release_year ASC;`}</pre>
                   </div>
                 )}
 
@@ -4739,45 +4653,6 @@ SELECT traversal_path, path_length FROM ActorGraphPath LIMIT 10;`}
                         </pre>
                       </div>
                     )}
-
-                    <pre className="p-3.5 rounded-lg border font-mono text-[11px] overflow-x-auto leading-relaxed shadow-inner" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>{`-- RECURSIVE CTE 2: Multi-Hop Relational Actor Graph Path Traversal
-WITH RECURSIVE ActorGraphPath AS (
-    -- Anchor Member: Direct 1-hop co-stars of seed actor
-    SELECT 
-        a1.actor_id AS start_actor_id,
-        a1.name AS start_actor,
-        a2.actor_id AS current_actor_id,
-        a2.name AS current_actor,
-        m.title AS movie_title,
-        1 AS hop_depth,
-        CONCAT(a1.name, ' ➔ [', m.title, '] ➔ ', a2.name) AS path_trail
-    FROM Actors a1
-    INNER JOIN MovieCast mc1 ON a1.actor_id = mc1.actor_id
-    INNER JOIN Movies m ON mc1.movie_id = m.movie_id
-    INNER JOIN MovieCast mc2 ON m.movie_id = mc2.movie_id AND mc2.actor_id != a1.actor_id
-    INNER JOIN Actors a2 ON mc2.actor_id = a2.actor_id
-    WHERE a1.name = 'Leonardo DiCaprio'
-
-    UNION ALL
-
-    -- Recursive Member: Expand traversal chain to next degree
-    SELECT 
-        p.start_actor_id,
-        p.start_actor,
-        a3.actor_id,
-        a3.name,
-        m2.title,
-        p.hop_depth + 1,
-        CONCAT(p.path_trail, ' ➔ [', m2.title, '] ➔ ', a3.name)
-    FROM ActorGraphPath p
-    INNER JOIN MovieCast mc_curr ON p.current_actor_id = mc_curr.actor_id
-    INNER JOIN Movies m2 ON mc_curr.movie_id = m2.movie_id
-    INNER JOIN MovieCast mc_next ON m2.movie_id = mc_next.movie_id AND mc_next.actor_id != p.current_actor_id
-    INNER JOIN Actors a3 ON mc_next.actor_id = a3.actor_id
-    WHERE p.hop_depth < 3 -- Termination depth
-      AND NOT LOCATE(a3.name, p.path_trail) > 0 -- Cycle prevention
-)
-SELECT * FROM ActorGraphPath ORDER BY hop_depth ASC LIMIT 10;`}</pre>
                   </div>
                 )}
               </div>
