@@ -168,7 +168,7 @@
       <!-- movie_id (PK) -->
       <line x1="470" y1="225" x2="415" y2="200" class="attr-line"/>
       <ellipse cx="385" cy="192" rx="30" ry="11" class="key-oval"/>
-      <text x="385" y="195" class="txt-attr"><u>movie_id</u></text>
+      <text x="385" y="195" class="txt-attr" style="text-decoration: underline; font-weight: bold;">movie_id</text>
 
       <!-- title -->
       <line x1="490" y1="215" x2="450" y2="170" class="attr-line"/>
@@ -227,7 +227,7 @@
       <!-- Attributes of ProductionBudgets -->
       <line x1="445" y1="426" x2="390" y2="426" class="attr-line"/>
       <ellipse cx="360" cy="426" rx="28" ry="10" class="key-oval"/>
-      <text x="360" y="429" class="txt-attr"><u>budget_id</u></text>
+      <text x="360" y="429" class="txt-attr" style="text-decoration: underline; font-weight: bold;">budget_id</text>
 
       <line x1="480" y1="447" x2="450" y2="475" class="attr-line"/>
       <ellipse cx="430" cy="485" rx="35" ry="10" class="attr-oval"/>
@@ -243,7 +243,7 @@
 
 
       <!-- ======================================================== -->
-      <!-- MIDDLE LEFT: ACTORS & acts_in (M:N) -> MovieCast -->
+      <!-- MIDDLE LEFT: ACTORS &amp; acts_in (M:N) -> MovieCast -->
       <!-- ======================================================== -->
       <polygon points="340,215 375,238 340,260 305,238" class="rel-diamond"/>
       <text x="340" y="241" class="txt-rel">acts_in</text>
@@ -272,7 +272,7 @@
       <!-- Attributes of Actors -->
       <line x1="150" y1="215" x2="150" y2="180" class="attr-line"/>
       <ellipse cx="150" cy="170" rx="26" ry="10" class="key-oval"/>
-      <text x="150" y="173" class="txt-attr"><u>actor_id</u></text>
+      <text x="150" y="173" class="txt-attr" style="text-decoration: underline; font-weight: bold;">actor_id</text>
 
       <line x1="120" y1="215" x2="90" y2="180" class="attr-line"/>
       <ellipse cx="75" cy="170" rx="26" ry="10" class="attr-oval"/>
@@ -296,7 +296,7 @@
 
 
       <!-- ======================================================== -->
-      <!-- BOTTOM LEFT: DIRECTORS & directs (M:N) -> MovieDirectors -->
+      <!-- BOTTOM LEFT: DIRECTORS &amp; directs (M:N) -> MovieDirectors -->
       <!-- ======================================================== -->
       <polygon points="340,345 375,368 340,390 305,368" class="rel-diamond"/>
       <text x="340" y="371" class="txt-rel">directs</text>
@@ -316,7 +316,7 @@
       <!-- Attributes of Directors -->
       <line x1="90" y1="368" x2="45" y2="368" class="attr-line"/>
       <ellipse cx="25" cy="368" rx="22" ry="10" class="key-oval"/>
-      <text x="25" y="371" class="txt-attr"><u>dir_id</u></text>
+      <text x="25" y="371" class="txt-attr" style="text-decoration: underline; font-weight: bold;">dir_id</text>
 
       <line x1="110" y1="391" x2="70" y2="420" class="attr-line"/>
       <ellipse cx="50" cy="430" rx="26" ry="10" class="attr-oval"/>
@@ -332,7 +332,7 @@
 
 
       <!-- ======================================================== -->
-      <!-- TOP RIGHT: USERS & REVIEWS (M:N) & WATCHLISTS (M:N) -->
+      <!-- TOP RIGHT: USERS &amp; REVIEWS (M:N) &amp; WATCHLISTS (M:N) -->
       <!-- ======================================================== -->
       <!-- Entity: USERS -->
       <rect x="180" y="55" width="115" height="44" class="ent-rect"/>
@@ -341,7 +341,7 @@
       <!-- Attributes of Users -->
       <line x1="180" y1="70" x2="135" y2="55" class="attr-line"/>
       <ellipse cx="115" cy="48" rx="24" ry="10" class="key-oval"/>
-      <text x="115" y="51" class="txt-attr"><u>user_id</u></text>
+      <text x="115" y="51" class="txt-attr" style="text-decoration: underline; font-weight: bold;">user_id</text>
 
       <line x1="210" y1="55" x2="195" y2="25" class="attr-line"/>
       <ellipse cx="185" cy="18" rx="24" ry="10" class="attr-oval"/>
@@ -379,14 +379,14 @@
 
       <line x1="650" y1="65" x2="685" y2="55" class="attr-line"/>
       <ellipse cx="705" cy="50" rx="24" ry="10" class="key-oval"/>
-      <text x="705" y="53" class="txt-attr"><u>log_id</u></text>
+      <text x="705" y="53" class="txt-attr" style="text-decoration: underline; font-weight: bold;">log_id</text>
 
       <line x1="650" y1="77" x2="690" y2="77" class="attr-line"/>
       <ellipse cx="720" cy="77" rx="30" ry="10" class="attr-oval"/>
       <text x="720" y="80" class="txt-attr">action_type</text>
 
 
-      <!-- Relationship 2: rates (Reviews M:N between Users & Movies) -->
+      <!-- Relationship 2: rates (Reviews M:N between Users &amp; Movies) -->
       <polygon points="360,130 395,152 360,175 325,152" class="rel-diamond"/>
       <text x="360" y="155" class="txt-rel">reviews/rates</text>
 
@@ -409,7 +409,7 @@
 
 
       <!-- ======================================================== -->
-      <!-- MIDDLE RIGHT: PRODUCTION_STUDIOS & produces (M:N) -> MovieStudios -->
+      <!-- MIDDLE RIGHT: PRODUCTION_STUDIOS &amp; produces (M:N) -> MovieStudios -->
       <!-- ======================================================== -->
       <polygon points="760,130 800,152 760,175 720,152" class="rel-diamond"/>
       <text x="760" y="155" class="txt-rel">produces</text>
@@ -428,7 +428,7 @@
 
       <line x1="1040" y1="140" x2="1065" y2="125" class="attr-line"/>
       <ellipse cx="1060" cy="115" rx="26" ry="10" class="key-oval"/>
-      <text x="1060" y="118" class="txt-attr"><u>studio_id</u></text>
+      <text x="1060" y="118" class="txt-attr" style="text-decoration: underline; font-weight: bold;">studio_id</text>
 
       <line x1="965" y1="130" x2="965" y2="105" class="attr-line"/>
       <ellipse cx="965" cy="95" rx="34" ry="10" class="attr-oval"/>
@@ -440,7 +440,7 @@
 
 
       <!-- ======================================================== -->
-      <!-- BOTTOM RIGHT: GENRES & categorized_as (M:N) -> MovieGenres -->
+      <!-- BOTTOM RIGHT: GENRES &amp; categorized_as (M:N) -> MovieGenres -->
       <!-- ======================================================== -->
       <polygon points="760,335 800,358 760,380 720,358" class="rel-diamond"/>
       <text x="760" y="361" class="txt-rel">categorized</text>
@@ -459,7 +459,7 @@
 
       <line x1="1020" y1="345" x2="1055" y2="335" class="attr-line"/>
       <ellipse cx="1060" cy="325" rx="26" ry="10" class="key-oval"/>
-      <text x="1060" y="328" class="txt-attr"><u>genre_id</u></text>
+      <text x="1060" y="328" class="txt-attr" style="text-decoration: underline; font-weight: bold;">genre_id</text>
 
       <line x1="955" y1="381" x2="955" y2="415" class="attr-line"/>
       <ellipse cx="955" cy="425" rx="32" ry="10" class="attr-oval"/>
@@ -525,13 +525,13 @@
       </defs>
 
       <!-- ======================================================== -->
-      <!-- ROW 1: MOVIES (CENTRAL) & PRODUCTION BUDGETS -->
+      <!-- ROW 1: MOVIES (CENTRAL) &amp; PRODUCTION BUDGETS -->
       <!-- ======================================================== -->
       <!-- Table 1: Movies -->
       <text x="25" y="18" class="t-name">Movies (Strong Entity)</text>
       <g id="tbl-movies">
         <rect x="25" y="22" width="75" height="19" class="c-pk"/>
-        <text x="62" y="34" class="c-txt-pk"><u>movie_id</u></text>
+        <text x="62" y="34" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">movie_id</text>
 
         <rect x="100" y="22" width="85" height="19" class="c-box"/>
         <text x="142" y="34" class="c-txt">title</text>
@@ -559,7 +559,7 @@
       <text x="660" y="18" class="t-name">ProductionBudgets (1:1 Identifying - ON DELETE CASCADE)</text>
       <g id="tbl-budgets">
         <rect x="660" y="22" width="65" height="19" class="c-pk"/>
-        <text x="692" y="34" class="c-txt-pk"><u>budget_id</u></text>
+        <text x="692" y="34" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">budget_id</text>
 
         <rect x="725" y="22" width="75" height="19" class="c-fk"/>
         <text x="762" y="34" class="c-txt-fk">movie_id [FK]</text>
@@ -576,13 +576,13 @@
 
 
       <!-- ======================================================== -->
-      <!-- ROW 2: ACTORS, MOVIE_CAST & DIRECTORS -->
+      <!-- ROW 2: ACTORS, MOVIE_CAST &amp; DIRECTORS -->
       <!-- ======================================================== -->
       <!-- Table 3: Actors -->
       <text x="25" y="75" class="t-name">Actors (Strong Entity)</text>
       <g id="tbl-actors">
         <rect x="25" y="79" width="65" height="19" class="c-pk"/>
-        <text x="57" y="91" class="c-txt-pk"><u>actor_id</u></text>
+        <text x="57" y="91" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">actor_id</text>
 
         <rect x="90" y="79" width="65" height="19" class="c-box"/>
         <text x="122" y="91" class="c-txt">first_name</text>
@@ -601,10 +601,10 @@
       </g>
 
       <!-- Table 4: MovieCast (M:N Bridge) -->
-      <text x="420" y="75" class="t-name">MovieCast (M:N Associative Bridge: Movies &harr; Actors)</text>
+      <text x="420" y="75" class="t-name">MovieCast (M:N Associative Bridge: Movies &#8596; Actors)</text>
       <g id="tbl-moviecast">
         <rect x="420" y="79" width="60" height="19" class="c-pk"/>
-        <text x="450" y="91" class="c-txt-pk"><u>cast_id</u></text>
+        <text x="450" y="91" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">cast_id</text>
 
         <rect x="480" y="79" width="75" height="19" class="c-fk"/>
         <text x="517" y="91" class="c-txt-fk">movie_id [FK]</text>
@@ -624,13 +624,13 @@
 
 
       <!-- ======================================================== -->
-      <!-- ROW 3: DIRECTORS & MOVIE_DIRECTORS -->
+      <!-- ROW 3: DIRECTORS &amp; MOVIE_DIRECTORS -->
       <!-- ======================================================== -->
       <!-- Table 5: Directors -->
       <text x="25" y="132" class="t-name">Directors (Strong Entity)</text>
       <g id="tbl-directors">
         <rect x="25" y="136" width="65" height="19" class="c-pk"/>
-        <text x="57" y="148" class="c-txt-pk"><u>director_id</u></text>
+        <text x="57" y="148" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">director_id</text>
 
         <rect x="90" y="136" width="65" height="19" class="c-box"/>
         <text x="122" y="148" class="c-txt">first_name</text>
@@ -649,10 +649,10 @@
       </g>
 
       <!-- Table 6: MovieDirectors (M:N Bridge) -->
-      <text x="440" y="132" class="t-name">MovieDirectors (M:N Associative Bridge: Movies &harr; Directors)</text>
+      <text x="440" y="132" class="t-name">MovieDirectors (M:N Associative Bridge: Movies &#8596; Directors)</text>
       <g id="tbl-moviedirectors">
         <rect x="440" y="136" width="85" height="19" class="c-pk"/>
-        <text x="482" y="148" class="c-txt-pk"><u>movie_dir_id</u></text>
+        <text x="482" y="148" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">movie_dir_id</text>
 
         <rect x="525" y="136" width="75" height="19" class="c-fk"/>
         <text x="562" y="148" class="c-txt-fk">movie_id [FK]</text>
@@ -672,7 +672,7 @@
       <text x="25" y="189" class="t-name">Genres (Strong Entity)</text>
       <g id="tbl-genres">
         <rect x="25" y="193" width="60" height="19" class="c-pk"/>
-        <text x="55" y="205" class="c-txt-pk"><u>genre_id</u></text>
+        <text x="55" y="205" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">genre_id</text>
 
         <rect x="85" y="193" width="75" height="19" class="c-box"/>
         <text x="122" y="205" class="c-txt">genre_name</text>
@@ -685,7 +685,7 @@
       <text x="285" y="189" class="t-name">MovieGenres (M:N Bridge)</text>
       <g id="tbl-moviegenres">
         <rect x="285" y="193" width="75" height="19" class="c-pk"/>
-        <text x="322" y="205" class="c-txt-pk"><u>movie_genre_id</u></text>
+        <text x="322" y="205" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">movie_genre_id</text>
 
         <rect x="360" y="193" width="75" height="19" class="c-fk"/>
         <text x="397" y="205" class="c-txt-fk">movie_id [FK]</text>
@@ -698,7 +698,7 @@
       <text x="545" y="189" class="t-name">ProductionStudios (Strong Entity)</text>
       <g id="tbl-studios">
         <rect x="545" y="193" width="65" height="19" class="c-pk"/>
-        <text x="577" y="205" class="c-txt-pk"><u>studio_id</u></text>
+        <text x="577" y="205" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">studio_id</text>
 
         <rect x="610" y="193" width="90" height="19" class="c-box"/>
         <text x="655" y="205" class="c-txt">studio_name</text>
@@ -714,7 +714,7 @@
       <text x="890" y="189" class="t-name">MovieStudios (M:N Bridge)</text>
       <g id="tbl-moviestudios">
         <rect x="890" y="193" width="75" height="19" class="c-pk"/>
-        <text x="927" y="205" class="c-txt-pk"><u>movie_std_id</u></text>
+        <text x="927" y="205" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">movie_std_id</text>
 
         <rect x="965" y="193" width="65" height="19" class="c-fk"/>
         <text x="997" y="205" class="c-txt-fk">movie_id [FK]</text>
@@ -731,7 +731,7 @@
       <text x="25" y="246" class="t-name">Users (RBAC Strong Entity)</text>
       <g id="tbl-users">
         <rect x="25" y="250" width="60" height="19" class="c-pk"/>
-        <text x="55" y="262" class="c-txt-pk"><u>user_id</u></text>
+        <text x="55" y="262" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">user_id</text>
 
         <rect x="85" y="250" width="75" height="19" class="c-box"/>
         <text x="122" y="262" class="c-txt">username</text>
@@ -746,11 +746,11 @@
         <text x="347" y="262" class="c-txt">role [ENUM]</text>
       </g>
 
-      <!-- Table 12: Reviews (M:N Bridge: Users &harr; Movies) -->
-      <text x="410" y="246" class="t-name">Reviews (M:N Bridge: Users &harr; Movies with Rating Score)</text>
+      <!-- Table 12: Reviews (M:N Bridge: Users &#8596; Movies) -->
+      <text x="410" y="246" class="t-name">Reviews (M:N Bridge: Users &#8596; Movies with Rating Score)</text>
       <g id="tbl-reviews">
         <rect x="410" y="250" width="65" height="19" class="c-pk"/>
-        <text x="442" y="262" class="c-txt-pk"><u>review_id</u></text>
+        <text x="442" y="262" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">review_id</text>
 
         <rect x="475" y="250" width="65" height="19" class="c-fk"/>
         <text x="507" y="262" class="c-txt-fk">user_id [FK]</text>
@@ -768,11 +768,11 @@
         <text x="782" y="262" class="c-txt">review_text</text>
       </g>
 
-      <!-- Table 13: Watchlists (M:N Bridge: Users &harr; Movies) -->
+      <!-- Table 13: Watchlists (M:N Bridge: Users &#8596; Movies) -->
       <text x="25" y="303" class="t-name">Watchlists (User Bookmarks - Triggers AFTER INSERT/DELETE)</text>
       <g id="tbl-watchlists">
         <rect x="25" y="307" width="75" height="19" class="c-pk"/>
-        <text x="62" y="319" class="c-txt-pk"><u>watchlist_id</u></text>
+        <text x="62" y="319" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">watchlist_id</text>
 
         <rect x="100" y="307" width="65" height="19" class="c-fk"/>
         <text x="132" y="319" class="c-txt-fk">user_id [FK]</text>
@@ -788,7 +788,7 @@
       <text x="350" y="303" class="t-name">WatchlistActivityLogs (Immutable Audit Ledger Populated by MySQL Triggers)</text>
       <g id="tbl-logs">
         <rect x="350" y="307" width="55" height="19" class="c-pk"/>
-        <text x="377" y="319" class="c-txt-pk"><u>log_id</u></text>
+        <text x="377" y="319" class="c-txt-pk" style="text-decoration: underline; font-weight: bold;">log_id</text>
 
         <rect x="405" y="307" width="75" height="19" class="c-fk"/>
         <text x="442" y="319" class="c-txt-fk">watchlist_id [FK]</text>
