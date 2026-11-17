@@ -806,10 +806,10 @@ export default function MasterPresentationDashboard() {
                       </span>
                       <div>
                         <span className="font-extrabold text-xs" style={{ color: 'var(--color-primary)' }}>
-                          Chen&apos;s ER Diagram Notation Index &amp; Viva Defense Key:
+                          Chen&apos;s ER Diagram Notation Guide &amp; Architecture Reference:
                         </span>
                         <span className="ml-2 text-[10px] font-mono border px-2 py-0.5 rounded font-bold" style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
-                          Rubric: Col F (2 Marks)
+                          14-Table 3NF Architecture
                         </span>
                       </div>
                     </div>
