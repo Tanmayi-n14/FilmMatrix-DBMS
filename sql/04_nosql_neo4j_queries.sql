@@ -57,11 +57,11 @@ RETURN [node IN nodes(path) | coalesce(node.name, node.title)] AS traversal_chai
 -- Query 2: Co-Starring Frequency Aggregation
 -- Aggregates how many shared movies two actors have appeared in together:
 MATCH (a1:Actor)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(a2:Actor)
-WHERE id(a1) < id(a2)
+WHERE a1.name < a2.name
 RETURN a1.name AS actor1, 
        a2.name AS actor2, 
        count(m) AS shared_movies
-ORDER BY shared_movies DESC
+ORDER BY shared_movies DESC, actor1 ASC, actor2 ASC
 LIMIT 10;
 
 -- Query 4: Recommendation Engine (Collaborative Filtering)

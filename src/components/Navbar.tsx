@@ -4,15 +4,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Film, 
-  BookOpen,
-  Shield,
-  User,
-  LogOut
+  Shield, 
+  User, 
+  LogOut,
+  Terminal 
 } from 'lucide-react';
-import PresentationHelperModal from './PresentationHelperModal';
 
 export default function Navbar() {
-  const [showGuide, setShowGuide] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ username: string; role: string } | null>(null);
 
   useEffect(() => {
@@ -131,29 +129,10 @@ export default function Navbar() {
                 <span>Login (RBAC)</span>
               </Link>
             )}
-
-            <button
-              onClick={() => setShowGuide(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold shadow-sm transition-all hover:opacity-90"
-              style={{
-                backgroundColor: 'var(--bg-surface-elevated)',
-                borderColor: 'var(--border-subtle)',
-                color: 'var(--text-main)'
-              }}
-            >
-              <BookOpen className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
-              <span>System Specs</span>
-            </button>
           </div>
 
         </div>
       </header>
-
-      {/* System Architecture & Specifications Modal */}
-      <PresentationHelperModal 
-        isOpen={showGuide} 
-        onClose={() => setShowGuide(false)} 
-      />
     </>
   );
 }

@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
     if (password.length < 6) {
       return NextResponse.json({ error: 'Password must be at least 6 characters long.' }, { status: 400 });
     }
-    if (!['Viewer', 'Admin'].includes(role)) {
-      return NextResponse.json({ error: 'Invalid role. Must be Viewer or Admin.' }, { status: 400 });
+    if (!['Viewer', 'Admin', 'Critic'].includes(role)) {
+      return NextResponse.json({ error: 'Invalid role. Must be Viewer, Critic, or Admin.' }, { status: 400 });
     }
 
     // Check if user already exists
@@ -35,11 +35,30 @@ export async function POST(req: NextRequest) {
       const insertSql = 'INSERT INTO Users (username, email, password_hash, role) VALUES (?, ?, ?, ?)';
       const [result]: any = await p.query(insertSql, [username, email, passwordHash, role]);
 
+      // Provision OS-Level MySQL User with Role Grants
+      try {
+        const cleanUser = username.trim().replace(/[^a-zA-Z0-9_]/g, '');
+        if (cleanUser) {
+          await p.query(`CREATE USER IF NOT EXISTS '${cleanUser}'@'localhost' IDENTIFIED BY '${password}'`);
+          if (role === 'Admin') {
+            await p.query(`GRANT ALL PRIVILEGES ON filmmatrix_db.* TO '${cleanUser}'@'localhost' WITH GRANT OPTION`);
+          } else if (role === 'Critic') {
+            await p.query(`GRANT SELECT ON filmmatrix_db.* TO '${cleanUser}'@'localhost'`);
+            await p.query(`GRANT INSERT, UPDATE ON filmmatrix_db.Reviews TO '${cleanUser}'@'localhost'`);
+          } else {
+            await p.query(`GRANT SELECT ON filmmatrix_db.* TO '${cleanUser}'@'localhost'`);
+          }
+          await p.query('FLUSH PRIVILEGES');
+        }
+      } catch (mysqlUserErr) {
+        console.warn('MySQL User creation warning:', mysqlUserErr);
+      }
+
       const newUser = {
         user_id: result.insertId,
         username,
         email,
-        role: role as 'Viewer' | 'Admin',
+        role: role as 'Viewer' | 'Admin' | 'Critic',
       };
 
       const token = signToken(newUser);
@@ -57,7 +76,7 @@ export async function POST(req: NextRequest) {
         user_id: newId,
         username,
         email,
-        role: role as 'Viewer' | 'Admin',
+        role: role as 'Viewer' | 'Admin' | 'Critic',
         password_hash: passwordHash,
         created_at: new Date().toISOString()
       };
@@ -67,7 +86,7 @@ export async function POST(req: NextRequest) {
         user_id: newId,
         username,
         email,
-        role: role as 'Viewer' | 'Admin',
+        role: role as 'Viewer' | 'Admin' | 'Critic',
       });
       const res = NextResponse.json({
         success: true,

@@ -74,35 +74,34 @@ Jackfruit_FilmMatrix/
 The relational schema satisfies BCNF / 3NF across 14 discrete tables:
 
 ```
-[Users] (1) ─────────< [Watchlists] (10) >───────── [Movies] (1) ─────────< [MovieGenres] (3) >──── [Genres] (2)
+[Users] (1) ─────────< [Watchlists] (13) >───────── [Movies] (6) ─────────< [MovieGenres] (10) >──── [Genres] (4)
   │                         │                           │
-  │                         ▼                           ├─────────< [MovieDirectors] (5) >─ [Directors] (4)
-  │            [WatchlistActivityLogs] (11)             │
-  │            (Automated Audit Trail)                  ├─────────< [CastMembers] (7) >──── [Actors] (6)
+  │                         ▼                           ├─────────< [MovieDirectors] (9) >─ [Directors] (3)
+  │            [WatchlistActivityLogs] (14)             │
+  │            (Automated Audit Trail)                  ├─────────< [MovieCast] (8) >────── [Actors] (2)
   │                                                     │
-  ├──────────────────< [Ratings] (12) >─────────────────┤─────────── [ProductionBudgets] (8)
-  │                                                     │            (1:1 Strict Financial Ledger)
-  ▼                                                     ▼
-[AuditLog] (14)                                    [Awards] (13)
-(System Mutations)                                 (Festival & Oscar Accolades)
+  ├──────────────────< [Reviews] (12) >─────────────────┼─────────< [MovieStudios] (11) >── [ProductionStudios] (5)
+                                                        │
+                                                        └─────────── [ProductionBudgets] (7)
+                                                                     (1:1 Strict Financial Ledger)
 ```
 
 | # | Table Name | Purpose & Cardinality | Primary Key / Foreign Keys |
 | :-: | :--- | :--- | :--- |
-| **1** | `Movies` | Master catalog of cinematic releases | `movie_id` (PK) |
-| **2** | `Genres` | Canonical film genres domain table | `genre_id` (PK) |
-| **3** | `MovieGenres` | M:N Bridge connecting Movies to Genres | Composite `(movie_id, genre_id)` (PK, FKs) |
-| **4** | `Directors` | Filmmaker talent registry with nationality & birth year | `director_id` (PK) |
-| **5** | `MovieDirectors` | M:N Bridge connecting Movies to Directors | Composite `(movie_id, director_id)` (PK, FKs) |
-| **6** | `Actors` | Performer talent network with Oscar win counts | `actor_id` (PK) |
-| **7** | `CastMembers` | M:N Bridge linking Actors with character roles & billing order | `cast_id` (PK), `movie_id` (FK), `actor_id` (FK) |
-| **8** | `ProductionBudgets` | Strict 1:1 financial ledger with production & marketing capital | `budget_id` (PK), `movie_id` (FK UNIQUE) |
-| **9** | `Users` | Authentication & RBAC accounts (`Admin`, `Viewer`) | `user_id` (PK), `email` (UNIQUE), `username` (UNIQUE) |
-| **10** | `Watchlists` | User bookmark junction table | `watchlist_id` (PK), `user_id` (FK), `movie_id` (FK) |
-| **11** | `WatchlistActivityLogs` | Real-time immutable audit trail populated by MySQL Triggers | `log_id` (PK), `watchlist_id` (FK), `user_id` (FK) |
-| **12** | `Ratings` | User review scores (`1.0` to `10.0`) and written reviews | `rating_id` (PK), `user_id` (FK), `movie_id` (FK) |
-| **13** | `Awards` | Accolade tracking (Oscars, BAFTAs, Cannes Palme d'Or) | `award_id` (PK), `movie_id` (FK) |
-| **14** | `AuditLog` | Enterprise-grade mutation auditing for compliance | `audit_id` (PK) |
+| **1** | `Users` | Authentication & RBAC accounts (`Admin`, `Viewer`, `Critic`) | `user_id` (PK), `email` (UNIQUE), `username` (UNIQUE) |
+| **2** | `Actors` | Performer talent network with birth year, nationality & gender | `actor_id` (PK) |
+| **3** | `Directors` | Filmmaker talent registry with awards won, nationality & birth year | `director_id` (PK) |
+| **4** | `Genres` | Canonical film genres domain table | `genre_id` (PK) |
+| **5** | `ProductionStudios` | Major film studios with headquarters & founded year | `studio_id` (PK) |
+| **6** | `Movies` | Master catalog of cinematic releases | `movie_id` (PK) |
+| **7** | `ProductionBudgets` | Strict 1:1 financial ledger with production cost & marketing spend | `budget_id` (PK), `movie_id` (FK UNIQUE) |
+| **8** | `MovieCast` | M:N Bridge linking Actors with character roles, billing order & salary | `cast_id` (PK), `movie_id` (FK), `actor_id` (FK) |
+| **9** | `MovieDirectors` | M:N Bridge connecting Movies to Directors with role type | `movie_director_id` (PK), `movie_id` (FK), `director_id` (FK) |
+| **10** | `MovieGenres` | M:N Bridge connecting Movies to Genres | `movie_genre_id` (PK), `movie_id` (FK), `genre_id` (FK) |
+| **11** | `MovieStudios` | M:N Bridge connecting Movies to Studios with lead studio flag | `movie_studio_id` (PK), `movie_id` (FK), `studio_id` (FK) |
+| **12** | `Reviews` | User review ratings (`1.0` to `10.0`), review title & written critiques | `review_id` (PK), `user_id` (FK), `movie_id` (FK) |
+| **13** | `Watchlists` | User bookmark junction table | `watchlist_id` (PK), `user_id` (FK), `movie_id` (FK) |
+| **14** | `WatchlistActivityLogs` | Real-time immutable audit trail populated by MySQL Triggers | `log_id` (PK), `watchlist_id` (FK), `user_id` (FK) |
 
 ### B. Neo4j Graph Model
 * **Nodes:**

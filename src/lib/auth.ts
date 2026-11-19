@@ -2,13 +2,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { NextRequest } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'pes_filmmatrix_super_secure_jwt_secret_token_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'filmmatrix_session_auth_v2_secret_2026';
 
 export interface UserSession {
   user_id: number;
   username: string;
   email: string;
-  role: 'Viewer' | 'Admin';
+  role: 'Viewer' | 'Admin' | 'Critic';
 }
 
 export async function hashPassword(plainText: string): Promise<string> {

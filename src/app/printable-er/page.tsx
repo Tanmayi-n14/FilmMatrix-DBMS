@@ -80,6 +80,175 @@ export default function PrintableERPage() {
         </div>
       </div>
 
+      {/* Online Reference Guide: Chen's Notation Key (HIDDEN ON PRINT TO PRESERVE PURE 2-PAGE HARD COPY) */}
+      <div className="max-w-[287mm] mx-auto mb-4 p-4 rounded-xl border border-amber-300 bg-amber-50/70 text-slate-900 shadow-sm print:hidden space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200 pb-2">
+          <div className="flex items-center gap-2">
+            <span className="p-1 rounded bg-amber-200 text-amber-900 font-bold text-xs">
+              CHEN ER NOTATION
+            </span>
+            <strong className="text-xs text-amber-950 font-bold">
+              Chen&apos;s ER Diagram Notation Reference &amp; Architectural Key:
+            </strong>
+          </div>
+          <span className="text-[11px] font-mono text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+            14-Table 3NF Normalized Relational Model
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-[11px]">
+          <div className="p-2.5 rounded-lg border bg-white border-emerald-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-emerald-700 px-1.5 py-0.5 rounded border border-dashed border-emerald-500 whitespace-nowrap bg-emerald-50/50">
+                &ndash; net_profit &ndash;
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Derived
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Dashed / Dotted Oval</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Derived Attribute:</strong> Computed on-the-fly from <code>gross - cost</code>. Storing on disk violates 3NF.
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-amber-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-amber-700 px-1.5 py-0.5 rounded border border-amber-500 underline whitespace-nowrap bg-amber-50/50">
+                movie_id
+              </span>
+              <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Primary Key
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Underlined Oval</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Key Attributes:</strong> <u>Solid underline</u> = Primary Key (<code>movie_id</code>); <span className="border-b border-dashed border-blue-600">Dotted underline</span> = Partial Key / FK (<code>movie_id</code> on Budgets).
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-blue-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-blue-700 px-1.5 py-0.5 border-2 border-double border-blue-600 whitespace-nowrap bg-blue-50/50">
+                (( languages ))
+              </span>
+              <span className="text-[10px] font-semibold text-blue-800 bg-blue-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Multivalued
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Double Oval</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Multivalued Attribute:</strong> Can hold multiple distinct values per entity instance (<code>languages</code> on <code>MOVIES</code>).
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-emerald-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-emerald-700 px-1.5 py-0.5 border border-dashed border-emerald-600 whitespace-nowrap bg-emerald-50/50">
+                - - net_profit - -
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Derived
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Dashed Oval</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Derived Attribute:</strong> Dynamically computed at runtime (<code>net_profit = box_office - budgets</code>).
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-slate-400 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-slate-800 px-1.5 py-0.5 border-2 border-slate-700 whitespace-nowrap bg-slate-50">
+                BUDGETS
+              </span>
+              <span className="text-[10px] font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Weak Entity
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Double Rectangle</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Weak Entity:</strong> Depends on parent entity (<code>ProductionBudgets</code> relies on <code>Movies</code> via CASCADE).
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-orange-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-orange-700 px-1.5 py-0.5 border border-orange-600 whitespace-nowrap bg-orange-50/50">
+                ◇ has_budget ◇
+              </span>
+              <span className="text-[10px] font-semibold text-orange-800 bg-orange-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Identifying
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Double Diamond</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Identifying Relationship:</strong> Binds weak entities to their owner entity (<code>has_budget</code>).
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-indigo-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-extrabold text-indigo-700 px-1.5 py-0.5 border-y-2 border-indigo-400 whitespace-nowrap bg-indigo-50/50">
+                (1, 1)
+              </span>
+              <span className="text-[10px] font-semibold text-indigo-800 bg-indigo-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Mandatory
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Double Parallel Line</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Total Participation:</strong> Every budget row MUST map to a movie. Orphaned records are prohibited.
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-blue-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-blue-700 px-1.5 py-0.5 border border-blue-500 whitespace-nowrap bg-blue-50/50">
+                ⟨ MovieCast ⟩
+              </span>
+              <span className="text-[10px] font-semibold text-blue-800 bg-blue-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Bridge Entity
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Diamond + Attributes</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Descriptive Attributes:</strong> Relationships can hold attributes (e.g. <code>salary</code> on <code>MovieCast</code>).
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-slate-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-slate-700 px-1.5 py-0.5 border-b-2 border-slate-400 whitespace-nowrap bg-slate-50">
+                (0, N)
+              </span>
+              <span className="text-[10px] font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Optional
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Single Line</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Partial Participation:</strong> Entity can exist with 0 connections (e.g. user with 0 reviews).
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg border bg-white border-purple-300 space-y-1 shadow-xs">
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-mono text-[10px] font-bold text-purple-700 px-1.5 py-0.5 border border-purple-300 whitespace-nowrap bg-purple-50/50">
+                1 : N / M : N
+              </span>
+              <span className="text-[10px] font-semibold text-purple-800 bg-purple-100/70 px-1.5 py-0.5 rounded whitespace-nowrap">
+                Ratios
+              </span>
+            </div>
+            <div className="font-bold text-[11px] text-slate-800">Separate M &amp; N Labels</div>
+            <div className="text-[10.5px] text-slate-600 font-sans leading-tight">
+              <strong>Independent Cardinality:</strong> Shows distinct structural constraints for each side.
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-6 print:space-y-0">
         
         {/* PAGE 1: CHEN'S ER DIAGRAM (PURE DIAGRAM FILLING FULL LANDSCAPE SHEET) */}
@@ -101,6 +270,7 @@ export default function PrintableERPage() {
       .txt-rel { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 8px; font-weight: 700; fill: #9a3412; text-anchor: middle; font-style: italic; }
       .txt-attr { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7px; fill: #334155; text-anchor: middle; }
       .txt-key { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7px; font-weight: bold; fill: #854d0e; text-anchor: middle; text-decoration: underline; }
+      .txt-fk-attr { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7px; font-weight: bold; fill: #1d4ed8; text-anchor: middle; }
       .txt-card { font-family: sans-serif; font-size: 9px; font-weight: 800; fill: #047857; text-anchor: middle; }
       .txt-minmax { font-family: sans-serif; font-size: 6.5px; font-weight: 600; fill: #1e40af; text-anchor: middle; }
     </style>
@@ -110,41 +280,54 @@ export default function PrintableERPage() {
   <rect x="465" y="210" width="130" height="46" class="ent-rect" />
   <text x="530" y="238" class="txt-ent">MOVIES</text>
 
-  <!-- Attributes of MOVIES (Arranged in Clean Symmetrical Arc Above MOVIES) -->
-  <!-- movie_id (PK) -->
-  <line x1="465" y1="225" x2="410" y2="210" class="attr-line"/>
-  <ellipse cx="380" cy="205" rx="30" ry="11" class="key-oval"/>
-  <text x="380" y="208" class="txt-key">movie_id</text>
+  <!-- Attributes of MOVIES (Arranged in 2 Symmetrical Tiers + Left/Right Shoulders - ZERO OVERLAP, ZERO SPOKE CROSSINGS) -->
+  <!-- Left Shoulder: movie_id (PK: Solid Underline) -->
+  <line x1="465" y1="218" x2="435" y2="183" class="attr-line"/>
+  <ellipse cx="415" cy="175" rx="24" ry="10" class="key-oval"/>
+  <text x="415" y="178" class="txt-key">movie_id</text>
 
+  <!-- Right Shoulder: synopsis -->
+  <line x1="595" y1="218" x2="625" y2="183" class="attr-line"/>
+  <ellipse cx="645" cy="175" rx="24" ry="10" class="attr-oval"/>
+  <text x="645" y="178" class="txt-attr">synopsis</text>
+
+  <!-- TIER 1 (Lower Arc, closer to MOVIES): title, release_year -->
   <!-- title -->
-  <line x1="475" y1="210" x2="435" y2="160" class="attr-line"/>
-  <ellipse cx="425" cy="150" rx="22" ry="10" class="attr-oval"/>
-  <text x="425" y="153" class="txt-attr">title</text>
+  <line x1="498" y1="210" x2="498" y2="165" class="attr-line"/>
+  <ellipse cx="498" cy="155" rx="20" ry="10" class="attr-oval"/>
+  <text x="498" y="158" class="txt-attr">title</text>
 
   <!-- release_year -->
-  <line x1="500" y1="210" x2="480" y2="155" class="attr-line"/>
-  <ellipse cx="480" cy="145" rx="26" ry="10" class="attr-oval"/>
-  <text x="480" y="148" class="txt-attr">release_year</text>
+  <line x1="562" y1="210" x2="562" y2="165" class="attr-line"/>
+  <ellipse cx="562" cy="155" rx="24" ry="10" class="attr-oval"/>
+  <text x="562" y="158" class="txt-attr">release_year</text>
+
+  <!-- TIER 2 (Upper Arc, outer spread): box_office_earnings, net_profit, mpaa_rating, languages (multi), duration_minutes -->
+  <!-- box_office_earnings -->
+  <line x1="465" y1="210" x2="415" y2="118" class="attr-line"/>
+  <ellipse cx="408" cy="108" rx="30" ry="10" class="attr-oval"/>
+  <text x="408" y="111" class="txt-attr">box_office_earnings</text>
+
+  <!-- net_profit (Derived Attribute: dynamically computed, dashed oval) -->
+  <line x1="465" y1="210" x2="465" y2="108" class="attr-line" stroke-dasharray="3 2" stroke="#059669"/>
+  <ellipse cx="465" cy="98" rx="22" ry="10" class="derived-oval"/>
+  <text x="465" y="101" class="txt-attr" fill="#059669" font-weight="bold">net_profit</text>
+
+  <!-- mpaa_rating (Straight vertical spoke through the 46px corridor between title and release_year) -->
+  <line x1="530" y1="210" x2="530" y2="108" class="attr-line"/>
+  <ellipse cx="530" cy="98" rx="22" ry="10" class="attr-oval"/>
+  <text x="530" y="101" class="txt-attr">mpaa_rating</text>
+
+  <!-- languages (MULTIVALUED ATTRIBUTE: Concentric Double Oval) -->
+  <line x1="595" y1="210" x2="595" y2="108" class="attr-line"/>
+  <ellipse cx="595" cy="98" rx="24" ry="10" class="attr-oval"/>
+  <ellipse cx="595" cy="98" rx="20" ry="6.5" class="attr-oval" fill="none"/>
+  <text x="595" y="101" class="txt-attr" font-weight="600">languages</text>
 
   <!-- duration_minutes -->
-  <line x1="530" y1="210" x2="530" y2="155" class="attr-line"/>
-  <ellipse cx="530" cy="145" rx="32" ry="10" class="attr-oval"/>
-  <text x="530" y="148" class="txt-attr">duration_minutes</text>
-
-  <!-- net_profit (Derived Attribute: dynamically computed, dashed oval - in clear space) -->
-  <line x1="530" y1="135" x2="530" y2="114" class="attr-line" stroke-dasharray="3 2" stroke="#059669"/>
-  <ellipse cx="530" cy="105" rx="28" ry="10" class="derived-oval"/>
-  <text x="530" y="108" class="txt-attr" fill="#059669" font-weight="bold">net_profit</text>
-
-  <!-- box_office_earnings -->
-  <line x1="565" y1="210" x2="595" y2="155" class="attr-line"/>
-  <ellipse cx="605" cy="145" rx="38" ry="10" class="attr-oval"/>
-  <text x="605" y="148" class="txt-attr">box_office_earnings</text>
-
-  <!-- mpaa_rating -->
-  <line x1="595" y1="220" x2="660" y2="175" class="attr-line"/>
-  <ellipse cx="675" cy="170" rx="26" ry="10" class="attr-oval"/>
-  <text x="675" y="173" class="txt-attr">mpaa_rating</text>
+  <line x1="595" y1="210" x2="648" y2="118" class="attr-line"/>
+  <ellipse cx="655" cy="108" rx="27" ry="10" class="attr-oval"/>
+  <text x="655" y="111" class="txt-attr">duration_minutes</text>
 
 
   <!-- ================= ENTITY: PRODUCTION_BUDGETS (1:1 STRICT TOTAL PARTICIPATION) ================= -->
@@ -157,7 +340,7 @@ export default function PrintableERPage() {
   <line x1="530" y1="256" x2="530" y2="285" class="double-conn"/>
   <line x1="530" y1="256" x2="530" y2="285" stroke="#ffffff" stroke-width="1.2"/>
   <text x="542" y="272" class="txt-card">1</text>
-  <text x=\"515\" y=\"272\" class=\"txt-minmax\">(1,1)</text>
+  <text x="515" y="272" class="txt-minmax">(1,1)</text>
 
   <line x1="530" y1="325" x2="530" y2="375" class="double-conn"/>
   <line x1="530" y1="325" x2="530" y2="375" stroke="#ffffff" stroke-width="1.2"/>
@@ -169,23 +352,37 @@ export default function PrintableERPage() {
   <rect x="439" y="379" width="182" height="37" fill="none" stroke="#0f172a" stroke-width="1"/>
   <text x="530" y="402" class="txt-ent">PRODUCTION_BUDGETS</text>
 
-  <!-- Budget Attributes -->
-  <line x1="445" y1="420" x2="395" y2="445" class="attr-line"/>
-  <ellipse cx="375" cy="455" rx="26" ry="11" class="key-oval"/>
-  <text x="375" y="458" class="txt-key">budget_id</text>
+  <!-- Budget Attributes (Exhaustive & Alternating to prevent crowding) -->
+  <!-- budget_id (PK: Solid Underline) -->
+  <line x1="445" y1="420" x2="380" y2="445" class="attr-line"/>
+  <ellipse cx="360" cy="450" rx="24" ry="10" class="key-oval"/>
+  <text x="360" y="453" class="txt-key">budget_id</text>
 
-  <line x1="490" y1="420" x2="465" y2="455" class="attr-line"/>
-  <ellipse cx="455" cy="465" rx="30" ry="11" class="attr-oval"/>
-  <text x="455" y="468" class="txt-attr">production_cost</text>
+  <!-- movie_id (FK / Weak Discriminator: Dotted Underline) -->
+  <line x1="475" y1="420" x2="435" y2="458" class="attr-line"/>
+  <ellipse cx="420" cy="465" rx="28" ry="10" class="attr-oval" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="420" y="467" class="txt-fk-attr">movie_id (FK)</text>
+  <line x1="395" y1="471" x2="445" y2="471" stroke="#1d4ed8" stroke-width="0.8" stroke-dasharray="2 1.5"/>
 
+  <!-- production_cost -->
+  <line x1="505" y1="420" x2="490" y2="442" class="attr-line"/>
+  <ellipse cx="485" cy="450" rx="28" ry="10" class="attr-oval"/>
+  <text x="485" y="453" class="txt-attr">production_cost</text>
+
+  <!-- marketing_spend -->
   <line x1="550" y1="420" x2="555" y2="455" class="attr-line"/>
-  <ellipse cx="555" cy="465" rx="32" ry="11" class="attr-oval"/>
+  <ellipse cx="555" cy="465" rx="28" ry="10" class="attr-oval"/>
   <text x="555" y="468" class="txt-attr">marketing_spend</text>
 
   <!-- vfx_budget -->
-  <line x1="610" y1="420" x2="645" y2="445" class="attr-line"/>
-  <ellipse cx="660" cy="455" rx="28" ry="11" class="attr-oval"/>
-  <text x="660" y="458" class="txt-attr">vfx_budget</text>
+  <line x1="590" y1="420" x2="615" y2="442" class="attr-line"/>
+  <ellipse cx="625" cy="450" rx="24" ry="10" class="attr-oval"/>
+  <text x="625" y="453" class="txt-attr">vfx_budget</text>
+
+  <!-- allocated_at -->
+  <line x1="615" y1="420" x2="665" y2="458" class="attr-line"/>
+  <ellipse cx="685" cy="465" rx="26" ry="10" class="attr-oval"/>
+  <text x="685" y="468" class="txt-attr" style="font-size:6.5px;">allocated_at</text>
 
 
   <!-- ================= ENTITY: ACTORS & RELATIONSHIP: MovieCast (M:N) ================= -->
@@ -193,18 +390,19 @@ export default function PrintableERPage() {
   <polygon points="340,215 375,233 340,251 305,233" class="rel-diamond"/>
   <text x="340" y="236" class="txt-rel">MovieCast</text>
 
-  <!-- Descriptive attributes on MovieCast (character_name, billing_order, salary) -->
-  <line x1="340" y1="215" x2="340" y2="180" class="attr-line"/>
-  <ellipse cx="340" cy="170" rx="32" ry="10" class="attr-oval"/>
-  <text x="340" y="173" class="txt-attr">character_name</text>
+  <!-- Descriptive attributes on MovieCast (character_name, billing_order, salary - ZERO OVERLAP) -->
+  <line x1="330" y1="215" x2="318" y2="175" class="attr-line"/>
+  <ellipse cx="315" cy="165" rx="28" ry="10" class="attr-oval"/>
+  <text x="315" y="168" class="txt-attr">character_name</text>
 
-  <line x1="320" y1="220" x2="280" y2="185" class="attr-line"/>
-  <ellipse cx="270" cy="175" rx="26" ry="10" class="attr-oval"/>
-  <text x="270" y="178" class="txt-attr">billing_order</text>
+  <line x1="320" y1="225" x2="275" y2="175" class="attr-line"/>
+  <ellipse cx="255" cy="165" rx="26" ry="10" class="attr-oval"/>
+  <text x="255" y="168" class="txt-attr">billing_order</text>
 
-  <line x1="360" y1="220" x2="395" y2="185" class="attr-line"/>
-  <ellipse cx="400" cy="175" rx="22" ry="10" class="attr-oval"/>
-  <text x="400" y="178" class="txt-attr">salary</text>
+  <!-- salary: Placed cleanly BELOW MovieCast diamond to leave MOVIES corridor wide open -->
+  <line x1="340" y1="251" x2="340" y2="275" class="attr-line"/>
+  <ellipse cx="340" cy="285" rx="22" ry="10" class="attr-oval"/>
+  <text x="340" y="288" class="txt-attr">salary</text>
 
   <!-- Connection: Movies <-> MovieCast <-> Actors -->
   <line x1="465" y1="233" x2="375" y2="233" class="conn-line"/>
@@ -236,13 +434,17 @@ export default function PrintableERPage() {
   <ellipse cx="170" cy="155" rx="20" ry="10" class="attr-oval"/>
   <text x="170" y="158" class="txt-attr">gender</text>
 
-  <line x1="185" y1="220" x2="220" y2="190" class="attr-line"/>
-  <ellipse cx="230" cy="180" rx="22" ry="10" class="attr-oval"/>
-  <text x="230" y="183" class="txt-attr">birth_year</text>
-
   <line x1="85" y1="256" x2="55" y2="280" class="attr-line"/>
   <ellipse cx="45" cy="290" rx="25" ry="10" class="attr-oval"/>
   <text x="45" y="293" class="txt-attr">nationality</text>
+
+  <line x1="132" y1="256" x2="115" y2="285" class="attr-line"/>
+  <ellipse cx="110" cy="295" rx="25" ry="10" class="attr-oval"/>
+  <text x="110" y="298" class="txt-attr" style="font-size:6.5px;">created_at</text>
+
+  <line x1="165" y1="256" x2="175" y2="275" class="attr-line"/>
+  <ellipse cx="175" cy="285" rx="22" ry="10" class="attr-oval"/>
+  <text x="175" y="288" class="txt-attr">birth_year</text>
 
 
   <!-- ================= ENTITY: DIRECTORS & RELATIONSHIP: MovieDirectors (M:N) ================= -->
@@ -287,16 +489,24 @@ export default function PrintableERPage() {
   <ellipse cx="245" cy="395" rx="22" ry="10" class="attr-oval"/>
   <text x="245" y="398" class="txt-attr">birth_year</text>
 
+  <line x1="190" y1="355" x2="235" y2="340" class="attr-line"/>
+  <ellipse cx="250" cy="335" rx="26" ry="10" class="attr-oval"/>
+  <text x="250" y="338" class="txt-attr">awards_won</text>
+
+  <line x1="175" y1="342" x2="200" y2="315" class="attr-line"/>
+  <ellipse cx="210" cy="305" rx="25" ry="10" class="attr-oval"/>
+  <text x="210" y="308" class="txt-attr" style="font-size:6.5px;">created_at</text>
+
 
   <!-- ================= ENTITY: PRODUCTION_STUDIOS & RELATIONSHIP: MovieStudios (M:N) ================= -->
   <!-- Relationship: MovieStudios -->
   <polygon points="740,215 775,233 740,251 705,233" class="rel-diamond"/>
   <text x="740" y="236" class="txt-rel" style="font-size:7.5px;">MovieStudios</text>
 
-  <!-- Descriptive attribute: is_lead_studio -->
-  <line x1="740" y1="215" x2="740" y2="180" class="attr-line"/>
-  <ellipse cx="740" cy="170" rx="30" ry="10" class="attr-oval"/>
-  <text x="740" y="173" class="txt-attr">is_lead_studio</text>
+  <!-- Descriptive attribute: is_lead_studio (Placed cleanly BELOW MovieStudios diamond) -->
+  <line x1="740" y1="251" x2="740" y2="275" class="attr-line"/>
+  <ellipse cx="740" cy="285" rx="30" ry="10" class="attr-oval"/>
+  <text x="740" y="288" class="txt-attr">is_lead_studio</text>
 
   <line x1="595" y1="233" x2="705" y2="233" class="conn-line"/>
   <text x="645" y="226" class="txt-card">M</text>
@@ -378,6 +588,14 @@ export default function PrintableERPage() {
   <ellipse cx="270" cy="16" rx="18" ry="10" class="attr-oval"/>
   <text x="270" y="19" class="txt-attr">role</text>
 
+  <line x1="205" y1="96" x2="195" y2="122" class="attr-line"/>
+  <ellipse cx="190" cy="132" rx="33" ry="10" class="attr-oval"/>
+  <text x="190" y="135" class="txt-attr" style="font-size:6.5px;">password_hash</text>
+
+  <line x1="260" y1="96" x2="270" y2="122" class="attr-line"/>
+  <ellipse cx="275" cy="132" rx="25" ry="10" class="attr-oval"/>
+  <text x="275" y="135" class="txt-attr" style="font-size:6.5px;">created_at</text>
+
   <!-- Relationship: Watchlists (M:N) -->
   <polygon points="360,60 395,75 360,90 325,75" class="rel-diamond"/>
   <text x="360" y="78" class="txt-rel" style="font-size:7.5px;">Watchlists</text>
@@ -392,10 +610,10 @@ export default function PrintableERPage() {
   <text x="307" y="69" class="txt-card">1</text>
   <text x="307" y="86" class="txt-minmax">(0,N)</text>
 
-  <!-- Connection from Watchlists down to Movies -->
-  <line x1="395" y1="75" x2="500" y2="210" class="conn-line"/>
-  <text x="440" y="130" class="txt-card">N</text>
-  <text x="425" y="145" class="txt-minmax">(0,N)</text>
+  <!-- Clean Non-Crossing Route: Watchlists down to Movies (Routes safely through wide vertical corridor) -->
+  <path d="M 360 90 L 360 195 L 465 220" class="conn-line"/>
+  <text x="375" y="145" class="txt-card">N</text>
+  <text x="375" y="158" class="txt-minmax">(0,N)</text>
 
   <!-- WEAK ENTITY: WatchlistActivityLogs (Populated by Triggers) -->
   <!-- Identifying Relationship: logs (Double Diamond) -->
@@ -449,6 +667,10 @@ export default function PrintableERPage() {
   <ellipse cx="875" cy="45" rx="24" ry="10" class="attr-oval"/>
   <text x="875" y="48" class="txt-attr">review_text</text>
 
+  <line x1="815" y1="85" x2="855" y2="85" class="attr-line"/>
+  <ellipse cx="875" cy="85" rx="25" ry="10" class="attr-oval"/>
+  <text x="875" y="88" class="txt-attr" style="font-size:6.5px;">created_at</text>
+
   <!-- Clean, Non-Crossing Route: USERS to Reviews (Arches cleanly above Watchlists) -->
   <path d="M 290 56 Q 515 2 745 70" class="conn-line" />
   <text x="330" y="40" class="txt-card">1</text>
@@ -456,12 +678,12 @@ export default function PrintableERPage() {
   <text x="725" y="58" class="txt-card">N</text>
   <text x="725" y="70" class="txt-minmax">(0,M)</text>
 
-  <!-- Connection: Reviews down to Movies -->
-  <line x1="780" y1="90" x2="585" y2="210" class="conn-line"/>
-  <text x="615" y="195" class="txt-card">M</text>
-  <text x="615" y="208" class="txt-minmax">(0,N)</text>
-  <text x="745" y="115" class="txt-card">N</text>
-  <text x="745" y="128" class="txt-minmax">(0,M)</text>
+  <!-- Clean Non-Crossing Route: Reviews down to Movies (Routes safely through wide vertical corridor) -->
+  <path d="M 780 90 L 710 195 L 595 220" class="conn-line"/>
+  <text x="725" y="145" class="txt-card">M</text>
+  <text x="725" y="158" class="txt-minmax">(0,N)</text>
+  <text x="765" y="115" class="txt-card">N</text>
+  <text x="765" y="128" class="txt-minmax">(0,M)</text>
 </svg>` }} />
         </div>
 
@@ -475,7 +697,7 @@ export default function PrintableERPage() {
       .cell-pk { fill: #fef3c7; stroke: #b45309; stroke-width: 1.3; }
       .cell-fk { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.1; }
       .txt-pk { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7.2px; font-weight: bold; fill: #92400e; text-anchor: middle; text-decoration: underline; }
-      .txt-fk { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7.2px; font-weight: 600; fill: #1d4ed8; text-anchor: middle; }
+      .txt-fk { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7.2px; font-weight: 600; fill: #1d4ed8; text-anchor: middle; text-decoration: underline; text-decoration-style: dashed; }
       .txt-col { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 7.2px; fill: #334155; text-anchor: middle; }
       
       .arrow-movie { fill: none; stroke: #2563eb; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arr-blue); }
@@ -498,45 +720,57 @@ export default function PrintableERPage() {
   </defs>
 
   <!-- ================= ROW 1: MOVIES & BUDGETS ================= -->
-  <!-- Table 1: Movies -->
+  <!-- Table 1: Movies (All 9 DDL Columns) -->
   <text x="35" y="22" class="tbl-title">Movies</text>
   <g id="tbl-movies">
-    <rect x="35" y="26" width="65" height="19" class="cell-pk"/>
-    <text x="67" y="39" class="txt-pk">movie_id</text>
+    <rect x="35" y="26" width="50" height="19" class="cell-pk"/>
+    <text x="60" y="39" class="txt-pk">movie_id</text>
 
-    <rect x="100" y="26" width="80" height="19" class="cell-box"/>
-    <text x="140" y="39" class="txt-col">title</text>
+    <rect x="85" y="26" width="55" height="19" class="cell-box"/>
+    <text x="112" y="39" class="txt-col">title</text>
 
-    <rect x="180" y="26" width="65" height="19" class="cell-box"/>
-    <text x="212" y="39" class="txt-col">release_year</text>
+    <rect x="140" y="26" width="55" height="19" class="cell-box"/>
+    <text x="167" y="39" class="txt-col">release_year</text>
 
-    <rect x="245" y="26" width="80" height="19" class="cell-box"/>
-    <text x="285" y="39" class="txt-col">duration_minutes</text>
+    <rect x="195" y="26" width="70" height="19" class="cell-box"/>
+    <text x="230" y="39" class="txt-col">duration_minutes</text>
 
-    <rect x="325" y="26" width="95" height="19" class="cell-box"/>
-    <text x="372" y="39" class="txt-col">box_office_earnings</text>
+    <rect x="265" y="26" width="48" height="19" class="cell-box"/>
+    <text x="289" y="39" class="txt-col">language</text>
 
-    <rect x="420" y="26" width="65" height="19" class="cell-box"/>
-    <text x="452" y="39" class="txt-col">mpaa_rating</text>
+    <rect x="313" y="26" width="85" height="19" class="cell-box"/>
+    <text x="355" y="39" class="txt-col">box_office_earnings</text>
+
+    <rect x="398" y="26" width="52" height="19" class="cell-box"/>
+    <text x="424" y="39" class="txt-col">mpaa_rating</text>
+
+    <rect x="450" y="26" width="48" height="19" class="cell-box"/>
+    <text x="474" y="39" class="txt-col">synopsis</text>
+
+    <rect x="498" y="26" width="50" height="19" class="cell-box"/>
+    <text x="523" y="39" class="txt-col">created_at</text>
   </g>
 
-  <!-- Table 2: ProductionBudgets (1:1 with Movies) -->
-  <text x="530" y="22" class="tbl-title">ProductionBudgets (1:1 Strict Financial Ledger)</text>
+  <!-- Table 2: ProductionBudgets (All 6 DDL Columns - 1:1 Strict Financial Ledger) -->
+  <text x="565" y="22" class="tbl-title">ProductionBudgets (1:1 Strict Financial Ledger)</text>
   <g id="tbl-budgets">
-    <rect x="530" y="26" width="60" height="19" class="cell-pk"/>
-    <text x="560" y="39" class="txt-pk">budget_id</text>
+    <rect x="565" y="26" width="55" height="19" class="cell-pk"/>
+    <text x="592" y="39" class="txt-pk">budget_id</text>
 
-    <rect x="590" y="26" width="70" height="19" class="cell-fk"/>
-    <text x="625" y="39" class="txt-fk">movie_id (FK)</text>
+    <rect x="620" y="26" width="65" height="19" class="cell-fk"/>
+    <text x="652" y="39" class="txt-fk">movie_id (FK)</text>
 
-    <rect x="660" y="26" width="80" height="19" class="cell-box"/>
-    <text x="700" y="39" class="txt-col">production_cost</text>
+    <rect x="685" y="26" width="75" height="19" class="cell-box"/>
+    <text x="722" y="39" class="txt-col">production_cost</text>
 
-    <rect x="740" y="26" width="80" height="19" class="cell-box"/>
-    <text x="780" y="39" class="txt-col">marketing_spend</text>
+    <rect x="760" y="26" width="75" height="19" class="cell-box"/>
+    <text x="797" y="39" class="txt-col">marketing_spend</text>
 
-    <rect x="820" y="26" width="65" height="19" class="cell-box"/>
-    <text x="852" y="39" class="txt-col">vfx_budget</text>
+    <rect x="835" y="26" width="60" height="19" class="cell-box"/>
+    <text x="865" y="39" class="txt-col">vfx_budget</text>
+
+    <rect x="895" y="26" width="60" height="19" class="cell-box"/>
+    <text x="925" y="39" class="txt-col">allocated_at</text>
   </g>
 
 
@@ -544,23 +778,26 @@ export default function PrintableERPage() {
   <!-- Table 3: Actors -->
   <text x="35" y="106" class="tbl-title">Actors</text>
   <g id="tbl-actors">
-    <rect x="35" y="110" width="60" height="19" class="cell-pk"/>
-    <text x="65" y="123" class="txt-pk">actor_id</text>
+    <rect x="35" y="110" width="50" height="19" class="cell-pk"/>
+    <text x="60" y="123" class="txt-pk">actor_id</text>
 
-    <rect x="95" y="110" width="65" height="19" class="cell-box"/>
-    <text x="127" y="123" class="txt-col">first_name</text>
+    <rect x="85" y="110" width="55" height="19" class="cell-box"/>
+    <text x="112" y="123" class="txt-col">first_name</text>
 
-    <rect x="160" y="110" width="65" height="19" class="cell-box"/>
-    <text x="192" y="123" class="txt-col">last_name</text>
+    <rect x="140" y="110" width="55" height="19" class="cell-box"/>
+    <text x="167" y="123" class="txt-col">last_name</text>
 
-    <rect x="225" y="110" width="50" height="19" class="cell-box"/>
-    <text x="250" y="123" class="txt-col">gender</text>
+    <rect x="195" y="110" width="45" height="19" class="cell-box"/>
+    <text x="217" y="123" class="txt-col">gender</text>
 
-    <rect x="275" y="110" width="55" height="19" class="cell-box"/>
-    <text x="302" y="123" class="txt-col">birth_year</text>
+    <rect x="240" y="110" width="50" height="19" class="cell-box"/>
+    <text x="265" y="123" class="txt-col">birth_year</text>
 
-    <rect x="330" y="110" width="65" height="19" class="cell-box"/>
-    <text x="362" y="123" class="txt-col">nationality</text>
+    <rect x="290" y="110" width="60" height="19" class="cell-box"/>
+    <text x="320" y="123" class="txt-col">nationality</text>
+
+    <rect x="350" y="110" width="55" height="19" class="cell-box"/>
+    <text x="377" y="123" class="txt-col">created_at</text>
   </g>
 
   <!-- Table 4: MovieCast (M:N Bridge: Movies <-> Actors) -->
@@ -586,16 +823,19 @@ export default function PrintableERPage() {
   </g>
 
   <!-- Table 5: ProductionStudios -->
-  <text x="850" y="106" class="tbl-title">ProductionStudios</text>
+  <text x="830" y="106" class="tbl-title">ProductionStudios</text>
   <g id="tbl-studios">
-    <rect x="850" y="110" width="60" height="19" class="cell-pk"/>
-    <text x="880" y="123" class="txt-pk">studio_id</text>
+    <rect x="830" y="110" width="55" height="19" class="cell-pk"/>
+    <text x="857" y="123" class="txt-pk">studio_id</text>
 
-    <rect x="910" y="110" width="80" height="19" class="cell-box"/>
-    <text x="950" y="123" class="txt-col">studio_name</text>
+    <rect x="885" y="110" width="70" height="19" class="cell-box"/>
+    <text x="920" y="123" class="txt-col">studio_name</text>
 
-    <rect x="990" y="110" width="75" height="19" class="cell-box"/>
-    <text x="1027" y="123" class="txt-col">headquarters</text>
+    <rect x="955" y="110" width="70" height="19" class="cell-box"/>
+    <text x="990" y="123" class="txt-col">headquarters</text>
+
+    <rect x="1025" y="110" width="60" height="19" class="cell-box"/>
+    <text x="1055" y="123" class="txt-col">founded_year</text>
   </g>
 
 
@@ -603,52 +843,58 @@ export default function PrintableERPage() {
   <!-- Table 6: Directors -->
   <text x="35" y="191" class="tbl-title">Directors</text>
   <g id="tbl-directors">
-    <rect x="35" y="195" width="65" height="19" class="cell-pk"/>
-    <text x="67" y="208" class="txt-pk">director_id</text>
+    <rect x="35" y="195" width="50" height="19" class="cell-pk"/>
+    <text x="60" y="208" class="txt-pk">director_id</text>
 
-    <rect x="100" y="195" width="65" height="19" class="cell-box"/>
-    <text x="132" y="208" class="txt-col">first_name</text>
+    <rect x="85" y="195" width="50" height="19" class="cell-box"/>
+    <text x="110" y="208" class="txt-col">first_name</text>
 
-    <rect x="165" y="195" width="65" height="19" class="cell-box"/>
-    <text x="197" y="208" class="txt-col">last_name</text>
+    <rect x="135" y="195" width="50" height="19" class="cell-box"/>
+    <text x="160" y="208" class="txt-col">last_name</text>
 
-    <rect x="230" y="195" width="55" height="19" class="cell-box"/>
-    <text x="257" y="208" class="txt-col">birth_year</text>
+    <rect x="185" y="195" width="46" height="19" class="cell-box"/>
+    <text x="208" y="208" class="txt-col">birth_year</text>
 
-    <rect x="285" y="195" width="65" height="19" class="cell-box"/>
-    <text x="317" y="208" class="txt-col">nationality</text>
+    <rect x="231" y="195" width="52" height="19" class="cell-box"/>
+    <text x="257" y="208" class="txt-col">nationality</text>
+
+    <rect x="283" y="195" width="52" height="19" class="cell-box"/>
+    <text x="309" y="208" class="txt-col">awards_won</text>
+
+    <rect x="335" y="195" width="50" height="19" class="cell-box"/>
+    <text x="360" y="208" class="txt-col">created_at</text>
   </g>
 
   <!-- Table 7: MovieDirectors (M:N Bridge: Movies <-> Directors) -->
-  <text x="380" y="191" class="tbl-title">MovieDirectors (M:N Bridge)</text>
+  <text x="410" y="191" class="tbl-title">MovieDirectors (M:N Bridge)</text>
   <g id="tbl-moviedir">
-    <rect x="380" y="195" width="85" height="19" class="cell-pk"/>
-    <text x="422" y="208" class="txt-pk">movie_director_id</text>
+    <rect x="410" y="195" width="85" height="19" class="cell-pk"/>
+    <text x="452" y="208" class="txt-pk">movie_director_id</text>
 
-    <rect x="465" y="195" width="70" height="19" class="cell-fk"/>
-    <text x="500" y="208" class="txt-fk">movie_id (FK)</text>
+    <rect x="495" y="195" width="70" height="19" class="cell-fk"/>
+    <text x="530" y="208" class="txt-fk">movie_id (FK)</text>
 
-    <rect x="535" y="195" width="75" height="19" class="cell-fk"/>
-    <text x="572" y="208" class="txt-fk">director_id (FK)</text>
+    <rect x="565" y="195" width="75" height="19" class="cell-fk"/>
+    <text x="602" y="208" class="txt-fk">director_id (FK)</text>
 
-    <rect x="610" y="195" width="65" height="19" class="cell-box"/>
-    <text x="642" y="208" class="txt-col">role_type</text>
+    <rect x="640" y="195" width="65" height="19" class="cell-box"/>
+    <text x="672" y="208" class="txt-col">role_type</text>
   </g>
 
   <!-- Table 8: MovieStudios (M:N Bridge) -->
-  <text x="730" y="191" class="tbl-title">MovieStudios (M:N Bridge)</text>
+  <text x="725" y="191" class="tbl-title">MovieStudios (M:N Bridge)</text>
   <g id="tbl-moviestudios">
-    <rect x="730" y="195" width="80" height="19" class="cell-pk"/>
-    <text x="770" y="208" class="txt-pk">movie_studio_id</text>
+    <rect x="725" y="195" width="80" height="19" class="cell-pk"/>
+    <text x="765" y="208" class="txt-pk">movie_studio_id</text>
 
-    <rect x="810" y="195" width="70" height="19" class="cell-fk"/>
-    <text x="845" y="208" class="txt-fk">movie_id (FK)</text>
+    <rect x="805" y="195" width="70" height="19" class="cell-fk"/>
+    <text x="840" y="208" class="txt-fk">movie_id (FK)</text>
 
-    <rect x="880" y="195" width="70" height="19" class="cell-fk"/>
-    <text x="915" y="208" class="txt-fk">studio_id (FK)</text>
+    <rect x="875" y="195" width="70" height="19" class="cell-fk"/>
+    <text x="910" y="208" class="txt-fk">studio_id (FK)</text>
 
-    <rect x="950" y="195" width="60" height="19" class="cell-box"/>
-    <text x="980" y="208" class="txt-col">is_lead</text>
+    <rect x="945" y="195" width="70" height="19" class="cell-box"/>
+    <text x="980" y="208" class="txt-col">is_lead_studio</text>
   </g>
 
 
@@ -656,39 +902,48 @@ export default function PrintableERPage() {
   <!-- Table 9: Users -->
   <text x="35" y="276" class="tbl-title">Users</text>
   <g id="tbl-users">
-    <rect x="35" y="280" width="55" height="19" class="cell-pk"/>
-    <text x="62" y="293" class="txt-pk">user_id</text>
+    <rect x="35" y="280" width="48" height="19" class="cell-pk"/>
+    <text x="59" y="293" class="txt-pk">user_id</text>
 
-    <rect x="90" y="280" width="75" height="19" class="cell-box"/>
-    <text x="127" y="293" class="txt-col">username</text>
+    <rect x="83" y="280" width="54" height="19" class="cell-box"/>
+    <text x="110" y="293" class="txt-col">username</text>
 
-    <rect x="165" y="280" width="105" height="19" class="cell-box"/>
-    <text x="217" y="293" class="txt-col">email</text>
+    <rect x="137" y="280" width="48" height="19" class="cell-box"/>
+    <text x="161" y="293" class="txt-col">email</text>
 
-    <rect x="270" y="280" width="50" height="19" class="cell-box"/>
-    <text x="295" y="293" class="txt-col">role</text>
+    <rect x="185" y="280" width="34" height="19" class="cell-box"/>
+    <text x="202" y="293" class="txt-col">role</text>
+
+    <rect x="219" y="280" width="68" height="19" class="cell-box"/>
+    <text x="253" y="293" class="txt-col" style="font-size:7px;">password_hash</text>
+
+    <rect x="287" y="280" width="58" height="19" class="cell-box"/>
+    <text x="316" y="293" class="txt-col" style="font-size:7.5px;">created_at</text>
   </g>
 
   <!-- Table 10: Reviews (M:N Ratings Engine) -->
   <text x="355" y="276" class="tbl-title">Reviews (M:N Ratings Engine)</text>
   <g id="tbl-reviews">
-    <rect x="355" y="280" width="55" height="19" class="cell-pk"/>
-    <text x="382" y="293" class="txt-pk">review_id</text>
+    <rect x="355" y="280" width="50" height="19" class="cell-pk"/>
+    <text x="380" y="293" class="txt-pk">review_id</text>
 
-    <rect x="410" y="280" width="65" height="19" class="cell-fk"/>
-    <text x="442" y="293" class="txt-fk">user_id (FK)</text>
+    <rect x="405" y="280" width="60" height="19" class="cell-fk"/>
+    <text x="435" y="293" class="txt-fk">user_id (FK)</text>
 
-    <rect x="475" y="280" width="70" height="19" class="cell-fk"/>
-    <text x="510" y="293" class="txt-fk">movie_id (FK)</text>
+    <rect x="465" y="280" width="65" height="19" class="cell-fk"/>
+    <text x="497" y="293" class="txt-fk">movie_id (FK)</text>
 
-    <rect x="545" y="280" width="65" height="19" class="cell-box"/>
-    <text x="577" y="293" class="txt-col">rating_score</text>
+    <rect x="530" y="280" width="60" height="19" class="cell-box"/>
+    <text x="560" y="293" class="txt-col">rating_score</text>
 
-    <rect x="610" y="280" width="70" height="19" class="cell-box"/>
-    <text x="645" y="293" class="txt-col">review_title</text>
+    <rect x="590" y="280" width="65" height="19" class="cell-box"/>
+    <text x="622" y="293" class="txt-col">review_title</text>
 
-    <rect x="680" y="280" width="70" height="19" class="cell-box"/>
-    <text x="715" y="293" class="txt-col">review_text</text>
+    <rect x="655" y="280" width="65" height="19" class="cell-box"/>
+    <text x="687" y="293" class="txt-col">review_text</text>
+
+    <rect x="720" y="280" width="55" height="19" class="cell-box"/>
+    <text x="747" y="293" class="txt-col">created_at</text>
   </g>
 
   <!-- Table 11: Genres -->
@@ -764,16 +1019,16 @@ export default function PrintableERPage() {
   <!-- ================= REFERENTIAL INTEGRITY ARROWS (CLEAN ORTHOGONAL LANES) ================= -->
 
   <!-- 1. ProductionBudgets.movie_id -> Movies.movie_id (Top Overhead Arch) -->
-  <path d="M 625 26 C 625 8, 72 8, 72 26" class="arrow-movie" />
+  <path d="M 652 26 C 652 8, 60 8, 60 26" class="arrow-movie" />
 
   <!-- 2. MovieCast.movie_id -> Movies.movie_id (Alley between Row 1 & 2 at y=72) -->
   <path d="M 510 110 L 510 72 L 78 72 L 78 45" class="arrow-movie" />
 
   <!-- 3. MovieDirectors.movie_id -> Movies.movie_id (Alley between Row 1 & 2 at y=60) -->
-  <path d="M 500 195 L 500 60 L 88 60 L 88 45" class="arrow-movie" />
+  <path d="M 530 195 L 530 60 L 88 60 L 88 45" class="arrow-movie" />
 
   <!-- 4. MovieStudios.movie_id -> Movies.movie_id (Top Overhead Highway at y=14) -->
-  <path d="M 845 195 L 845 14 L 60 14 L 60 26" class="arrow-movie" />
+  <path d="M 840 195 L 840 14 L 60 14 L 60 26" class="arrow-movie" />
 
   <!-- 5. Reviews.movie_id -> Movies.movie_id (Alley between Row 3 & 4 at y=248, then up Left Margin at x=22) -->
   <path d="M 510 280 L 510 248 L 22 248 L 22 36 L 35 36" class="arrow-movie" />
@@ -791,10 +1046,10 @@ export default function PrintableERPage() {
   <path d="M 580 129 L 580 152 L 65 152 L 65 129" class="arrow-talent" />
 
   <!-- 10. MovieDirectors.director_id -> Directors.director_id (Alley between Row 3 & 4 at y=238) -->
-  <path d="M 572 214 L 572 238 L 67 238 L 67 214" class="arrow-talent" />
+  <path d="M 602 214 L 602 238 L 62 238 L 62 214" class="arrow-talent" />
 
   <!-- 11. MovieStudios.studio_id -> ProductionStudios.studio_id (Upward into ProductionStudios) -->
-  <path d="M 915 195 L 915 155 L 880 155 L 880 129" class="arrow-tax" />
+  <path d="M 910 195 L 910 155 L 857 155 L 857 129" class="arrow-tax" />
 
   <!-- 12. MovieGenres.genre_id -> Genres.genre_id (Alley between Row 4 & 5 at y=336) -->
   <path d="M 1040 365 L 1040 336 L 827 336 L 827 299" class="arrow-tax" />

@@ -74,7 +74,7 @@ export default function MovieCatalog() {
   };
 
   const handleDeleteMovie = async (movieId: number, title: string) => {
-    if (!confirm(`Are you sure you want to delete '${title}'? This demonstrates MySQL ON DELETE CASCADE by automatically removing its linked ProductionBudget and Watchlist rows.`)) {
+    if (!confirm(`Are you sure you want to delete '${title}'? This will permanently remove the movie and its associated budget and watchlist entries via database cascade.`)) {
       return;
     }
 
@@ -391,7 +391,7 @@ export default function MovieCatalog() {
                               borderColor: 'var(--border-subtle)',
                               color: 'var(--color-primary)'
                             }}
-                            title="Edit film (Demonstrates UPDATE statement)"
+                            title="Edit film details"
                           >
                             <Edit3 className="w-3 h-3" />
                             <span>Edit</span>
@@ -400,7 +400,7 @@ export default function MovieCatalog() {
                           <button
                             onClick={() => handleDeleteMovie(m.movie_id, m.title)}
                             className="p-1 opacity-70 hover:opacity-100 hover:text-rose-500 rounded transition-colors"
-                            title="Delete movie (Demonstrates ON DELETE CASCADE)"
+                            title="Delete movie from catalog"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

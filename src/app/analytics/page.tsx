@@ -168,7 +168,7 @@ export default function AnalyticsPage() {
           }}
         >
           <Zap className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
-          <span>1. Triggers (Before vs After)</span>
+          <span>1. Triggers (3 Triggers: Before &amp; After)</span>
         </button>
 
         <button
@@ -385,10 +385,10 @@ export default function AnalyticsPage() {
               color: 'var(--text-main)'
             }}
           >
-            <strong style={{ color: 'var(--color-accent)' }}>Where is this invoked in code? (Viva Answer):</strong>
+            <strong style={{ color: 'var(--color-accent)' }}>Application Integration Trace:</strong>
             <p className="text-[11px] font-mono opacity-90">
-              • Procedure: <code>src/app/api/analytics/stored-procedure/route.ts:20</code> &rarr; <code>CALL sp_calculate_financial_metrics(?, ?)</code><br />
-              • Function: <code>sql/03_advanced_queries.sql:43 &amp; 160</code> &rarr; <code>fn_calculate_roi(box_office, cost, marketing)</code>
+              • Procedure: <code>src/app/api/analytics/stored-procedure/route.ts</code> &rarr; <code>CALL sp_calculate_financial_metrics(?, ?)</code><br />
+              • Function: <code>sql/03_advanced_queries.sql</code> &rarr; <code>fn_calculate_roi(box_office, cost, marketing)</code>
             </p>
           </div>
 

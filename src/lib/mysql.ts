@@ -1,24 +1,26 @@
 import mysql from 'mysql2/promise';
 
-let pool: mysql.Pool | null = null;
+const globalForMySQL = globalThis as unknown as {
+  mysqlPool: mysql.Pool | undefined;
+};
 
 export function getMySQLPool(): mysql.Pool {
-  if (!pool) {
-    pool = mysql.createPool({
+  if (!globalForMySQL.mysqlPool) {
+    globalForMySQL.mysqlPool = mysql.createPool({
       host: process.env.MYSQL_HOST || '127.0.0.1',
       port: Number(process.env.MYSQL_PORT) || 3306,
       user: process.env.MYSQL_USER || 'root',
       password: process.env.MYSQL_PASSWORD || '',
       database: process.env.MYSQL_DATABASE || 'filmmatrix_db',
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: 5,
       queueLimit: 0,
       enableKeepAlive: true,
       keepAliveInitialDelay: 0,
       multipleStatements: true,
     });
   }
-  return pool;
+  return globalForMySQL.mysqlPool;
 }
 
 // Comprehensive In-Memory Dataset (14 Normalized Tables with 20+ Movies & Full Cast/Crew)
@@ -95,26 +97,26 @@ export const FALLBACK_DATABASE = {
   ],
 
   movies: [
-    { movie_id: 1, title: 'Oppenheimer', release_year: 2023, box_office_earnings: 957000000.00, duration_minutes: 180, mpaa_rating: 'R', synopsis: 'Theoretical physicist J. Robert Oppenheimer leads the Manhattan Project developing the atomic bomb.' },
-    { movie_id: 2, title: 'Inception', release_year: 2010, box_office_earnings: 836800000.00, duration_minutes: 148, mpaa_rating: 'PG-13', synopsis: 'A master thief who extracts secrets from deep within the subconscious mind during dream states.' },
-    { movie_id: 3, title: 'Interstellar', release_year: 2014, box_office_earnings: 701729206.00, duration_minutes: 169, mpaa_rating: 'PG-13', synopsis: 'When Earth faces famine, astronauts venture through a wormhole near Saturn to save humanity.' },
-    { movie_id: 4, title: 'Dune: Part Two', release_year: 2024, box_office_earnings: 711844358.00, duration_minutes: 166, mpaa_rating: 'PG-13', synopsis: 'Paul Atreides unites with Chani and the Fremen to seek vengeance against conspirators on Arrakis.' },
-    { movie_id: 5, title: 'Barbie', release_year: 2023, box_office_earnings: 1445638421.00, duration_minutes: 114, mpaa_rating: 'PG-13', synopsis: 'Barbie and Ken venture from utopian Barbie Land into the real world, sparking existential discovery.' },
-    { movie_id: 6, title: 'The Dark Knight', release_year: 2008, box_office_earnings: 1006234167.00, duration_minutes: 152, mpaa_rating: 'PG-13', synopsis: 'Batman faces the Joker, a criminal mastermind unleashing anarchy upon Gotham City.' },
-    { movie_id: 7, title: 'Avatar: The Way of Water', release_year: 2022, box_office_earnings: 2320250281.00, duration_minutes: 192, mpaa_rating: 'PG-13', synopsis: 'Jake Sully and Neytiri fight to protect their family as colonial human threats return to Pandora.' },
-    { movie_id: 8, title: 'The Matrix Resurrections', release_year: 2021, box_office_earnings: 159200000.00, duration_minutes: 148, mpaa_rating: 'R', synopsis: 'Neo lives as Thomas Anderson in San Francisco until Morpheus offers him the red pill once more.' },
-    { movie_id: 9, title: 'Tenet', release_year: 2020, box_office_earnings: 365304105.00, duration_minutes: 150, mpaa_rating: 'PG-13', synopsis: 'An operative journeys through twilight espionage using temporal inversion to avert global catastrophe.' },
-    { movie_id: 10, title: 'Killers of the Flower Moon', release_year: 2023, box_office_earnings: 157000000.00, duration_minutes: 206, mpaa_rating: 'R', synopsis: 'In 1920s Oklahoma, Osage Nation members are systematically targeted and murdered for oil wealth.' },
-    { movie_id: 11, title: 'The Wolf of Wall Street', release_year: 2013, box_office_earnings: 406878282.00, duration_minutes: 180, mpaa_rating: 'R', synopsis: 'The rise and fall of stockbroker Jordan Belfort through rampant Wall Street corruption and securities fraud.' },
-    { movie_id: 12, title: 'Shutter Island', release_year: 2010, box_office_earnings: 294804195.00, duration_minutes: 138, mpaa_rating: 'R', synopsis: 'U.S. Marshal Teddy Daniels investigates the disappearance of a murderess from a psychiatric facility.' },
-    { movie_id: 13, title: 'Django Unchained', release_year: 2012, box_office_earnings: 426074373.00, duration_minutes: 165, mpaa_rating: 'R', synopsis: 'A freed slave teams up with a German bounty hunter to rescue his wife from a Mississippi plantation.' },
-    { movie_id: 14, title: 'The Prestige', release_year: 2006, box_office_earnings: 109676311.00, duration_minutes: 130, mpaa_rating: 'PG-13', synopsis: 'Two stage magicians in Victorian London engage in a bitter rivalry to create the ultimate teleportation illusion.' },
-    { movie_id: 15, title: 'Titanic', release_year: 1997, box_office_earnings: 2264743305.00, duration_minutes: 195, mpaa_rating: 'PG-13', synopsis: 'A seventeen-year-old aristocrat falls in love with a kind, poor artist aboard the ill-fated R.M.S. Titanic.' },
-    { movie_id: 16, title: 'Gladiator', release_year: 2000, box_office_earnings: 465380802.00, duration_minutes: 155, mpaa_rating: 'R', synopsis: 'A betrayed Roman general seeks revenge against the corrupt emperor who murdered his family and enslaved him.' },
-    { movie_id: 17, title: 'Blade Runner 2049', release_year: 2017, box_office_earnings: 267652758.00, duration_minutes: 164, mpaa_rating: 'R', synopsis: 'Blade Runner K uncovers a long-buried secret that leads him to track down former Blade Runner Rick Deckard.' },
-    { movie_id: 18, title: 'Fight Club', release_year: 1999, box_office_earnings: 101209702.00, duration_minutes: 139, mpaa_rating: 'R', synopsis: 'An insomniac office worker looking for a way to change his life crosses paths with a devil-may-care soap maker.' },
-    { movie_id: 19, title: 'The Dark Knight Rises', release_year: 2012, box_office_earnings: 1081169825.00, duration_minutes: 164, mpaa_rating: 'PG-13', synopsis: 'Eight years after the Joker, Batman returns to defend Gotham City from the brutal terrorist leader Bane.' },
-    { movie_id: 20, title: 'Dunkirk', release_year: 2017, box_office_earnings: 527016307.00, duration_minutes: 106, mpaa_rating: 'PG-13', synopsis: 'Allied soldiers from Belgium, Britain, and France are surrounded by the German Army on Dunkirk beaches.' }
+    { movie_id: 1, title: 'Oppenheimer', release_year: 2023, box_office_earnings: 957000000.00, duration_minutes: 180, mpaa_rating: 'R', synopsis: 'Creation of the atomic bomb.' },
+    { movie_id: 2, title: 'Inception', release_year: 2010, box_office_earnings: 836800000.00, duration_minutes: 148, mpaa_rating: 'PG-13', synopsis: 'Subconscious dream heist.' },
+    { movie_id: 3, title: 'Interstellar', release_year: 2014, box_office_earnings: 701729206.00, duration_minutes: 169, mpaa_rating: 'PG-13', synopsis: 'Wormhole space voyage.' },
+    { movie_id: 4, title: 'Dune: Part Two', release_year: 2024, box_office_earnings: 711844358.00, duration_minutes: 166, mpaa_rating: 'PG-13', synopsis: 'Desert uprising on Arrakis.' },
+    { movie_id: 5, title: 'Barbie', release_year: 2023, box_office_earnings: 1445638421.00, duration_minutes: 114, mpaa_rating: 'PG-13', synopsis: 'Doll enters the real world.' },
+    { movie_id: 6, title: 'The Dark Knight', release_year: 2008, box_office_earnings: 1006234167.00, duration_minutes: 152, mpaa_rating: 'PG-13', synopsis: 'Batman battles the Joker.' },
+    { movie_id: 7, title: 'Avatar: The Way of Water', release_year: 2022, box_office_earnings: 2320250281.00, duration_minutes: 192, mpaa_rating: 'PG-13', synopsis: 'Pandora marine clan defense.' },
+    { movie_id: 8, title: 'The Matrix Resurrections', release_year: 2021, box_office_earnings: 159200000.00, duration_minutes: 148, mpaa_rating: 'R', synopsis: 'Neo returns to the Matrix.' },
+    { movie_id: 9, title: 'Tenet', release_year: 2020, box_office_earnings: 365304105.00, duration_minutes: 150, mpaa_rating: 'PG-13', synopsis: 'Inverted time espionage.' },
+    { movie_id: 10, title: 'Killers of the Flower Moon', release_year: 2023, box_office_earnings: 157000000.00, duration_minutes: 206, mpaa_rating: 'R', synopsis: 'Osage Nation oil conspiracy.' },
+    { movie_id: 11, title: 'The Wolf of Wall Street', release_year: 2013, box_office_earnings: 406878282.00, duration_minutes: 180, mpaa_rating: 'R', synopsis: 'Wall Street fraud and rise.' },
+    { movie_id: 12, title: 'Shutter Island', release_year: 2010, box_office_earnings: 294804195.00, duration_minutes: 138, mpaa_rating: 'R', synopsis: 'Psychiatric hospital search.' },
+    { movie_id: 13, title: 'Django Unchained', release_year: 2012, box_office_earnings: 426074373.00, duration_minutes: 165, mpaa_rating: 'R', synopsis: 'Bounty hunter plantation raid.' },
+    { movie_id: 14, title: 'The Prestige', release_year: 2006, box_office_earnings: 109676311.00, duration_minutes: 130, mpaa_rating: 'PG-13', synopsis: 'Rival magicians stage duel.' },
+    { movie_id: 15, title: 'Titanic', release_year: 1997, box_office_earnings: 2264743305.00, duration_minutes: 195, mpaa_rating: 'PG-13', synopsis: 'Ill-fated Atlantic romance.' },
+    { movie_id: 16, title: 'Gladiator', release_year: 2000, box_office_earnings: 465380802.00, duration_minutes: 155, mpaa_rating: 'R', synopsis: 'Roman general seeks revenge.' },
+    { movie_id: 17, title: 'Blade Runner 2049', release_year: 2017, box_office_earnings: 267652758.00, duration_minutes: 164, mpaa_rating: 'R', synopsis: 'Search for former blade runner.' },
+    { movie_id: 18, title: 'Fight Club', release_year: 1999, box_office_earnings: 101209702.00, duration_minutes: 139, mpaa_rating: 'R', synopsis: 'Underground fight club chaos.' },
+    { movie_id: 19, title: 'The Dark Knight Rises', release_year: 2012, box_office_earnings: 1081169825.00, duration_minutes: 164, mpaa_rating: 'PG-13', synopsis: 'Batman fights terrorist Bane.' },
+    { movie_id: 20, title: 'Dunkirk', release_year: 2017, box_office_earnings: 527016307.00, duration_minutes: 106, mpaa_rating: 'PG-13', synopsis: 'WWII Allied beach evacuation.' }
   ],
 
   budgets: [
@@ -193,11 +195,11 @@ export const FALLBACK_DATABASE = {
   ],
 
   activityLogs: [
-    { log_id: 1, watchlist_id: 1, user_id: 1, movie_id: 1, action_type: 'WATCHLIST_ADD', details: 'User ID 1 bookmarked Movie ID 1 (Oppenheimer)', logged_at: '2026-09-01 12:00:00' },
-    { log_id: 2, watchlist_id: 2, user_id: 1, movie_id: 4, action_type: 'WATCHLIST_ADD', details: 'User ID 1 bookmarked Movie ID 4 (Dune: Part Two)', logged_at: '2026-09-02 14:10:00' },
-    { log_id: 3, watchlist_id: 3, user_id: 1, movie_id: 6, action_type: 'WATCHLIST_ADD', details: 'User ID 1 bookmarked Movie ID 6 (The Dark Knight)', logged_at: '2026-09-03 16:30:00' },
-    { log_id: 4, watchlist_id: 4, user_id: 2, movie_id: 2, action_type: 'WATCHLIST_ADD', details: 'User ID 2 bookmarked Movie ID 2 (Inception)', logged_at: '2026-09-04 18:20:00' },
-    { log_id: 5, watchlist_id: 5, user_id: 2, movie_id: 5, action_type: 'WATCHLIST_ADD', details: 'User ID 2 bookmarked Movie ID 5 (Barbie)', logged_at: '2026-09-05 20:00:00' }
+    { log_id: 1, watchlist_id: 1, user_id: 1, movie_id: 1, action_type: 'WATCHLIST_ADD', details: 'User ID 1 bookmarked Movie ID 1 (Oppenheimer)', logged_at: new Date(Date.now() - 110 * 60000).toISOString() },
+    { log_id: 2, watchlist_id: 2, user_id: 1, movie_id: 4, action_type: 'WATCHLIST_ADD', details: 'User ID 1 bookmarked Movie ID 4 (Dune: Part Two)', logged_at: new Date(Date.now() - 85 * 60000).toISOString() },
+    { log_id: 3, watchlist_id: 3, user_id: 1, movie_id: 6, action_type: 'WATCHLIST_ADD', details: 'User ID 1 bookmarked Movie ID 6 (The Dark Knight)', logged_at: new Date(Date.now() - 60 * 60000).toISOString() },
+    { log_id: 4, watchlist_id: 4, user_id: 2, movie_id: 2, action_type: 'WATCHLIST_REMOVE', details: 'User ID 2 removed bookmark on Movie ID 2 (Inception)', logged_at: new Date(Date.now() - 35 * 60000).toISOString() },
+    { log_id: 5, watchlist_id: 5, user_id: 2, movie_id: 5, action_type: 'WATCHLIST_ADD', details: 'User ID 2 bookmarked Movie ID 5 (Barbie)', logged_at: new Date(Date.now() - 10 * 60000).toISOString() }
   ]
 };
 

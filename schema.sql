@@ -261,11 +261,21 @@ CREATE TABLE WatchlistActivityLogs (
     CONSTRAINT pk_activity_logs PRIMARY KEY (log_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- DDL Indexes
+-- DDL Indexes & Evolution with Verification SELECT Queries
 ALTER TABLE Movies ADD INDEX idx_movie_release_year (release_year);
+SELECT movie_id, title, release_year, duration_minutes, box_office_earnings FROM Movies LIMIT 5;
+
 ALTER TABLE Movies ADD INDEX idx_movie_box_office (box_office_earnings);
+SELECT movie_id, title, box_office_earnings FROM Movies ORDER BY box_office_earnings DESC LIMIT 5;
+
 ALTER TABLE Users ADD INDEX idx_user_role (role);
+SELECT user_id, username, email, role FROM Users LIMIT 5;
+
 ALTER TABLE Reviews ADD INDEX idx_review_rating (rating_score);
+SELECT review_id, movie_id, user_id, rating_score, review_title FROM Reviews LIMIT 5;
+
+ALTER TABLE MovieCast ADD INDEX idx_cast_billing (billing_order);
+SELECT cast_id, movie_id, actor_id, character_name, billing_order FROM MovieCast LIMIT 5;
 
 -- =============================================================================
 -- Step 3: STORED FUNCTIONS, VIEWS, TRIGGERS & PROCEDURES

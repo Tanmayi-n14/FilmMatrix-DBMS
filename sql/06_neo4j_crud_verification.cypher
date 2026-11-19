@@ -19,12 +19,10 @@ RETURN a, r, m;
 // -----------------------------------------------------------------------------
 // 2. VERIFY READ OPERATION
 // -----------------------------------------------------------------------------
-// Run multi-hop graph match (shows recent film talent):
-MATCH (a:Actor)-[r:ACTED_IN]->(m:Movie)
-WHERE m.release_year >= 2020
-RETURN a.name AS actor, r.role AS character_name, m.title AS movie, m.box_office AS earnings
-ORDER BY m.box_office DESC
-LIMIT 10;
+// Read talent node & film relationships (e.g. Joaquin Phoenix):
+MATCH (a:Actor {name: 'Joaquin Phoenix'})-[r:ACTED_IN]->(m:Movie)
+RETURN a.name AS actor, r.role AS character_name, m.title AS movie, m.release_year AS release_year, m.box_office AS earnings
+ORDER BY m.release_year DESC;
 
 
 // -----------------------------------------------------------------------------

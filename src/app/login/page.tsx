@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Shield, User, Lock, Mail, CheckCircle2, ArrowRight, LogOut, ExternalLink } from 'lucide-react';
+import { Shield, User, Lock, Mail, CheckCircle2, ArrowRight, LogOut, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false);
   const [identifier, setIdentifier] = useState('admin_tanmayi');
   const [password, setPassword] = useState('AdminPassword@123');
+  const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'Viewer' | 'Admin'>('Admin');
+  const [role, setRole] = useState<'Viewer' | 'Critic' | 'Admin'>('Admin');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<{ username: string; role: string; email?: string } | null>(null);
@@ -140,8 +141,49 @@ export default function LoginPage() {
 
       {/* Quick 1-Click Credentials Pill */}
       <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs font-mono space-y-2.5 shadow-md">
-        <span className="text-slate-400 block font-semibold text-[11px]">1-Click Evaluation Credentials:</span>
-        <div className="grid grid-cols-2 gap-2">
+        <span className="text-slate-400 block font-semibold text-[11px]">Database User Accounts (MySQL + App):</span>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegister(false);
+              setIdentifier('PES1UG24CS493_TANMAYI');
+              setPassword('AdminPassword@123');
+            }}
+            className="p-2 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-200 text-left transition-colors cursor-pointer"
+          >
+            <div className="font-bold text-[10px] truncate">Admin (Tanmayi)</div>
+            <div className="text-[9px] text-red-300 opacity-80">PES1UG24CS493_TANMAYI</div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegister(false);
+              setIdentifier('ul');
+              setPassword('ViewerPassword@123');
+            }}
+            className="p-2 rounded-lg bg-blue-950/80 hover:bg-blue-900 border border-blue-500/40 text-blue-200 text-left transition-colors cursor-pointer"
+          >
+            <div className="font-bold text-[10px] truncate">Viewer (ul)</div>
+            <div className="text-[9px] text-blue-300 opacity-80">Read-Only (SELECT)</div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegister(false);
+              setIdentifier('critic_user');
+              setPassword('CriticPassword@123');
+            }}
+            className="p-2 rounded-lg bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-200 text-left transition-colors cursor-pointer"
+          >
+            <div className="font-bold text-[10px] truncate">Critic</div>
+            <div className="text-[9px] text-amber-300 opacity-80">critic_user</div>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800">
           <button
             type="button"
             onClick={() => {
@@ -149,12 +191,10 @@ export default function LoginPage() {
               setIdentifier('admin_tanmayi');
               setPassword('AdminPassword@123');
             }}
-            className="p-2.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-200 text-left transition-colors cursor-pointer"
+            className="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 text-left cursor-pointer truncate"
           >
-            <div className="font-bold text-[11px]">Admin (Tanmayi)</div>
-            <div className="text-[10px] text-purple-300 opacity-80">Role: Admin</div>
+            admin_tanmayi (Admin)
           </button>
-
           <button
             type="button"
             onClick={() => {
@@ -162,10 +202,9 @@ export default function LoginPage() {
               setIdentifier('viewer_varsha');
               setPassword('ViewerPassword@123');
             }}
-            className="p-2.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-200 text-left transition-colors cursor-pointer"
+            className="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 text-left cursor-pointer truncate"
           >
-            <div className="font-bold text-[11px]">Viewer (Varsha)</div>
-            <div className="text-[10px] text-cyan-300 opacity-80">Role: Viewer</div>
+            viewer_varsha (Viewer)
           </button>
         </div>
       </div>
@@ -225,13 +264,21 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 pl-8 pr-3 py-2 rounded-lg focus:outline-none focus:border-purple-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 pl-8 pr-10 py-2 rounded-lg focus:outline-none focus:border-purple-500"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -280,25 +327,34 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 pl-8 pr-3 py-2 rounded-lg focus:outline-none focus:border-purple-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 pl-8 pr-10 py-2 rounded-lg focus:outline-none focus:border-purple-500"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             <div>
-              <label className="text-slate-700 dark:text-slate-300 font-bold block mb-1">RBAC Role Assignment</label>
+              <label className="text-slate-700 dark:text-slate-300 font-bold block mb-1">RBAC Role Assignment &amp; MySQL DCL Grants</label>
               <select
                 value={role}
-                onChange={(e) => setRole(e.target.value as 'Viewer' | 'Admin')}
+                onChange={(e) => setRole(e.target.value as 'Viewer' | 'Critic' | 'Admin')}
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 px-3 py-2 rounded-lg focus:outline-none focus:border-purple-500"
               >
-                <option value="Viewer">Viewer (Catalog &amp; Graph browsing, Watchlist bookmarking)</option>
-                <option value="Admin">Admin (Full ACID transaction registration, Movie deletions, Cypher CRUD)</option>
+                <option value="Viewer">Viewer (Read-Only: Catalog &amp; Graph browsing, SELECT only)</option>
+                <option value="Critic">Critic (Read + Write Reviews: SELECT + INSERT/UPDATE on Reviews)</option>
+                <option value="Admin">Admin (Full Control: ALL PRIVILEGES, UPDATE, DELETE CASCADE, DDL)</option>
               </select>
             </div>
 
@@ -313,14 +369,7 @@ export default function LoginPage() {
         )}
       </div>
 
-      <div className="text-center">
-        <Link 
-          href="/" 
-          className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 underline font-semibold"
-        >
-          &larr; Back to Public Movie Catalog
-        </Link>
-      </div>
+
     </div>
   );
 }

@@ -97,26 +97,26 @@ INSERT INTO Actors (actor_id, first_name, last_name, gender, birth_year, nationa
 -- 6. INSERT INTO Movies (20 Iconic Blockbuster & Award-Winning Films)
 -- -----------------------------------------------------------------------------
 INSERT INTO Movies (movie_id, title, release_year, duration_minutes, language, box_office_earnings, mpaa_rating, synopsis) VALUES
-(1, 'Oppenheimer', 2023, 180, 'English', 957000000.00, 'R', 'The story of theoretical physicist J. Robert Oppenheimer and his leadership of the Manhattan Project.'),
-(2, 'Inception', 2010, 148, 'English', 836800000.00, 'PG-13', 'A master thief who extracts secrets from deep within the subconscious mind during dream states.'),
-(3, 'Interstellar', 2014, 169, 'English', 701729206.00, 'PG-13', 'When Earth faces famine, astronauts venture through a wormhole near Saturn to save humanity.'),
-(4, 'Dune: Part Two', 2024, 166, 'English', 711844358.00, 'PG-13', 'Paul Atreides unites with Chani and the Fremen to seek vengeance against the conspirators.'),
-(5, 'Barbie', 2023, 114, 'English', 1445638421.00, 'PG-13', 'Barbie and Ken venture from utopian Barbie Land into the real world, sparking existential discovery.'),
-(6, 'The Dark Knight', 2008, 152, 'English', 1006234167.00, 'PG-13', 'Batman faces the Joker, a criminal mastermind unleashing anarchy upon Gotham City.'),
-(7, 'Avatar: The Way of Water', 2022, 192, 'English', 2320250281.00, 'PG-13', 'Jake Sully and Neytiri navigate aquatic reefs with the Metkayina clan when human threats return.'),
-(8, 'The Matrix Resurrections', 2021, 148, 'English', 159200000.00, 'R', 'Neo lives as Thomas Anderson in San Francisco until Morpheus offers him the red pill once more.'),
-(9, 'Tenet', 2020, 150, 'English', 365304105.00, 'PG-13', 'Armed with only one word, Tenet, an operative journeys through twilight espionage using temporal inversion.'),
-(10, 'Killers of the Flower Moon', 2023, 206, 'English', 157000000.00, 'R', 'In 1920s Oklahoma, Osage Nation members are systematically targeted and murdered for oil wealth.'),
-(11, 'The Wolf of Wall Street', 2013, 180, 'English', 406878282.00, 'R', 'The rise and fall of stockbroker Jordan Belfort through rampant Wall Street corruption and securities fraud.'),
-(12, 'Shutter Island', 2010, 138, 'English', 294804195.00, 'R', 'U.S. Marshal Teddy Daniels investigates the disappearance of a murderess from a psychiatric facility.'),
-(13, 'Django Unchained', 2012, 165, 'English', 426074373.00, 'R', 'A freed slave teams up with a German bounty hunter to rescue his wife from a brutal Mississippi plantation.'),
-(14, 'The Prestige', 2006, 130, 'English', 109676311.00, 'PG-13', 'Two stage magicians in Victorian London engage in a bitter rivalry to create the ultimate teleportation trick.'),
-(15, 'Titanic', 1997, 195, 'English', 2264743305.00, 'PG-13', 'A seventeen-year-old aristocrat falls in love with a kind, poor artist aboard the luxurious, ill-fated R.M.S. Titanic.'),
-(16, 'Gladiator', 2000, 155, 'English', 465380802.00, 'R', 'A betrayed Roman general seeks revenge against the corrupt emperor who murdered his family and sent him into slavery.'),
-(17, 'Blade Runner 2049', 2017, 164, 'English', 267652758.00, 'R', 'Young Blade Runner K uncovers a long-buried secret that leads him to track down former Blade Runner Rick Deckard.'),
-(18, 'Fight Club', 1999, 139, 'English', 101209702.00, 'R', 'An insomniac office worker looking for a way to change his life crosses paths with a devil-may-care soap maker.'),
-(19, 'The Dark Knight Rises', 2012, 164, 'English', 1081169825.00, 'PG-13', 'Eight years after the Joker, Batman returns to defend Gotham from the brutal terrorist leader Bane.'),
-(20, 'Dunkirk', 2017, 106, 'English', 527016307.00, 'PG-13', 'Allied soldiers from Belgium, the British Commonwealth, and France are surrounded by the German Army on Dunkirk beaches.');
+(1, 'Oppenheimer', 2023, 180, 'English', 957000000.00, 'R', 'Creation of the atomic bomb.'),
+(2, 'Inception', 2010, 148, 'English', 836800000.00, 'PG-13', 'Subconscious dream heist.'),
+(3, 'Interstellar', 2014, 169, 'English', 701729206.00, 'PG-13', 'Wormhole space voyage.'),
+(4, 'Dune: Part Two', 2024, 166, 'English', 711844358.00, 'PG-13', 'Desert uprising on Arrakis.'),
+(5, 'Barbie', 2023, 114, 'English', 1445638421.00, 'PG-13', 'Doll enters the real world.'),
+(6, 'The Dark Knight', 2008, 152, 'English', 1006234167.00, 'PG-13', 'Batman battles the Joker.'),
+(7, 'Avatar: The Way of Water', 2022, 192, 'English', 2320250281.00, 'PG-13', 'Pandora marine clan defense.'),
+(8, 'The Matrix Resurrections', 2021, 148, 'English', 159200000.00, 'R', 'Neo returns to the Matrix.'),
+(9, 'Tenet', 2020, 150, 'English', 365304105.00, 'PG-13', 'Inverted time espionage.'),
+(10, 'Killers of the Flower Moon', 2023, 206, 'English', 157000000.00, 'R', 'Osage Nation oil conspiracy.'),
+(11, 'The Wolf of Wall Street', 2013, 180, 'English', 406878282.00, 'R', 'Wall Street fraud and rise.'),
+(12, 'Shutter Island', 2010, 138, 'English', 294804195.00, 'R', 'Psychiatric hospital search.'),
+(13, 'Django Unchained', 2012, 165, 'English', 426074373.00, 'R', 'Bounty hunter plantation raid.'),
+(14, 'The Prestige', 2006, 130, 'English', 109676311.00, 'PG-13', 'Rival magicians stage duel.'),
+(15, 'Titanic', 1997, 195, 'English', 2264743305.00, 'PG-13', 'Ill-fated Atlantic romance.'),
+(16, 'Gladiator', 2000, 155, 'English', 465380802.00, 'R', 'Roman general seeks revenge.'),
+(17, 'Blade Runner 2049', 2017, 164, 'English', 267652758.00, 'R', 'Search for former blade runner.'),
+(18, 'Fight Club', 1999, 139, 'English', 101209702.00, 'R', 'Underground fight club chaos.'),
+(19, 'The Dark Knight Rises', 2012, 164, 'English', 1081169825.00, 'PG-13', 'Batman fights terrorist Bane.'),
+(20, 'Dunkirk', 2017, 106, 'English', 527016307.00, 'PG-13', 'WWII Allied beach evacuation.');
 
 -- -----------------------------------------------------------------------------
 -- 7. INSERT INTO ProductionBudgets (Production, Marketing, and VFX Expenses)
@@ -303,8 +303,8 @@ INSERT INTO Watchlists (watchlist_id, user_id, movie_id, added_at) VALUES
 -- 14. INSERT INTO WatchlistActivityLogs (Initial Trigger-Audited Baseline)
 -- -----------------------------------------------------------------------------
 INSERT INTO WatchlistActivityLogs (log_id, watchlist_id, user_id, movie_id, action_type, details, logged_at) VALUES
-(1, 1, 1, 1, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 1 (Oppenheimer)', '2026-09-01 12:00:00'),
-(2, 2, 1, 4, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 4 (Dune: Part Two)', '2026-09-02 14:10:00'),
-(3, 3, 1, 6, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 6 (The Dark Knight)', '2026-09-03 16:30:00'),
-(4, 4, 2, 2, 'WATCHLIST_ADD', 'User ID 2 bookmarked Movie ID 2 (Inception)', '2026-09-04 18:20:00'),
-(5, 5, 2, 5, 'WATCHLIST_ADD', 'User ID 2 bookmarked Movie ID 5 (Barbie)', '2026-09-05 20:00:00');
+(1, 1, 1, 1, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 1 (Oppenheimer)', NOW() - INTERVAL 120 MINUTE),
+(2, 2, 1, 4, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 4 (Dune: Part Two)', NOW() - INTERVAL 95 MINUTE),
+(3, 3, 1, 6, 'WATCHLIST_ADD', 'User ID 1 bookmarked Movie ID 6 (The Dark Knight)', NOW() - INTERVAL 70 MINUTE),
+(4, 4, 2, 2, 'WATCHLIST_REMOVE', 'User ID 2 removed bookmark on Movie ID 2 (Inception)', NOW() - INTERVAL 45 MINUTE),
+(5, 5, 2, 5, 'WATCHLIST_ADD', 'User ID 2 bookmarked Movie ID 5 (Barbie)', NOW() - INTERVAL 15 MINUTE);

@@ -22,13 +22,15 @@ export default function RootLayout({
           color: 'var(--text-main)'
         }}
       >
-        <ProjectBanner />
-        <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="print:hidden">
+          <ProjectBanner />
+          <Navbar />
+        </div>
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 print:p-0 print:m-0 print:max-w-none print:w-full">
           {children}
         </main>
         <footer 
-          className="border-t py-4 text-center text-xs transition-colors"
+          className="border-t py-4 text-center text-xs transition-colors print:hidden"
           style={{
             backgroundColor: 'var(--bg-surface)',
             borderColor: 'var(--border-subtle)',

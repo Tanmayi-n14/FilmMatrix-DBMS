@@ -61,31 +61,47 @@ RETURN a.name AS actor, r.role AS role, m.title AS movie`;
     // 2. READ OPERATION
     // ========================================================
     if (action === 'read') {
-      const cypher = `MATCH (a:Actor)-[r:ACTED_IN]->(m:Movie)
+      const isAllQuery = !actor || actor.trim().toLowerCase() === 'all';
+      const cypher = isAllQuery
+        ? `MATCH (a:Actor)-[r:ACTED_IN]->(m:Movie)
 WHERE m.release_year >= 2020
 RETURN a.name AS actor, r.role AS character_name, m.title AS movie, m.release_year AS release_year, m.box_office AS box_office
 ORDER BY m.box_office DESC
-LIMIT 8`;
+LIMIT 10`
+        : `MATCH (a:Actor {name: $actor})-[r:ACTED_IN]->(m:Movie)
+RETURN a.name AS actor, r.role AS character_name, m.title AS movie, m.release_year AS release_year, m.box_office AS box_office
+ORDER BY m.release_year DESC`;
 
-      const { records, isFallback, error } = await runCypher(cypher);
+      const { records, isFallback, error } = await runCypher(cypher, isAllQuery ? {} : { actor });
 
-      const fallbackRecords = FALLBACK_GRAPH.edges
-        .filter(e => e.type === 'ACTED_IN')
-        .map(e => {
-          const actNode = FALLBACK_GRAPH.nodes.find(n => n.id === e.source);
-          const movNode = FALLBACK_GRAPH.nodes.find(n => n.id === e.target);
-          return {
-            actor: actNode?.label || 'Actor',
-            character_name: (e as any).role || 'Lead Role',
-            movie: movNode?.label || 'Movie',
-            release_year: (movNode as any)?.release_year || 2023,
-            box_office: (movNode as any)?.box_office || 500000000
-          };
-        })
-        .filter(r => r.release_year >= 2020)
-        .slice(0, 8);
+      let resultRecords: any[] = [];
+      if (!isFallback) {
+        // Connected to live Neo4j database
+        resultRecords = records;
+      } else {
+        // Fallback in-memory
+        let fallbackRecords = FALLBACK_GRAPH.edges
+          .filter(e => e.type === 'ACTED_IN')
+          .map(e => {
+            const actNode = FALLBACK_GRAPH.nodes.find(n => n.id === e.source);
+            const movNode = FALLBACK_GRAPH.nodes.find(n => n.id === e.target);
+            return {
+              actor: actNode?.label || 'Actor',
+              character_name: (e as any).role || 'Lead Role',
+              movie: movNode?.label || 'Movie',
+              release_year: (movNode as any)?.release_year || 2023,
+              box_office: (movNode as any)?.box_office || 500000000
+            };
+          });
 
-      const sanitizedRecords = (records.length > 0 ? records : fallbackRecords).map((r: any) => {
+        if (isAllQuery) {
+          resultRecords = fallbackRecords.filter(r => r.release_year >= 2020).slice(0, 10);
+        } else {
+          resultRecords = fallbackRecords.filter(r => r.actor.toLowerCase() === actor.toLowerCase());
+        }
+      }
+
+      const sanitizedRecords = resultRecords.map((r: any) => {
         const obj: any = {};
         for (const [k, v] of Object.entries(r)) {
           if (v && typeof v === 'object' && 'low' in (v as any) && 'high' in (v as any)) {
@@ -101,8 +117,12 @@ LIMIT 8`;
         success: true,
         action: 'READ',
         cypher,
+        actor: isAllQuery ? 'All Blockbusters (>= 2020)' : actor,
         isFallback,
-        records: sanitizedRecords
+        records: sanitizedRecords,
+        message: sanitizedRecords.length > 0
+          ? `Found ${sanitizedRecords.length} graph record(s) for ${isAllQuery ? 'Recent Blockbusters' : actor}.`
+          : `0 records found for "${actor}" in Neo4j. (Node has not been created yet. Click CREATE to add ${actor}!)`
       });
     }
 

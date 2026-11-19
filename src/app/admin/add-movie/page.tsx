@@ -266,8 +266,8 @@ export default function AddMoviePage() {
             }}
           >
             <div>
-              <span className="font-semibold block text-xs" style={{ color: 'var(--text-main)' }}>Simulate Transaction Failure (Rollback Proof)</span>
-              <span className="text-[11px] opacity-75">Injects an intentional constraint violation to prove that ROLLBACK discards partial writes.</span>
+              <span className="font-semibold block text-xs" style={{ color: 'var(--text-main)' }}>Test ACID Transaction Rollback Handling</span>
+              <span className="text-[11px] opacity-75">Injects an intentional constraint violation to verify that MySQL ROLLBACK discards partial writes.</span>
             </div>
             <input
               type="checkbox"

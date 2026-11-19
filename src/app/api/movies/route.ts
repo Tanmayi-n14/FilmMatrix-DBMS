@@ -7,8 +7,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';
     const year = searchParams.get('year') || '';
-    const sort = searchParams.get('sort') || 'release_year';
-    const order = searchParams.get('order')?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const sort = searchParams.get('sort') || 'movie_id';
+    const order = searchParams.get('order')?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
     let sql = `
       SELECT 
@@ -38,9 +38,9 @@ export async function GET(req: NextRequest) {
       params.push(Number(year));
     }
 
-    const allowedSortCols = ['title', 'release_year', 'box_office_earnings', 'production_cost', 'net_profit'];
-    const safeSort = allowedSortCols.includes(sort) ? sort : 'release_year';
-    sql += ` ORDER BY ${safeSort} ${order}`;
+    const allowedSortCols = ['movie_id', 'title', 'release_year', 'box_office_earnings', 'production_cost', 'net_profit'];
+    const safeSort = allowedSortCols.includes(sort) ? sort : 'movie_id';
+    sql += ` ORDER BY m.${safeSort} ${order}`;
 
     const { rows, isFallback, error } = await query(sql, params);
 
@@ -67,8 +67,11 @@ export async function GET(req: NextRequest) {
       }
 
       list.sort((a: any, b: any) => {
-        const valA = a[safeSort] || 0;
-        const valB = b[safeSort] || 0;
+        const valA = a[safeSort] !== undefined ? a[safeSort] : 0;
+        const valB = b[safeSort] !== undefined ? b[safeSort] : 0;
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return order === 'ASC' ? valA - valB : valB - valA;
+        }
         return order === 'ASC' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
       });
 

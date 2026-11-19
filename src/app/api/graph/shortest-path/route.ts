@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     // Rubric Criteria: Multi-hop graph traversal & relationship pathing
     // ========================================================
     const cypher = `MATCH (a1:Actor {name: $actor1}), (a2:Actor {name: $actor2})
-MATCH p = shortestPath((a1)-[:ACTED_IN*..6]-(a2))
+MATCH p = shortestPath((a1)-[*]-(a2))
 RETURN p, length(p) / 2 AS degrees_of_separation`;
 
     const { records, isFallback, error } = await runCypher(cypher, { actor1, actor2 });

@@ -142,20 +142,14 @@ export const FALLBACK_GRAPH = {
     { id: 'a34', source: 'act_2', target: 'mov_13', type: 'ACTED_IN', role: 'James Barris', order: 2 },
 
     // CO_STARRED_WITH inferred collaborations
-    { id: 'cs1', source: 'act_1', target: 'act_12', type: 'CO_STARRED_WITH', movie_count: 3 }, // Murphy & Caine (Inception, TDK, Batman)
-    { id: 'cs2', source: 'act_1', target: 'act_4', type: 'CO_STARRED_WITH', movie_count: 1 }, // Murphy & Damon (Oppenheimer)
-    { id: 'cs3', source: 'act_1', target: 'act_6', type: 'CO_STARRED_WITH', movie_count: 1 }, // Murphy & DiCaprio (Inception)
-    { id: 'cs4', source: 'act_4', target: 'act_12', type: 'CO_STARRED_WITH', movie_count: 1 }, // Damon & Caine (Interstellar)
-    { id: 'cs5', source: 'act_4', target: 'act_15', type: 'CO_STARRED_WITH', movie_count: 1 }, // Damon & Chalamet (Interstellar)
-    { id: 'cs6', source: 'act_15', target: 'act_5', type: 'CO_STARRED_WITH', movie_count: 1 }, // Chalamet & Pugh (Dune: Part Two)
-    { id: 'cs7', source: 'act_1', target: 'act_5', type: 'CO_STARRED_WITH', movie_count: 1 }, // Murphy & Pugh (Oppenheimer)
-    { id: 'cs8', source: 'act_10', target: 'act_12', type: 'CO_STARRED_WITH', movie_count: 1 }, // Bale & Caine (TDK)
-    { id: 'cs9', source: 'act_10', target: 'act_11', type: 'CO_STARRED_WITH', movie_count: 1 }, // Bale & Ledger (TDK)
-    { id: 'cs10', source: 'act_17', target: 'act_18', type: 'CO_STARRED_WITH', movie_count: 1 }, // Robbie & Gosling (Barbie)
-    { id: 'cs11', source: 'act_19', target: 'act_20', type: 'CO_STARRED_WITH', movie_count: 1 }, // Reeves & Moss (Matrix)
-    { id: 'cs12', source: 'act_6', target: 'act_17', type: 'CO_STARRED_WITH', movie_count: 1 }, // DiCaprio & Robbie (Wolf of Wall Street)
-    { id: 'cs13', source: 'act_18', target: 'act_3', type: 'CO_STARRED_WITH', movie_count: 1 },  // Gosling & Blunt (The Fall Guy)
-    { id: 'cs14', source: 'act_19', target: 'act_2', type: 'CO_STARRED_WITH', movie_count: 1 }   // Reeves & Downey Jr (A Scanner Darkly)
+    { id: 'cs1', source: 'act_1', target: 'act_12', type: 'CO_STARRED_WITH', movie_count: 2 }, // Murphy & Caine (Inception, TDK)
+    { id: 'cs2', source: 'act_2', target: 'act_3', type: 'CO_STARRED_WITH', movie_count: 1 }, // Downey Jr & Blunt (Oppenheimer)
+    { id: 'cs3', source: 'act_2', target: 'act_5', type: 'CO_STARRED_WITH', movie_count: 1 }, // Downey Jr & Pugh (Oppenheimer)
+    { id: 'cs4', source: 'act_2', target: 'act_4', type: 'CO_STARRED_WITH', movie_count: 1 }, // Downey Jr & Damon (Oppenheimer)
+    { id: 'cs5', source: 'act_3', target: 'act_4', type: 'CO_STARRED_WITH', movie_count: 1 }, // Blunt & Damon (Oppenheimer)
+    { id: 'cs6', source: 'act_1', target: 'act_5', type: 'CO_STARRED_WITH', movie_count: 1 }, // Murphy & Pugh (Oppenheimer)
+    { id: 'cs7', source: 'act_1', target: 'act_4', type: 'CO_STARRED_WITH', movie_count: 1 }, // Murphy & Damon (Oppenheimer)
+    { id: 'cs8', source: 'act_3', target: 'act_5', type: 'CO_STARRED_WITH', movie_count: 1 }  // Blunt & Pugh (Oppenheimer)
   ]
 };
 
@@ -193,7 +187,7 @@ function executeCypherFallback<T>(query: string, params: Record<string, any>): T
   }
 
   // Top actor collaborations
-  if (q.includes('CO_STARRED_WITH')) {
+  if (q.includes('CO_STARRED_WITH') || (q.includes('ACTED_IN') && q.includes('shared_movies'))) {
     const collaborations = FALLBACK_GRAPH.edges
       .filter(e => e.type === 'CO_STARRED_WITH')
       .map(e => {
@@ -202,6 +196,7 @@ function executeCypherFallback<T>(query: string, params: Record<string, any>): T
         return {
           actor1,
           actor2,
+          shared_movies: e.movie_count,
           movie_count: e.movie_count
         };
       })

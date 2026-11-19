@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
                 CAST('Leonardo DiCaprio' AS CHAR(100)) AS current_actor,
                 m.title AS movie_title,
                 1 AS hop_depth,
-                CAST(CONCAT('Leonardo DiCaprio ➔ [', m.title, '] ➔ ', a.first_name, ' ', a.last_name) AS CHAR(500)) AS path_trail
+                CAST(CONCAT('Leonardo DiCaprio -> [', m.title, '] -> ', a.first_name, ' ', a.last_name) AS CHAR(500)) AS path_trail
             FROM MovieCast mc1
             INNER JOIN MovieCast mc2 ON mc1.movie_id = mc2.movie_id AND mc1.actor_id != mc2.actor_id
             INNER JOIN Actors a ON mc2.actor_id = a.actor_id
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
                 CAST(agp.connected_actor AS CHAR(100)),
                 m2.title,
                 agp.hop_depth + 1,
-                CAST(CONCAT(agp.path_trail, ' ➔ [', m2.title, '] ➔ ', next_a.first_name, ' ', next_a.last_name) AS CHAR(500))
+                CAST(CONCAT(agp.path_trail, ' -> [', m2.title, '] -> ', next_a.first_name, ' ', next_a.last_name) AS CHAR(500))
             FROM ActorGraphPath agp
             INNER JOIN MovieCast mc_from ON agp.current_actor_id = mc_from.actor_id
             INNER JOIN MovieCast mc_to ON mc_from.movie_id = mc_to.movie_id AND mc_from.actor_id != mc_to.actor_id

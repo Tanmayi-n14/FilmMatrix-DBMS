@@ -106,13 +106,13 @@ ORDER BY r.movie_count DESC;`
           <h1 className="text-2xl font-bold text-white tracking-tight">Polyglot SQL &amp; Cypher Interactive Workbench</h1>
         </div>
         <p className="text-xs text-gray-400 mt-1">
-          Directly execute queries against MySQL and Neo4j. Choose from preloaded rubric test queries or author custom SQL/Cypher statements.
+          Directly execute live transactional queries against MySQL and Neo4j. Choose from standard enterprise queries or author custom SQL/Cypher statements.
         </p>
       </div>
 
       {/* Preset Queries Ribbon */}
       <div className="space-y-2">
-        <span className="text-[11px] text-gray-400 font-mono">Quick Preset Rubric Queries:</span>
+        <span className="text-[11px] text-gray-400 font-mono">Standard Catalog Queries:</span>
         <div className="flex flex-wrap gap-2">
           {preloadedQueries.map((preset, idx) => (
             <button
